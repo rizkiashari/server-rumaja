@@ -61,15 +61,27 @@ exports.register = async (req, res) => {
       createdAt: Math.floor(+new Date() / 1000),
     });
 
-    const user = await newUser.save();
+    await newUser.save();
 
     res.status(200).send({
       status: true,
-      message: "User created successfully",
-      data: user,
+      message: "USER_REGISTER_SUCCESS",
     });
   } catch (error) {
-    console.log(error);
+    res.status(500).send({
+      status: false,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.login = async (req, res) => {
+  try {
+    res.status(200).send({
+      status: true,
+      message: "USER_LOGIN_SUCCESS",
+    });
+  } catch (error) {
     res.status(500).send({
       status: false,
       message: "Internal Server Error",
