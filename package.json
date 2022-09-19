@@ -1,12 +1,14 @@
 {
   "name": "server_bakarajo",
   "version": "1.0.0",
-  "private": true,
-  "type": "module",
+  "private": true,  
   "description": "Server Bakarajo",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon ./app.js"
+    "start": "nodemon ./app.js", 
+    "migrate": "npx sequelize-cli db:migrate",
+    "migrate:undo": "npx sequelize-cli db:migrate:undo:all",
+    "seed:all": "npx sequelize db:seed:all"
   },
   "keywords": [],
   "author": "Rizki Ashari",
@@ -22,7 +24,8 @@
     "multer": "^1.4.5-lts.1",
     "mysql2": "^2.3.3",
     "sequelize": "^6.23.0",
-    "sequelize-cli": "^6.4.1"
+    "sequelize-cli": "^6.4.1",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "concurrently": "^7.4.0",

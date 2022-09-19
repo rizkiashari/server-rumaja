@@ -1,8 +1,8 @@
-import express from "express";
-import dotenv from "dotenv";
-import morgan from "morgan";
-import cors from "cors";
-import router from "./src/routes/index.js";
+const express = require("express");
+const dotenv = require("dotenv");
+const morgan = require("morgan");
+const cors = require("cors");
+const router = require("./src/routes/index.js");
 
 const app = express();
 const env = dotenv.config().parsed;
