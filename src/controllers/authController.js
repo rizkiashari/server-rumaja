@@ -131,7 +131,7 @@ exports.login = async (req, res) => {
     await Token.create({
       user_id: user.id,
       token: refreshToken,
-      expired_at: new Date().setDate(new Date().getDate() + 30),
+      expired_at: new Date().setDate(new Date().getDate() + 60),
     });
 
     res.status(200).send({
