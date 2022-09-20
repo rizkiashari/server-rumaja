@@ -1,11 +1,11 @@
 {
   "name": "server_bakarajo",
   "version": "1.0.0",
-  "private": true,  
+  "private": true,
   "description": "Server Bakarajo",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon ./app.js", 
+    "start": "nodemon ./app.js",
     "migrate": "npx sequelize-cli db:migrate",
     "migrate:undo": "npx sequelize-cli db:migrate:undo:all",
     "seed:all": "npx sequelize db:seed:all"
@@ -15,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.0.1",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.0.2",
     "express": "^4.18.1",
