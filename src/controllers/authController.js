@@ -187,3 +187,52 @@ exports.logout = async (req, res) => {
     });
   }
 };
+
+exports.refreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    const token = await Token.findOne({
+      where: {
+        token: refreshToken,
+      },
+    });
+
+    if (!token) {
+      return res.status(404).send({
+        code: 404,
+        status: false,
+        message: "TOKEN_NOT_FOUND",
+      });
+    }
+
+    jwt.verify(refreshToken, env.JWT_REFRESH_TOKEN_SECRET, async (err, user) => {
+      if (err) {
+        return res.status(403).send({
+          code: 403,
+          status: false,
+          message: "TOKEN_EXPIRED",
+        });
+      }
+
+      const payload = {
+        id: user.id,
+        role: user.role,
+      };
+      const accessToken = await generateAccessToken(payload);
+
+      res.status(200).send({
+        code: 200,
+        status: true,
+        message: "REFRESH_TOKEN_SUCCESS",
+        access_token: accessToken,
+      });
+    });
+  } catch (error) {
+    res.status(500).send({
+      code: 500,
+      status: false,
+      message: "Internal Server Error",
+    });
+  }
+};
