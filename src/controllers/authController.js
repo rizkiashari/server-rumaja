@@ -208,6 +208,12 @@ exports.refreshToken = async (req, res) => {
 
     jwt.verify(refreshToken, env.JWT_REFRESH_TOKEN_SECRET, async (err, user) => {
       if (err) {
+        Token.destroy({
+          where: {
+            token: refreshToken,
+          },
+        });
+
         return res.status(403).send({
           code: 403,
           status: false,
