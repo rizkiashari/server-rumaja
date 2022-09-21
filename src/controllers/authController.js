@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const jwt = require("jsonwebtoken");
 const { User, Token } = require("../../models");
+const { errorResponse } = require("../helper/response");
 
 const env = dotenv.config().parsed;
 
@@ -84,11 +85,7 @@ exports.register = async (req, res) => {
       message: "USER_REGISTER_SUCCESS",
     });
   } catch (error) {
-    res.status(500).send({
-      code: 500,
-      status: false,
-      message: "Internal Server Error",
-    });
+    errorResponse(res, 500, "Internal Server Error");
   }
 };
 
@@ -142,11 +139,7 @@ exports.login = async (req, res) => {
       refresh_token: refreshToken,
     });
   } catch (error) {
-    res.status(500).send({
-      code: 500,
-      status: false,
-      message: "Internal Server Error",
-    });
+    errorResponse(res, 500, "Internal Server Error");
   }
 };
 
@@ -161,11 +154,7 @@ exports.logout = async (req, res) => {
     });
 
     if (!token) {
-      return res.status(404).send({
-        code: 404,
-        status: false,
-        message: "TOKEN_NOT_FOUND",
-      });
+      return errorResponse(res, 404, "TOKEN_NOT_FOUND");
     }
 
     await Token.destroy({
@@ -180,11 +169,7 @@ exports.logout = async (req, res) => {
       message: "USER_LOGOUT_SUCCESS",
     });
   } catch (error) {
-    res.status(500).send({
-      code: 500,
-      status: false,
-      message: "Internal Server Error",
-    });
+    errorResponse(res, 500, "Internal Server Error");
   }
 };
 
@@ -199,11 +184,7 @@ exports.refreshToken = async (req, res) => {
     });
 
     if (!token) {
-      return res.status(404).send({
-        code: 404,
-        status: false,
-        message: "TOKEN_NOT_FOUND",
-      });
+      return errorResponse(res, 404, "TOKEN_NOT_FOUND");
     }
 
     jwt.verify(refreshToken, env.JWT_REFRESH_TOKEN_SECRET, async (err, user) => {
@@ -214,11 +195,7 @@ exports.refreshToken = async (req, res) => {
           },
         });
 
-        return res.status(403).send({
-          code: 403,
-          status: false,
-          message: "TOKEN_EXPIRED",
-        });
+        return errorResponse(res, 403, "TOKEN_EXPIRED");
       }
 
       const payload = {
@@ -235,10 +212,6 @@ exports.refreshToken = async (req, res) => {
       });
     });
   } catch (error) {
-    res.status(500).send({
-      code: 500,
-      status: false,
-      message: "Internal Server Error",
-    });
+    errorResponse(res, 500, "Internal Server Error");
   }
 };
