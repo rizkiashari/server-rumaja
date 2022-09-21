@@ -48,21 +48,13 @@ exports.register = async (req, res) => {
     const { error } = schema.validate(dataUser);
 
     if (error) {
-      return res.status(428).send({
-        code: 428,
-        status: false,
-        message: error.details[0].message,
-      });
+      return errorResponse(res, 400, error.details[0].message);
     }
 
     const isEmail = await isEmailExist(email);
 
     if (isEmail) {
-      return res.status(409).send({
-        code: 409,
-        status: false,
-        message: "Email already exist",
-      });
+      return errorResponse(res, 409, "EMAIL_ALREADY_EXIST");
     }
 
     let salt = await bcrypt.genSalt(+env.SALT);
@@ -100,21 +92,13 @@ exports.login = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).send({
-        code: 404,
-        status: false,
-        message: "USER_NOT_FOUND",
-      });
+      return errorResponse(res, 404, "USER_NOT_FOUND");
     }
 
     const isMatch = await bcrypt.compareSync(password, user.password);
 
     if (!isMatch) {
-      return res.status(428).send({
-        code: 428,
-        status: false,
-        message: "PASSWORD_NOT_MATCH",
-      });
+      return errorResponse(res, 428, "PASSWORD_NOT_MATCH");
     }
 
     const payload = {
