@@ -23,6 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       jurusan: DataTypes.STRING,
       tahun_awal: DataTypes.STRING(13),
       tahun_akhir: DataTypes.STRING(13),
+      createdAt: DataTypes.INTEGER,
     },
     {
       sequelize,
