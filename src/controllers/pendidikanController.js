@@ -1,6 +1,5 @@
 const joi = require("joi");
 const dotenv = require("dotenv");
-const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const jwt = require("jsonwebtoken");
 const { User, Pendidikan } = require("../../models");
@@ -12,7 +11,7 @@ exports.addPendidikan = async (req, res) => {
     const headers = req.header("Authorization");
 
     if (!headers) {
-      return errorResponse(res, 401, "Unauthorized");
+      return errorResponse(res, 401, "UNAUTHORIZED");
     }
 
     const token = headers.split(" ")[1];
@@ -52,6 +51,7 @@ exports.addPendidikan = async (req, res) => {
 
         const newPendidikan = new Pendidikan({
           nama: dataPendidikan.nama,
+          uuid_pendidikan: uuid.v4(),
           user_id: user.id,
           jurusan: dataPendidikan.jurusan,
           tahun_awal: dataPendidikan.tahun_awal,
@@ -66,6 +66,77 @@ exports.addPendidikan = async (req, res) => {
           message: "ADD_PENDIDIKAN_SUCCESS",
         });
       }
+    });
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.listAllPendidikan = async (req, res) => {
+  try {
+    const headers = req.header("Authorization");
+
+    if (!headers) {
+      return errorResponse(res, 401, "UNAUTHORIZED");
+    }
+
+    const token = headers.split(" ")[1];
+
+    jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, data) => {
+      if (err) {
+        return errorResponse(res, 403, "TOKEN_EXPIRED");
+      }
+
+      if (!data) {
+        return errorResponse(res, 403, "TOKEN_INVALID");
+      } else {
+        const user = await User.findOne({
+          where: {
+            id: data.id,
+          },
+        });
+
+        if (!user) {
+          return errorResponse(res, 404, "USER_NOT_FOUND");
+        }
+
+        const listPendidikan = await Pendidikan.findAll({
+          where: {
+            user_id: user.id,
+          },
+          attributes: {
+            exclude: ["updatedAt"],
+          },
+        });
+
+        res.status(200).send({
+          code: 200,
+          message: "LIST_ALL_PENDIDIKAN_SUCCESS",
+          data: listPendidikan,
+        });
+      }
+    });
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.editPendidikan = async (req, res) => {
+  try {
+    res.status(200).send({
+      code: 200,
+      message: "EDIT_PENDIDIKAN_SUCCESS",
+    });
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.deletePendidikan = async (req, res) => {
+  try {
+    res.status(200).send({
+      code: 200,
+      message: "DELETE_PENDIDIKAN_SUCCESS",
     });
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
