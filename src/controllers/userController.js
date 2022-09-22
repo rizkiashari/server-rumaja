@@ -54,7 +54,6 @@ exports.getAllUser = async (req, res) => {
       }
     });
   } catch (error) {
-    console.log("Error: ", error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
