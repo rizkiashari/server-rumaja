@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const jwt = require("jsonwebtoken");
 const { User, Token } = require("../../models");
-const { errorResponse } = require("../helper/response");
+const { errorResponse, successResWithData } = require("../helper/response");
 const { Op } = require("sequelize");
 
 const env = dotenv.config().parsed;
@@ -45,12 +45,7 @@ exports.getAllUser = async (req, res) => {
           attributes: { exclude: ["password", "updatedAt"] },
         });
 
-        res.status(200).send({
-          code: 200,
-          status: true,
-          data: users,
-          message: "Get all user success",
-        });
+        successResWithData(res, 200, "SUCCESS_GET_ALL_USER", users);
       }
     });
   } catch (error) {

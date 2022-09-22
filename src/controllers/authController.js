@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const jwt = require("jsonwebtoken");
 const { User, Token } = require("../../models");
-const { errorResponse } = require("../helper/response");
+const { errorResponse, successRes, successResWithData } = require("../helper/response");
 
 const env = dotenv.config().parsed;
 
@@ -73,11 +73,7 @@ exports.register = async (req, res) => {
 
     await newUser.save();
 
-    res.status(200).send({
-      code: 200,
-      status: true,
-      message: "USER_REGISTER_SUCCESS",
-    });
+    successRes(res, 200, "USER_REGISTER_SUCCESS");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
@@ -117,10 +113,7 @@ exports.login = async (req, res) => {
       expired_at: new Date().setDate(new Date().getDate() + 60),
     });
 
-    res.status(200).send({
-      code: 200,
-      status: true,
-      message: "USER_LOGIN_SUCCESS",
+    successResWithData(res, 200, "LOGIN_SUCCESS", {
       access_token: accessToken,
       refresh_token: refreshToken,
     });
@@ -149,11 +142,7 @@ exports.logout = async (req, res) => {
       },
     });
 
-    res.status(200).send({
-      code: 200,
-      status: true,
-      message: "USER_LOGOUT_SUCCESS",
-    });
+    successRes(res, 200, "LOGOUT_SUCCESS");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
@@ -190,10 +179,7 @@ exports.refreshToken = async (req, res) => {
       };
       const accessToken = await generateAccessToken(payload);
 
-      res.status(200).send({
-        code: 200,
-        status: true,
-        message: "REFRESH_TOKEN_SUCCESS",
+      successResWithData(res, 200, "REFRESH_TOKEN_SUCCESS", {
         access_token: accessToken,
       });
     });

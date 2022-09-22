@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 const uuid = require("uuid");
 const jwt = require("jsonwebtoken");
 const { User, Pendidikan } = require("../../models");
-const { errorResponse } = require("../helper/response");
+const { errorResponse, successRes, successResWithData } = require("../helper/response");
 const env = dotenv.config().parsed;
 
 exports.addPendidikan = async (req, res) => {
@@ -61,10 +61,7 @@ exports.addPendidikan = async (req, res) => {
 
         await newPendidikan.save();
 
-        res.status(200).send({
-          code: 200,
-          message: "ADD_PENDIDIKAN_SUCCESS",
-        });
+        successRes(res, 200, "ADD_PENDIDIKAN_SUCCESS");
       }
     });
   } catch (error) {
@@ -108,6 +105,8 @@ exports.listAllPendidikan = async (req, res) => {
             exclude: ["updatedAt"],
           },
         });
+
+        successResWithData(res, 200, "LIST_PENDIDIKAN_SUCCESS", listPendidikan);
 
         res.status(200).send({
           code: 200,
@@ -168,10 +167,7 @@ exports.editPendidikan = async (req, res) => {
           },
         });
 
-        res.status(200).send({
-          code: 200,
-          message: "EDIT_PENDIDIKAN_SUCCESS",
-        });
+        successRes(res, 200, "EDIT_PENDIDIKAN_SUCCESS");
       }
     });
   } catch (error) {
@@ -226,10 +222,7 @@ exports.deletePendidikan = async (req, res) => {
           },
         });
 
-        res.status(200).send({
-          code: 200,
-          message: "DELETE_PENDIDIKAN_SUCCESS",
-        });
+        successRes(res, 200, "DELETE_PENDIDIKAN_SUCCESS");
       }
     });
   } catch (error) {
