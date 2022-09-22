@@ -181,9 +181,56 @@ exports.editPendidikan = async (req, res) => {
 
 exports.deletePendidikan = async (req, res) => {
   try {
-    res.status(200).send({
-      code: 200,
-      message: "DELETE_PENDIDIKAN_SUCCESS",
+    const headers = req.header("Authorization");
+    const { uuid_pendidikan } = req.params;
+    if (!headers) {
+      return errorResponse(res, 401, "UNAUTHORIZED");
+    }
+
+    const token = headers.split(" ")[1];
+
+    jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, data) => {
+      if (err) {
+        return errorResponse(res, 403, "TOKEN_EXPIRED");
+      }
+
+      if (!data) {
+        return errorResponse(res, 403, "TOKEN_INVALID");
+      } else {
+        const user = await User.findOne({
+          where: {
+            id: data.id,
+          },
+        });
+
+        if (!user) {
+          return errorResponse(res, 404, "USER_NOT_FOUND");
+        }
+
+        const pendidikan = await Pendidikan.findOne({
+          where: {
+            uuid_pendidikan,
+          },
+          attributes: {
+            exclude: ["updatedAt"],
+          },
+        });
+
+        if (!pendidikan) {
+          return errorResponse(res, 404, "PENDIDIKAN_NOT_FOUND");
+        }
+
+        await Pendidikan.destroy({
+          where: {
+            uuid_pendidikan,
+          },
+        });
+
+        res.status(200).send({
+          code: 200,
+          message: "DELETE_PENDIDIKAN_SUCCESS",
+        });
+      }
     });
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
