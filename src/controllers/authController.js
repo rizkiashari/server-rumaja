@@ -43,6 +43,7 @@ exports.register = async (req, res) => {
       email: joi.string().email().required(),
       password: joi.string().min(8).required(),
       role: joi.number().required(),
+      nomor_wa: joi.string().min(10).max(17).required(),
     });
 
     const { error } = schema.validate(dataUser);
@@ -66,6 +67,7 @@ exports.register = async (req, res) => {
       email,
       password: hash,
       role_id: dataUser.role,
+      nomor_wa: dataUser.nomor_wa,
       createdAt: Math.floor(+new Date() / 1000),
     });
 
