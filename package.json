@@ -5,7 +5,8 @@
   "description": "Server Bakarajo",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon ./app.js",
+    "start": "node ./app.js",
+    "dev": "nodemon ./app.js",
     "migrate": "npx sequelize-cli db:migrate",
     "migrate:undo": "npx sequelize-cli db:migrate:undo:all",
     "seed:all": "npx sequelize db:seed:all"
