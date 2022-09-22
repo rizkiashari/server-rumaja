@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Pendidikan.init(
     {
+      uuid_pendidikan: DataTypes.STRING,
       nama: DataTypes.STRING,
       jurusan: DataTypes.STRING,
       tahun_awal: DataTypes.STRING(13),

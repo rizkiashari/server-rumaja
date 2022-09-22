@@ -5,8 +5,6 @@ const uuid = require("uuid");
 const jwt = require("jsonwebtoken");
 const { User, Pendidikan } = require("../../models");
 const { errorResponse } = require("../helper/response");
-const { Op } = require("sequelize");
-
 const env = dotenv.config().parsed;
 
 exports.addPendidikan = async (req, res) => {
