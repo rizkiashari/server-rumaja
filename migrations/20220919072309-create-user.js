@@ -11,6 +11,9 @@ module.exports = {
       uuid_user: {
         type: Sequelize.STRING,
       },
+      nomor_wa: {
+        type: Sequelize.STRING(17),
+      },
       name_user: {
         type: Sequelize.STRING,
       },
