@@ -1,48 +1,54 @@
 "use strict";
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("users", {
+    await queryInterface.createTable("penyedia", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      uuid_user: {
-        type: Sequelize.STRING,
-      },
-      nomor_wa: {
-        type: Sequelize.STRING(17),
-      },
-      name_user: {
-        type: Sequelize.STRING,
-      },
-      email: {
-        type: Sequelize.STRING,
-      },
-      password: {
-        type: Sequelize.STRING,
-      },
-      role_id: {
+      user_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "roles",
+          model: "users",
           key: "id",
         },
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
+      },
+      domisili: {
+        type: Sequelize.STRING,
+      },
+      description: {
+        type: Sequelize.TEXT,
+      },
+      photo_profile: {
+        type: Sequelize.STRING,
+      },
+      header_profile: {
+        type: Sequelize.STRING,
+      },
+      no_telp: {
+        type: Sequelize.STRING(17),
+      },
+      bukti_berkas: {
+        type: Sequelize.STRING,
+      },
+      spesialis: {
+        type: Sequelize.STRING,
       },
       createdAt: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
       updatedAt: {
-        type: Sequelize.DATE,
         allowNull: false,
+        type: Sequelize.DATE,
       },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("users");
+    await queryInterface.dropTable("penyedia");
   },
 };
