@@ -150,7 +150,13 @@ exports.logout = async (req, res) => {
 
 exports.refreshToken = async (req, res) => {
   try {
-    const { refreshToken } = req.body;
+    const headers = req.header("Authorization");
+
+    if (!headers) {
+      return errorResponse(res, 401, "Unauthorized");
+    }
+
+    const refreshToken = headers.split(" ")[1];
 
     const token = await Token.findOne({
       where: {
