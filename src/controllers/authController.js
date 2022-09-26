@@ -39,7 +39,7 @@ exports.register = async (req, res) => {
     const dataUser = req.body;
 
     const schema = joi.object({
-      name_user: joi.string().min(5).required(),
+      name_user: joi.string().min(3).required(),
       email: joi.string().email().required(),
       password: joi.string().min(8).required(),
       role: joi.number().required(),

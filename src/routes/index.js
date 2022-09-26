@@ -5,7 +5,7 @@ const pendidikan = require("./pendidikan.js");
 const router = Router();
 
 router.get("/test", (req, res) => {
-  res.send("Service Success Running");
+  res.send({ data: "Service Success Running" });
 });
 
 router.use("/auth", auth);
