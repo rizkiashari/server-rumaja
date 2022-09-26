@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
 
-      User.hasOne(models.Pencari, {
+      User.hasOne(models.Penyedia, {
         as: "Pencari",
         foreignKey: {
           name: "user_id",
