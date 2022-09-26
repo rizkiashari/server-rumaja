@@ -23,6 +23,10 @@ module.exports = {
       password: {
         type: Sequelize.STRING,
       },
+      resetPassword: {
+        type: Sequelize.STRING,
+        defaultValue: null,
+      },
       role_id: {
         type: Sequelize.INTEGER,
         references: {
