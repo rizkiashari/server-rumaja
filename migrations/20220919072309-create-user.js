@@ -20,6 +20,15 @@ module.exports = {
       email: {
         type: Sequelize.STRING,
       },
+      id_bidang_kerja: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "bidang_kerjas",
+          key: "id",
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      },
       password: {
         type: Sequelize.STRING,
       },

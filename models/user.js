@@ -16,6 +16,13 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
 
+      User.belongsTo(models.Bidang_Kerja, {
+        as: "bidang_kerja",
+        foreignKey: {
+          name: "id_bidang_kerja",
+        },
+      });
+
       User.hasMany(models.Pendidikan, {
         as: "Pendidikan",
         foreignKey: {
@@ -38,6 +45,7 @@ module.exports = (sequelize, DataTypes) => {
       email: DataTypes.STRING,
       password: DataTypes.STRING,
       resetPassword: DataTypes.STRING,
+      id_bidang_kerja: DataTypes.INTEGER,
       nomor_wa: DataTypes.STRING(17),
       createdAt: DataTypes.INTEGER,
     },
