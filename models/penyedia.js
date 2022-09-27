@@ -20,7 +20,6 @@ module.exports = (sequelize, DataTypes) => {
   Penyedia.init(
     {
       domisili: DataTypes.STRING,
-      description: DataTypes.TEXT,
       photo_profile: DataTypes.STRING,
       header_profile: DataTypes.STRING,
       gender: DataTypes.STRING(100),

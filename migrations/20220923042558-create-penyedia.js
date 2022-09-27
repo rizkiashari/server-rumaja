@@ -20,9 +20,6 @@ module.exports = {
       domisili: {
         type: Sequelize.STRING,
       },
-      description: {
-        type: Sequelize.TEXT,
-      },
       photo_profile: {
         type: Sequelize.STRING,
       },
