@@ -15,6 +15,13 @@ module.exports = (sequelize, DataTypes) => {
           name: "user_id",
         },
       });
+
+      Penyedia.hasMany(models.Pekerjaan, {
+        as: "pekerjaan",
+        foreignKey: {
+          name: "id_penyedia",
+        },
+      });
     }
   }
   Penyedia.init(
