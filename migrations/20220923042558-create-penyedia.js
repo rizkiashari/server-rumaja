@@ -32,11 +32,17 @@ module.exports = {
       no_telp: {
         type: Sequelize.STRING(17),
       },
-      bukti_berkas: {
+      gender: {
+        type: Sequelize.STRING(100),
+      },
+      alamat_rumah: {
         type: Sequelize.STRING,
       },
-      spesialis: {
-        type: Sequelize.STRING,
+      tanggal_lahir: {
+        type: Sequelize.DATE,
+      },
+      tentang: {
+        type: Sequelize.TEXT,
       },
       createdAt: {
         type: Sequelize.INTEGER,
