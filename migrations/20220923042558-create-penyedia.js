@@ -29,9 +29,6 @@ module.exports = {
       header_profile: {
         type: Sequelize.STRING,
       },
-      no_telp: {
-        type: Sequelize.STRING(17),
-      },
       gender: {
         type: Sequelize.STRING(100),
       },
