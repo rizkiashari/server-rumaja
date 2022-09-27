@@ -4,6 +4,47 @@ const jwt = require("jsonwebtoken");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
 const { Pekerjaan, Penyedia } = require("../../models");
 
+exports.getAllPekerjaan = async (req, res) => {
+  try {
+    const headers = req.header("Authorization");
+
+    if (!headers) {
+      return errorResponse(res, 401, "Unauthorized");
+    }
+
+    const token = headers.split(" ")[1];
+
+    jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET, async (err, user) => {
+      if (err) {
+        return errorResponse(res, 403, "TOKEN_EXPIRED");
+      }
+
+      if (user.role !== 3) {
+        return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
+      }
+
+      const dataPenyedia = await Penyedia.findOne({
+        where: {
+          user_id: user.id,
+        },
+      });
+
+      const dataPekerjaan = await Pekerjaan.findAll({
+        where: {
+          id_penyedia: dataPenyedia.id,
+        },
+        attributes: {
+          exclude: ["updatedAt"],
+        },
+      });
+
+      successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", dataPekerjaan);
+    });
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
 exports.addPekerjaan = async (req, res) => {
   try {
     const dataPekerjaan = req.body;
@@ -30,8 +71,6 @@ exports.addPekerjaan = async (req, res) => {
           user_id: user.id,
         },
       });
-
-      console.log(dataPenyedia);
 
       const schema = joi.object({
         posisi_kerja: joi.string().min(3).required(),

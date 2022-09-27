@@ -36,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
       fasilitas: DataTypes.TEXT,
       lokasi_kerja: DataTypes.STRING,
       lamar_sebelum_tgl: DataTypes.STRING,
+      createdAt: DataTypes.INTEGER,
     },
     {
       sequelize,
