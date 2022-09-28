@@ -76,6 +76,10 @@ exports.updateUserPenyedia = async (req, res) => {
         return errorResponse(res, 404, "USER_NOT_FOUND");
       }
 
+      if (dataUser.role_id !== 3) {
+        return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
+      }
+
       const schema = joi.object({
         name_user: joi.string().min(3).required(),
         gender: joi.string().required(),
@@ -174,6 +178,10 @@ exports.updateUserPencari = async (req, res) => {
 
       if (!dataUser) {
         return errorResponse(res, 404, "USER_NOT_FOUND");
+      }
+
+      if (dataUser.role_id !== 2) {
+        return errorResponse(res, 403, "YOUR_NOT_PENCARI");
       }
 
       const schema = joi.object({
