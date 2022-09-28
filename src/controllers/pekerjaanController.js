@@ -37,125 +37,155 @@ exports.getAllPekerjaan = async (req, res) => {
         },
       });
 
-      const totalRows = await Pekerjaan.count({
-        where: {
-          [Op.and]: [
-            { id_penyedia: dataPenyedia.id },
-            {
-              [Op.or]: [
-                {
-                  id_bidang_kerja: {
-                    [Op.like]: bidang_kerja,
-                  },
-                },
-                {
-                  lokasi_kerja: {
-                    [Op.like]: domisili,
-                  },
-                },
-                {
-                  range_awal_gaji: {
-                    [Op.like]: deadline,
-                  },
-                },
-                {
-                  lamar_sebelum_tgl: {
-                    [Op.gte]: deadline,
-                  },
-                },
-                {
-                  posisi_kerja: {
-                    [Op.like]: `%${search}%`,
-                  },
-                },
-                {
-                  kualifikasi: {
-                    [Op.like]: `%${search}%`,
-                  },
-                },
-                {
-                  deskripsi_kerja: {
-                    [Op.like]: `%${search}%`,
-                  },
-                },
-                {
-                  fasilitas: {
-                    [Op.like]: `%${search}%`,
-                  },
-                },
-              ],
-            },
-          ],
-        },
-      });
+      if (!domisili && !bidang_kerja && !gaji && !deadline && !search) {
+        const totalRows = await Pekerjaan.count({
+          where: {
+            id_penyedia: dataPenyedia.id,
+          },
+        });
 
-      const totalPage = Math.ceil(totalRows / limit);
+        const totalPage = Math.ceil(totalRows / limit);
 
-      const dataPekerjaan = await Pekerjaan.findAll({
-        where: {
-          [Op.and]: [
-            { id_penyedia: dataPenyedia.id },
-            {
-              [Op.or]: [
-                {
-                  id_bidang_kerja: {
-                    [Op.like]: bidang_kerja,
-                  },
-                },
-                {
-                  lokasi_kerja: {
-                    [Op.like]: domisili,
-                  },
-                },
-                {
-                  range_awal_gaji: {
-                    [Op.like]: gaji,
-                  },
-                },
-                {
-                  lamar_sebelum_tgl: {
-                    [Op.gte]: deadline,
-                  },
-                },
-                {
-                  posisi_kerja: {
-                    [Op.like]: `%${search}%`,
-                  },
-                },
-                {
-                  kualifikasi: {
-                    [Op.like]: `%${search}%`,
-                  },
-                },
-                {
-                  deskripsi_kerja: {
-                    [Op.like]: `%${search}%`,
-                  },
-                },
-                {
-                  fasilitas: {
-                    [Op.like]: `%${search}%`,
-                  },
-                },
-              ],
-            },
-          ],
-        },
-        attributes: {
-          exclude: ["updatedAt"],
-        },
-        limit: [(page - 1) * +limit, +limit],
-        order: [["id", "DESC"]],
-      });
+        const dataPekerjaan = await Pekerjaan.findAll({
+          where: {
+            id_penyedia: dataPenyedia.id,
+          },
+          attributes: {
+            exclude: ["updatedAt"],
+          },
+          limit: [(page - 1) * +limit, +limit],
+          order: [["id", "DESC"]],
+        });
 
-      successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
-        pekerjaan: dataPekerjaan,
-        totalPage,
-        page,
-        limit,
-        totalRows,
-        totalPage,
-      });
+        successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
+          pekerjaan: dataPekerjaan,
+          totalPage,
+          page,
+          limit,
+          totalRows,
+          totalPage,
+        });
+      } else {
+        const totalRows = await Pekerjaan.count({
+          where: {
+            [Op.and]: [
+              { id_penyedia: dataPenyedia.id },
+              {
+                [Op.or]: [
+                  {
+                    id_bidang_kerja: {
+                      [Op.like]: bidang_kerja,
+                    },
+                  },
+                  {
+                    lokasi_kerja: {
+                      [Op.like]: domisili,
+                    },
+                  },
+                  {
+                    range_awal_gaji: {
+                      [Op.like]: deadline,
+                    },
+                  },
+                  {
+                    lamar_sebelum_tgl: {
+                      [Op.gte]: deadline,
+                    },
+                  },
+                  {
+                    posisi_kerja: {
+                      [Op.like]: `%${search}%`,
+                    },
+                  },
+                  {
+                    kualifikasi: {
+                      [Op.like]: `%${search}%`,
+                    },
+                  },
+                  {
+                    deskripsi_kerja: {
+                      [Op.like]: `%${search}%`,
+                    },
+                  },
+                  {
+                    fasilitas: {
+                      [Op.like]: `%${search}%`,
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        });
+
+        const totalPage = Math.ceil(totalRows / limit);
+
+        const dataPekerjaan = await Pekerjaan.findAll({
+          where: {
+            [Op.and]: [
+              { id_penyedia: dataPenyedia.id },
+              {
+                [Op.or]: [
+                  {
+                    id_bidang_kerja: {
+                      [Op.like]: bidang_kerja,
+                    },
+                  },
+                  {
+                    lokasi_kerja: {
+                      [Op.like]: domisili,
+                    },
+                  },
+                  {
+                    range_awal_gaji: {
+                      [Op.like]: gaji,
+                    },
+                  },
+                  {
+                    lamar_sebelum_tgl: {
+                      [Op.gte]: deadline,
+                    },
+                  },
+                  {
+                    posisi_kerja: {
+                      [Op.like]: `%${search}%`,
+                    },
+                  },
+                  {
+                    kualifikasi: {
+                      [Op.like]: `%${search}%`,
+                    },
+                  },
+                  {
+                    deskripsi_kerja: {
+                      [Op.like]: `%${search}%`,
+                    },
+                  },
+                  {
+                    fasilitas: {
+                      [Op.like]: `%${search}%`,
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+          attributes: {
+            exclude: ["updatedAt"],
+          },
+          limit: [(page - 1) * +limit, +limit],
+          order: [["id", "DESC"]],
+        });
+
+        successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
+          pekerjaan: dataPekerjaan,
+          totalPage,
+          page,
+          limit,
+          totalRows,
+          totalPage,
+        });
+      }
     });
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
