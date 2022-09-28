@@ -14,10 +14,7 @@ exports.getPekerjaanWithLimit = async (req, res) => {
     const limit = +req.query.limit || 10;
     const page = +req.query.page || 1;
 
-    const deadline = req.query.deadline;
-    const domisili = req.query.domisili;
-    const bidang_kerja = req.query.bidang_kerja;
-    const gaji = req.query.gaji;
+    const { deadline, domisili, bidang_kerja, gaji, search } = req.query;
 
     if (!headers) {
       return errorResponse(res, 401, "UNAUTHORIZED");
@@ -66,6 +63,26 @@ exports.getPekerjaanWithLimit = async (req, res) => {
                     [Op.gte]: deadline,
                   },
                 },
+                {
+                  posisi_kerja: {
+                    [Op.like]: `%${search}%`,
+                  },
+                },
+                {
+                  kualifikasi: {
+                    [Op.like]: `%${search}%`,
+                  },
+                },
+                {
+                  deskripsi_kerja: {
+                    [Op.like]: `%${search}%`,
+                  },
+                },
+                {
+                  fasilitas: {
+                    [Op.like]: `%${search}%`,
+                  },
+                },
               ],
             },
           ],
@@ -98,6 +115,26 @@ exports.getPekerjaanWithLimit = async (req, res) => {
                 {
                   lamar_sebelum_tgl: {
                     [Op.gte]: deadline,
+                  },
+                },
+                {
+                  posisi_kerja: {
+                    [Op.like]: `%${search}%`,
+                  },
+                },
+                {
+                  kualifikasi: {
+                    [Op.like]: `%${search}%`,
+                  },
+                },
+                {
+                  deskripsi_kerja: {
+                    [Op.like]: `%${search}%`,
+                  },
+                },
+                {
+                  fasilitas: {
+                    [Op.like]: `%${search}%`,
                   },
                 },
               ],
