@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       Pencari.belongsTo(models.User, {
         as: "users",
         foreignKey: {
-          name: "id_user",
+          name: "user_id",
         },
       });
     }
