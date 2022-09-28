@@ -68,12 +68,12 @@ exports.getAllPekerjaan = async (req, res) => {
               },
               {
                 range_awal_gaji: {
-                  [Op.like]: deadline,
+                  [Op.like]: gaji,
                 },
               },
               {
                 lamar_sebelum_tgl: {
-                  [Op.gte]: deadline,
+                  [Op.gte]: +new Date(deadline).getTime() / 1000,
                 },
               },
               {
@@ -122,7 +122,7 @@ exports.getAllPekerjaan = async (req, res) => {
               },
               {
                 lamar_sebelum_tgl: {
-                  [Op.gte]: deadline,
+                  [Op.gte]: +new Date(deadline).getTime() / 1000,
                 },
               },
               {
@@ -297,6 +297,8 @@ exports.addPekerjaan = async (req, res) => {
         return errorResponse(res, 400, error.details[0].message);
       }
 
+      const deadline = new Date(dataPekerjaan.lamar_sebelum_tgl).getTime() / 1000;
+
       const newPekerjaan = new Pekerjaan({
         uuid_kerja: uuid.v4(),
         posisi_kerja: dataPekerjaan.posisi_kerja,
@@ -308,14 +310,14 @@ exports.addPekerjaan = async (req, res) => {
         deskripsi_kerja: dataPekerjaan.deskripsi_kerja,
         lokasi_kerja: dataPekerjaan.lokasi_kerja,
         isSave: false,
-        lamar_sebelum_tgl: dataPekerjaan.lamar_sebelum_tgl,
+        lamar_sebelum_tgl: +deadline,
         createdAt: Math.floor(+new Date() / 1000),
         fasilitas: dataPekerjaan.fasilitas,
       });
 
       await newPekerjaan.save();
 
-      successResWithData(res, 200, "SUCCESS_ADD_PEKERJAAN", dataPenyedia);
+      successRes(res, 200, "SUCCESS_ADD_PEKERJAAN");
     });
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
