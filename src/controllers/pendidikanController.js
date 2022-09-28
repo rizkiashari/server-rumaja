@@ -2,7 +2,7 @@ const joi = require("joi");
 const dotenv = require("dotenv");
 const uuid = require("uuid");
 const jwt = require("jsonwebtoken");
-const { User, Pendidikan } = require("../../models");
+const { User, Pendidikan, Pencari } = require("../../models");
 const { errorResponse, successRes, successResWithData } = require("../helper/response");
 const env = dotenv.config().parsed;
 
@@ -30,6 +30,10 @@ exports.addPendidikan = async (req, res) => {
           where: {
             id: data.id,
           },
+          include: {
+            model: Pencari,
+            as: "pencari",
+          },
         });
 
         if (!user) {
@@ -52,7 +56,7 @@ exports.addPendidikan = async (req, res) => {
         const newPendidikan = new Pendidikan({
           nama: dataPendidikan.nama,
           uuid_pendidikan: uuid.v4(),
-          user_id: user.id,
+          id_pencari: user.pencari.id,
           jurusan: dataPendidikan.jurusan,
           tahun_awal: dataPendidikan.tahun_awal,
           tahun_akhir: dataPendidikan.tahun_akhir,
@@ -73,7 +77,56 @@ exports.listAllPendidikan = async (req, res) => {
   try {
     const headers = req.header("Authorization");
 
-    console.log(headers);
+    if (!headers) {
+      return errorResponse(res, 401, "UNAUTHORIZED");
+    }
+
+    const token = headers.split(" ")[1];
+
+    jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, data) => {
+      if (err) {
+        return errorResponse(res, 403, "TOKEN_EXPIRED");
+      }
+
+      if (!data) {
+        return errorResponse(res, 403, "TOKEN_INVALID");
+      } else {
+        const user = await User.findOne({
+          where: {
+            id: data.id,
+          },
+          include: {
+            model: Pencari,
+            as: "pencari",
+          },
+        });
+
+        if (!user) {
+          return errorResponse(res, 404, "USER_NOT_FOUND");
+        }
+
+        const listPendidikan = await Pendidikan.findAll({
+          where: {
+            id_pencari: user.pencari.id,
+          },
+          attributes: {
+            exclude: ["updatedAt"],
+          },
+        });
+
+        successResWithData(res, 200, "LIST_ALL_PENDIDIKAN_SUCCESS", listPendidikan);
+      }
+    });
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.getPendidikanByUUID = async (req, res) => {
+  try {
+    const { uuid_pendidikan } = req.params;
+
+    const headers = req.header("Authorization");
 
     if (!headers) {
       return errorResponse(res, 401, "UNAUTHORIZED");
@@ -93,33 +146,28 @@ exports.listAllPendidikan = async (req, res) => {
           where: {
             id: data.id,
           },
+          include: {
+            model: Pencari,
+            as: "pencari",
+          },
         });
 
         if (!user) {
           return errorResponse(res, 404, "USER_NOT_FOUND");
         }
 
-        const listPendidikan = await Pendidikan.findAll({
+        const dataPendidikan = await Pendidikan.findOne({
           where: {
-            user_id: user.id,
+            uuid_pendidikan: uuid_pendidikan,
           },
           attributes: {
             exclude: ["updatedAt"],
           },
         });
 
-        successResWithData(res, 200, "LIST_ALL_PENDIDIKAN_SUCCESS", listPendidikan);
+        successResWithData(res, 200, "LIST_PENDIDIKAN", dataPendidikan);
       }
     });
-  } catch (error) {
-    console.log(error);
-    errorResponse(res, 500, "Internal Server Error");
-  }
-};
-
-exports.getPendidikanByUUID = async (req, res) => {
-  try {
-    successRes(res, 200, "GET_PENDIDIKAN_BY_UUID_SUCCESS");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
@@ -132,7 +180,6 @@ exports.editPendidikan = async (req, res) => {
     if (!headers) {
       return errorResponse(res, 401, "UNAUTHORIZED");
     }
-
     const token = headers.split(" ")[1];
 
     jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, data) => {
