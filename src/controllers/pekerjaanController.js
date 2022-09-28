@@ -31,25 +31,12 @@ exports.getAllPekerjaan = async (req, res) => {
         return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
       }
 
-      const dataPenyedia = await Penyedia.findOne({
-        where: {
-          user_id: user.id,
-        },
-      });
-
       if (!domisili && !bidang_kerja && !gaji && !deadline && !search) {
-        const totalRows = await Pekerjaan.count({
-          where: {
-            id_penyedia: dataPenyedia.id,
-          },
-        });
+        const totalRows = await Pekerjaan.count();
 
         const totalPage = Math.ceil(totalRows / limit);
 
         const dataPekerjaan = await Pekerjaan.findAll({
-          where: {
-            id_penyedia: dataPenyedia.id,
-          },
           attributes: {
             exclude: ["updatedAt"],
           },
@@ -68,51 +55,46 @@ exports.getAllPekerjaan = async (req, res) => {
       } else {
         const totalRows = await Pekerjaan.count({
           where: {
-            [Op.and]: [
-              { id_penyedia: dataPenyedia.id },
+            [Op.or]: [
               {
-                [Op.or]: [
-                  {
-                    id_bidang_kerja: {
-                      [Op.like]: bidang_kerja,
-                    },
-                  },
-                  {
-                    lokasi_kerja: {
-                      [Op.like]: domisili,
-                    },
-                  },
-                  {
-                    range_awal_gaji: {
-                      [Op.like]: deadline,
-                    },
-                  },
-                  {
-                    lamar_sebelum_tgl: {
-                      [Op.gte]: deadline,
-                    },
-                  },
-                  {
-                    posisi_kerja: {
-                      [Op.like]: `%${search}%`,
-                    },
-                  },
-                  {
-                    kualifikasi: {
-                      [Op.like]: `%${search}%`,
-                    },
-                  },
-                  {
-                    deskripsi_kerja: {
-                      [Op.like]: `%${search}%`,
-                    },
-                  },
-                  {
-                    fasilitas: {
-                      [Op.like]: `%${search}%`,
-                    },
-                  },
-                ],
+                id_bidang_kerja: {
+                  [Op.like]: bidang_kerja,
+                },
+              },
+              {
+                lokasi_kerja: {
+                  [Op.like]: domisili,
+                },
+              },
+              {
+                range_awal_gaji: {
+                  [Op.like]: deadline,
+                },
+              },
+              {
+                lamar_sebelum_tgl: {
+                  [Op.gte]: deadline,
+                },
+              },
+              {
+                posisi_kerja: {
+                  [Op.like]: `%${search}%`,
+                },
+              },
+              {
+                kualifikasi: {
+                  [Op.like]: `%${search}%`,
+                },
+              },
+              {
+                deskripsi_kerja: {
+                  [Op.like]: `%${search}%`,
+                },
+              },
+              {
+                fasilitas: {
+                  [Op.like]: `%${search}%`,
+                },
               },
             ],
           },
@@ -122,51 +104,46 @@ exports.getAllPekerjaan = async (req, res) => {
 
         const dataPekerjaan = await Pekerjaan.findAll({
           where: {
-            [Op.and]: [
-              { id_penyedia: dataPenyedia.id },
+            [Op.or]: [
               {
-                [Op.or]: [
-                  {
-                    id_bidang_kerja: {
-                      [Op.like]: bidang_kerja,
-                    },
-                  },
-                  {
-                    lokasi_kerja: {
-                      [Op.like]: domisili,
-                    },
-                  },
-                  {
-                    range_awal_gaji: {
-                      [Op.like]: gaji,
-                    },
-                  },
-                  {
-                    lamar_sebelum_tgl: {
-                      [Op.gte]: deadline,
-                    },
-                  },
-                  {
-                    posisi_kerja: {
-                      [Op.like]: `%${search}%`,
-                    },
-                  },
-                  {
-                    kualifikasi: {
-                      [Op.like]: `%${search}%`,
-                    },
-                  },
-                  {
-                    deskripsi_kerja: {
-                      [Op.like]: `%${search}%`,
-                    },
-                  },
-                  {
-                    fasilitas: {
-                      [Op.like]: `%${search}%`,
-                    },
-                  },
-                ],
+                id_bidang_kerja: {
+                  [Op.like]: bidang_kerja,
+                },
+              },
+              {
+                lokasi_kerja: {
+                  [Op.like]: domisili,
+                },
+              },
+              {
+                range_awal_gaji: {
+                  [Op.like]: gaji,
+                },
+              },
+              {
+                lamar_sebelum_tgl: {
+                  [Op.gte]: deadline,
+                },
+              },
+              {
+                posisi_kerja: {
+                  [Op.like]: `%${search}%`,
+                },
+              },
+              {
+                kualifikasi: {
+                  [Op.like]: `%${search}%`,
+                },
+              },
+              {
+                deskripsi_kerja: {
+                  [Op.like]: `%${search}%`,
+                },
+              },
+              {
+                fasilitas: {
+                  [Op.like]: `%${search}%`,
+                },
               },
             ],
           },
@@ -213,14 +190,7 @@ exports.getAllPekerjanWithLimit = async (req, res) => {
         return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
       }
 
-      const dataPenyedia = await Penyedia.findOne({
-        where: {
-          user_id: user.id,
-        },
-      });
-
       const dataPekerjaan = await Pekerjaan.findAll({
-        where: { id_penyedia: dataPenyedia.id },
         attributes: {
           exclude: ["updatedAt"],
         },
@@ -231,7 +201,6 @@ exports.getAllPekerjanWithLimit = async (req, res) => {
       successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", dataPekerjaan);
     });
   } catch (error) {
-    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
@@ -256,20 +225,6 @@ exports.getByUUIDPekerjaan = async (req, res) => {
       if (!data) {
         return errorResponse(res, 403, "TOKEN_INVALID");
       } else {
-        const user = await User.findOne({
-          where: {
-            id: data.id,
-          },
-          include: {
-            model: Penyedia,
-            as: "penyedia",
-          },
-        });
-
-        if (!user) {
-          return errorResponse(res, 404, "USER_NOT_FOUND");
-        }
-
         const dataPekerja = await Pekerjaan.findOne({
           where: {
             uuid_kerja,
@@ -477,6 +432,106 @@ exports.deletePekerjaan = async (req, res) => {
 
         successRes(res, 200, "SUCCESS_DELETE_PEKERJAAN");
       }
+    });
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.savePekerjaan = async (req, res) => {
+  try {
+    const { uuid_kerja } = req.params;
+
+    const headers = req.header("Authorization");
+
+    if (!headers) {
+      return errorResponse(res, 401, "UNAUTHORIZED");
+    }
+
+    const token = headers.split(" ")[1];
+
+    jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, data) => {
+      if (err) {
+        return errorResponse(res, 403, "TOKEN_EXPIRED");
+      }
+
+      if (!data) {
+        return errorResponse(res, 403, "TOKEN_INVALID");
+      }
+
+      const dataPekerjaan = await Pekerjaan.findOne({
+        where: {
+          uuid_kerja,
+        },
+      });
+
+      if (!dataPekerjaan) {
+        return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
+      }
+
+      if (dataPekerjaan.isSave === true) {
+        await Pekerjaan.update(
+          {
+            isSave: false,
+          },
+          {
+            where: {
+              uuid_kerja,
+            },
+          }
+        );
+
+        successRes(res, 200, "SUCCESS_UNSAVE_PEKERJAAN");
+      } else {
+        await Pekerjaan.update(
+          {
+            isSave: true,
+          },
+          {
+            where: {
+              uuid_kerja,
+            },
+          }
+        );
+
+        successRes(res, 200, "SUCCESS_SAVE_PEKERJAAN");
+      }
+    });
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.rekomendasiPekerjaan = async (req, res) => {
+  try {
+    const { lokasi } = req.params;
+
+    const headers = req.header("Authorization");
+
+    if (!headers) {
+      return errorResponse(res, 401, "UNAUTHORIZED");
+    }
+
+    const token = headers.split(" ")[1];
+
+    jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, data) => {
+      if (err) {
+        return errorResponse(res, 403, "TOKEN_EXPIRED");
+      }
+
+      if (!data) {
+        return errorResponse(res, 403, "TOKEN_INVALID");
+      }
+
+      const dataPekerjaan = await Pekerjaan.findAll({
+        where: {
+          lokasi_kerja: {
+            [Op.like]: `%${lokasi}%`,
+          },
+        },
+      });
+
+      successResWithData(res, 200, "SUCCESS_GET_REKOMENDASI_PEKERJAAN", dataPekerjaan);
     });
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
