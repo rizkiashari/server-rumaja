@@ -34,7 +34,7 @@ exports.getAllPekerjaan = async (req, res) => {
           id_penyedia: dataPenyedia.id,
         },
         attributes: {
-          exclude: ["updatedAt"],
+          exclude: ["updatedAt", "id_penyedia"],
         },
       });
 
@@ -74,7 +74,9 @@ exports.addPekerjaan = async (req, res) => {
 
       const schema = joi.object({
         posisi_kerja: joi.string().min(3).required(),
-        perkiraan_gaji: joi.string().required(),
+        range_awal_gaji: joi.string().required(),
+        range_akhir_gaji: joi.string().required(),
+        fasilitas: joi.string().required(),
         kualifikasi: joi.string().min(8).required(),
         id_bidang_kerja: joi.number().required(),
         deskripsi_kerja: joi.string().required(),
@@ -90,7 +92,8 @@ exports.addPekerjaan = async (req, res) => {
       const newPekerjaan = new Pekerjaan({
         uuid_kerja: uuid.v4(),
         posisi_kerja: dataPekerjaan.posisi_kerja,
-        perkiraan_gaji: dataPekerjaan.perkiraan_gaji,
+        range_awal_gaji: dataPekerjaan.range_awal_gaji,
+        range_akhir_gaji: dataPekerjaan.range_akhir_gaji,
         kualifikasi: dataPekerjaan.kualifikasi,
         id_penyedia: dataPenyedia.id,
         id_bidang_kerja: dataPekerjaan.id_bidang_kerja,
@@ -99,6 +102,7 @@ exports.addPekerjaan = async (req, res) => {
         isSave: false,
         lamar_sebelum_tgl: dataPekerjaan.lamar_sebelum_tgl,
         createdAt: Math.floor(+new Date() / 1000),
+        fasilitas: dataPekerjaan.fasilitas,
       });
 
       await newPekerjaan.save();
