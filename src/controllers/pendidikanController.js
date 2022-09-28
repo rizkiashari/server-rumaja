@@ -40,6 +40,16 @@ exports.addPendidikan = async (req, res) => {
           return errorResponse(res, 404, "USER_NOT_FOUND");
         }
 
+        const pencari = await Pencari.findOne({
+          where: {
+            user_id: user.id,
+          },
+        });
+
+        if (!pencari) {
+          return errorResponse(res, 404, "PENCARI_NOT_FOUND");
+        }
+
         const schema = joi.object({
           nama: joi.string().required(),
           jurusan: joi.string().required(),
@@ -164,6 +174,10 @@ exports.getPendidikanByUUID = async (req, res) => {
             exclude: ["updatedAt"],
           },
         });
+
+        if (!dataPendidikan) {
+          return errorResponse(res, 404, "PENDIDIKAN_NOT_FOUND");
+        }
 
         successResWithData(res, 200, "LIST_PENDIDIKAN", dataPendidikan);
       }
