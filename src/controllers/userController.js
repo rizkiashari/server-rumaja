@@ -12,7 +12,7 @@ exports.getAllUser = async (req, res) => {
   const headers = req.header("Authorization");
   try {
     if (!headers) {
-      return errorResponse(res, 401, "Unauthorized");
+      return errorResponse(res, 401, "UNAUTHORIZED");
     }
 
     const token = headers.split(" ")[1];
@@ -56,7 +56,7 @@ exports.updateUserPenyedia = async (req, res) => {
     const headers = req.header("Authorization");
     const dataPenyedia = req.body;
     if (!headers) {
-      return errorResponse(res, 401, "Unauthorized");
+      return errorResponse(res, 401, "UNAUTHORIZED");
     }
 
     const token = headers.split(" ")[1];

@@ -9,7 +9,7 @@ exports.getAllPekerjaan = async (req, res) => {
     const headers = req.header("Authorization");
 
     if (!headers) {
-      return errorResponse(res, 401, "Unauthorized");
+      return errorResponse(res, 401, "UNAUTHORIZED");
     }
 
     const token = headers.split(" ")[1];
@@ -34,7 +34,7 @@ exports.getAllPekerjaan = async (req, res) => {
           id_penyedia: dataPenyedia.id,
         },
         attributes: {
-          exclude: ["updatedAt", "id_penyedia"],
+          exclude: ["updatedAt"],
         },
       });
 

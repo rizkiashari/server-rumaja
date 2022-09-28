@@ -195,7 +195,7 @@ exports.checkAuth = async (req, res) => {
     const headers = req.header("Authorization");
 
     if (!headers) {
-      return errorResponse(res, 401, "Unauthorized");
+      return errorResponse(res, 401, "UNAUTHORIZED");
     }
 
     const token = headers.split(" ")[1];
