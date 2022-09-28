@@ -4,11 +4,20 @@ const uuid = require("uuid");
 const jwt = require("jsonwebtoken");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
 const { Pekerjaan, Penyedia, User } = require("../../models");
+const { Op } = require("sequelize");
 const env = dotenv.config().parsed;
 
-exports.getAllPekerjaan = async (req, res) => {
+exports.getPekerjaanWithLimit = async (req, res) => {
   try {
     const headers = req.header("Authorization");
+
+    const limit = +req.query.limit || 10;
+    const page = +req.query.page || 1;
+
+    const deadline = req.query.deadline;
+    const domisili = req.query.domisili;
+    const bidang_kerja = req.query.bidang_kerja;
+    const gaji = req.query.gaji;
 
     if (!headers) {
       return errorResponse(res, 401, "UNAUTHORIZED");
@@ -31,18 +40,88 @@ exports.getAllPekerjaan = async (req, res) => {
         },
       });
 
-      const dataPekerjaan = await Pekerjaan.findAll({
+      const totalRows = await Pekerjaan.count({
         where: {
-          id_penyedia: dataPenyedia.id,
+          [Op.and]: [
+            { id_penyedia: dataPenyedia.id },
+            {
+              [Op.or]: [
+                {
+                  id_bidang_kerja: {
+                    [Op.like]: bidang_kerja,
+                  },
+                },
+                {
+                  lokasi_kerja: {
+                    [Op.like]: domisili,
+                  },
+                },
+                {
+                  range_awal_gaji: {
+                    [Op.like]: deadline,
+                  },
+                },
+                {
+                  lamar_sebelum_tgl: {
+                    [Op.gte]: deadline,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+      const totalPage = Math.ceil(totalRows / limit);
+
+      let dataPekerjaan = await Pekerjaan.findAll({
+        where: {
+          [Op.and]: [
+            { id_penyedia: dataPenyedia.id },
+            {
+              [Op.or]: [
+                {
+                  id_bidang_kerja: {
+                    [Op.like]: bidang_kerja,
+                  },
+                },
+                {
+                  lokasi_kerja: {
+                    [Op.like]: domisili,
+                  },
+                },
+                {
+                  range_awal_gaji: {
+                    [Op.like]: gaji,
+                  },
+                },
+                {
+                  lamar_sebelum_tgl: {
+                    [Op.gte]: deadline,
+                  },
+                },
+              ],
+            },
+          ],
         },
         attributes: {
           exclude: ["updatedAt"],
         },
+        limit: [(page - 1) * +limit, +limit],
+        order: [["id", "DESC"]],
       });
 
-      successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", dataPekerjaan);
+      successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
+        pekerjaan: dataPekerjaan,
+        totalPage,
+        page,
+        limit,
+        totalRows,
+        totalPage,
+      });
     });
   } catch (error) {
+    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
