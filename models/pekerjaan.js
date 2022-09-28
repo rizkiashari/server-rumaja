@@ -27,7 +27,8 @@ module.exports = (sequelize, DataTypes) => {
     {
       uuid_kerja: DataTypes.STRING,
       posisi_kerja: DataTypes.STRING,
-      perkiraan_gaji: DataTypes.STRING,
+      range_awal_gaji: DataTypes.STRING,
+      range_akhir_gaji: DataTypes.STRING,
       kualifikasi: DataTypes.TEXT,
       id_penyedia: DataTypes.INTEGER,
       id_bidang_kerja: DataTypes.INTEGER,

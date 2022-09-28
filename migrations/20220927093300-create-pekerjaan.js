@@ -14,7 +14,10 @@ module.exports = {
       posisi_kerja: {
         type: Sequelize.STRING,
       },
-      perkiraan_gaji: {
+      range_awal_gaji: {
+        type: Sequelize.STRING,
+      },
+      range_akhir_gaji: {
         type: Sequelize.STRING,
       },
       kualifikasi: {
