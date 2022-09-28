@@ -270,3 +270,26 @@ exports.updateUserPencari = async (req, res) => {
     errorResponse(res, 500, "Internal Server Error");
   }
 };
+
+exports.listUserPencari = async (req, res) => {
+  try {
+    const pencari = await Pencari.findAll({
+      include: [
+        {
+          model: User,
+          as: "users",
+          attributes: {
+            exclude: ["password", "updatedAt", "user_id"],
+          },
+        },
+      ],
+      attributes: {
+        exclude: ["updatedAt"],
+      },
+    });
+
+    successResWithData(res, 200, "SUCCESS_GET_LIST_USER_PENCARI", pencari);
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
