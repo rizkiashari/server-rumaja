@@ -1,5 +1,6 @@
 const joi = require("joi");
 const dotenv = require("dotenv");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { User, Penyedia, Pencari } = require("../../models");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
@@ -290,6 +291,73 @@ exports.listUserPencari = async (req, res) => {
 
     successResWithData(res, 200, "SUCCESS_GET_LIST_USER_PENCARI", pencari);
   } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.updatePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const dataPassword = req.body;
+
+    const headers = req.header("Authorization");
+
+    if (!headers) {
+      return errorResponse(res, 401, "UNAUTHORIZED");
+    }
+
+    const token = headers.split(" ")[1];
+
+    jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, user) => {
+      if (err) {
+        return errorResponse(res, 403, "TOKEN_EXPIRED");
+      }
+
+      const dataUser = await User.findOne({
+        where: {
+          id: user.id,
+        },
+      });
+
+      if (!dataUser) {
+        return errorResponse(res, 404, "USER_NOT_FOUND");
+      }
+
+      const schema = joi.object({
+        oldPassword: joi.string().min(8).required(),
+        newPassword: joi.string().min(8).required(),
+      });
+
+      const { error } = schema.validate(dataPassword);
+
+      if (error) {
+        return errorResponse(res, 400, error.details[0].message);
+      }
+
+      const validPassword = await bcrypt.compareSync(oldPassword, dataUser.password);
+
+      if (!validPassword) {
+        return errorResponse(res, 400, "PASSWORD_NOT_MATCH");
+      }
+
+      const salt = await bcrypt.genSalt(+env.SALT);
+      const hashPassword = await bcrypt.hash(newPassword, salt);
+
+      await dataUser.update(
+        {
+          password: hashPassword,
+        },
+        {
+          where: {
+            id: user.id,
+          },
+        }
+      );
+
+      successRes(res, 200, "SUCCESS_CHANGE_PASSWORD");
+    });
+  } catch (error) {
+    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };

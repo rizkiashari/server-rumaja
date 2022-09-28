@@ -9,6 +9,7 @@ const {
   updateUserPenyedia,
   updateUserPencari,
   listUserPencari,
+  updatePassword,
 } = require("../controllers/userController");
 
 const router = Router();
@@ -16,6 +17,7 @@ const router = Router();
 router.get("/all", getAllUser);
 router.post("/forgot-password", findEmailResetPassword);
 router.post("/change-password", changePassword);
+router.patch("/update-password", updatePassword);
 
 router.get("/all-pencari", listUserPencari);
 router.post("/update/pencari", updateUserPencari);
