@@ -23,15 +23,15 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
 
-      User.hasMany(models.Pendidikan, {
-        as: "Pendidikan",
+      User.hasOne(models.Penyedia, {
+        as: "penyedia",
         foreignKey: {
           name: "user_id",
         },
       });
 
-      User.hasOne(models.Penyedia, {
-        as: "Pencari",
+      User.hasOne(models.Pencari, {
+        as: "pencari",
         foreignKey: {
           name: "user_id",
         },
