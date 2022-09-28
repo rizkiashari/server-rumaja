@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
       deskripsi_kerja: DataTypes.TEXT,
       fasilitas: DataTypes.TEXT,
       lokasi_kerja: DataTypes.STRING,
-      lamar_sebelum_tgl: DataTypes.STRING,
+      lamar_sebelum_tgl: DataTypes.INTEGER,
       createdAt: DataTypes.INTEGER,
     },
     {

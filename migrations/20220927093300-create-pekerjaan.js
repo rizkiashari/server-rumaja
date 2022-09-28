@@ -54,7 +54,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       lamar_sebelum_tgl: {
-        type: Sequelize.DATE,
+        type: Sequelize.INTEGER,
       },
       createdAt: {
         type: Sequelize.INTEGER,
