@@ -1,8 +1,10 @@
 const joi = require("joi");
+const dotenv = require("dotenv");
 const uuid = require("uuid");
 const jwt = require("jsonwebtoken");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
-const { Pekerjaan, Penyedia } = require("../../models");
+const { Pekerjaan, Penyedia, User } = require("../../models");
+const env = dotenv.config().parsed;
 
 exports.getAllPekerjaan = async (req, res) => {
   try {
@@ -45,6 +47,61 @@ exports.getAllPekerjaan = async (req, res) => {
   }
 };
 
+exports.getByUUIDPekerjaan = async (req, res) => {
+  try {
+    const { uuid_kerja } = req.params;
+
+    const headers = req.header("Authorization");
+
+    if (!headers) {
+      return errorResponse(res, 401, "UNAUTHORIZED");
+    }
+
+    const token = headers.split(" ")[1];
+
+    jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, data) => {
+      if (err) {
+        return errorResponse(res, 403, "TOKEN_EXPIRED");
+      }
+
+      if (!data) {
+        return errorResponse(res, 403, "TOKEN_INVALID");
+      } else {
+        const user = await User.findOne({
+          where: {
+            id: data.id,
+          },
+          include: {
+            model: Penyedia,
+            as: "penyedia",
+          },
+        });
+
+        if (!user) {
+          return errorResponse(res, 404, "USER_NOT_FOUND");
+        }
+
+        const dataPekerja = await Pekerjaan.findOne({
+          where: {
+            uuid_kerja,
+          },
+          attributes: {
+            exclude: ["updatedAt"],
+          },
+        });
+
+        if (!dataPekerja) {
+          return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
+        }
+
+        successResWithData(res, 200, "LIST_PEKERJAAN", dataPekerja);
+      }
+    });
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
 exports.addPekerjaan = async (req, res) => {
   try {
     const dataPekerjaan = req.body;
@@ -70,7 +127,14 @@ exports.addPekerjaan = async (req, res) => {
         where: {
           user_id: user.id,
         },
+        attributes: {
+          exclude: ["updatedAt"],
+        },
       });
+
+      if (!dataPenyedia) {
+        return errorResponse(res, 404, "PENYEDIA_NOT_FOUND");
+      }
 
       const schema = joi.object({
         posisi_kerja: joi.string().min(3).required(),
@@ -107,7 +171,123 @@ exports.addPekerjaan = async (req, res) => {
 
       await newPekerjaan.save();
 
-      successRes(res, 200, "SUCCESS_ADD_PEKERJAAN");
+      successResWithData(res, 200, "SUCCESS_ADD_PEKERJAAN", dataPenyedia);
+    });
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.editPekerjaan = async (req, res) => {
+  try {
+    const { uuid_kerja } = req.params;
+
+    const headers = req.header("Authorization");
+
+    if (!headers) {
+      return errorResponse(res, 401, "UNAUTHORIZED");
+    }
+
+    const token = headers.split(" ")[1];
+
+    jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, data) => {
+      if (err) {
+        return errorResponse(res, 403, "TOKEN_EXPIRED");
+      }
+
+      if (!data) {
+        return errorResponse(res, 403, "TOKEN_INVALID");
+      } else {
+        const user = await User.findOne({
+          where: {
+            id: data.id,
+          },
+          include: {
+            model: Penyedia,
+            as: "penyedia",
+          },
+        });
+
+        if (!user) {
+          return errorResponse(res, 404, "USER_NOT_FOUND");
+        }
+
+        const dataPekerja = await Pekerjaan.findOne({
+          where: {
+            uuid_kerja,
+          },
+        });
+
+        if (!dataPekerja) {
+          return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
+        }
+
+        await Pekerjaan.update(req.body, {
+          where: {
+            uuid_kerja,
+          },
+        });
+
+        successRes(res, 200, "SUCCESS_EDIT_PEKERJAAN");
+      }
+    });
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.deletePekerjaan = async (req, res) => {
+  try {
+    const { uuid_kerja } = req.params;
+
+    const headers = req.header("Authorization");
+
+    if (!headers) {
+      return errorResponse(res, 401, "UNAUTHORIZED");
+    }
+
+    const token = headers.split(" ")[1];
+
+    jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, data) => {
+      if (err) {
+        return errorResponse(res, 403, "TOKEN_EXPIRED");
+      }
+
+      if (!data) {
+        return errorResponse(res, 403, "TOKEN_INVALID");
+      } else {
+        const user = await User.findOne({
+          where: {
+            id: data.id,
+          },
+          include: {
+            model: Penyedia,
+            as: "penyedia",
+          },
+        });
+
+        if (!user) {
+          return errorResponse(res, 404, "USER_NOT_FOUND");
+        }
+
+        const dataPekerja = await Pekerjaan.findOne({
+          where: {
+            uuid_kerja,
+          },
+        });
+
+        if (!dataPekerja) {
+          return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
+        }
+
+        await Pekerjaan.destroy({
+          where: {
+            uuid_kerja,
+          },
+        });
+
+        successRes(res, 200, "SUCCESS_DELETE_PEKERJAAN");
+      }
     });
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
