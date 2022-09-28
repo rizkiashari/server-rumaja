@@ -7,7 +7,7 @@ const { Pekerjaan, Penyedia, User } = require("../../models");
 const { Op } = require("sequelize");
 const env = dotenv.config().parsed;
 
-exports.getPekerjaanWithLimit = async (req, res) => {
+exports.getAllPekerjaan = async (req, res) => {
   try {
     const headers = req.header("Authorization");
 
@@ -91,7 +91,7 @@ exports.getPekerjaanWithLimit = async (req, res) => {
 
       const totalPage = Math.ceil(totalRows / limit);
 
-      let dataPekerjaan = await Pekerjaan.findAll({
+      const dataPekerjaan = await Pekerjaan.findAll({
         where: {
           [Op.and]: [
             { id_penyedia: dataPenyedia.id },
@@ -156,6 +156,49 @@ exports.getPekerjaanWithLimit = async (req, res) => {
         totalRows,
         totalPage,
       });
+    });
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.getAllPekerjanWithLimit = async (req, res) => {
+  try {
+    const { limit } = req.params;
+
+    const headers = req.header("Authorization");
+
+    if (!headers) {
+      return errorResponse(res, 401, "UNAUTHORIZED");
+    }
+
+    const token = headers.split(" ")[1];
+
+    jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET, async (err, user) => {
+      if (err) {
+        return errorResponse(res, 403, "TOKEN_EXPIRED");
+      }
+
+      if (user.role !== 3) {
+        return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
+      }
+
+      const dataPenyedia = await Penyedia.findOne({
+        where: {
+          user_id: user.id,
+        },
+      });
+
+      const dataPekerjaan = await Pekerjaan.findAll({
+        where: { id_penyedia: dataPenyedia.id },
+        attributes: {
+          exclude: ["updatedAt"],
+        },
+        limit: +limit,
+        order: [["id", "DESC"]],
+      });
+
+      successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", dataPekerjaan);
     });
   } catch (error) {
     console.log(error);
