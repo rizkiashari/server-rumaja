@@ -73,6 +73,8 @@ exports.listAllPendidikan = async (req, res) => {
   try {
     const headers = req.header("Authorization");
 
+    console.log(headers);
+
     if (!headers) {
       return errorResponse(res, 401, "UNAUTHORIZED");
     }
@@ -106,15 +108,18 @@ exports.listAllPendidikan = async (req, res) => {
           },
         });
 
-        successResWithData(res, 200, "LIST_PENDIDIKAN_SUCCESS", listPendidikan);
-
-        res.status(200).send({
-          code: 200,
-          message: "LIST_ALL_PENDIDIKAN_SUCCESS",
-          data: listPendidikan,
-        });
+        successResWithData(res, 200, "LIST_ALL_PENDIDIKAN_SUCCESS", listPendidikan);
       }
     });
+  } catch (error) {
+    console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.getPendidikanByUUID = async (req, res) => {
+  try {
+    successRes(res, 200, "GET_PENDIDIKAN_BY_UUID_SUCCESS");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
