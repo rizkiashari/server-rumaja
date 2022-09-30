@@ -18,7 +18,7 @@ module.exports = {
         onUpdate: "CASCADE",
       },
       domisili: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
       },
       photo_profile: {
         type: Sequelize.STRING,

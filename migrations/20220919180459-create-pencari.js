@@ -42,7 +42,7 @@ module.exports = {
         type: Sequelize.BOOLEAN,
       },
       domisili: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
       },
       tinggi_badan: {
         type: Sequelize.INTEGER,
