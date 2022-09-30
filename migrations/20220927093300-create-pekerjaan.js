@@ -11,17 +11,17 @@ module.exports = {
       uuid_kerja: {
         type: Sequelize.STRING,
       },
-      posisi_kerja: {
-        type: Sequelize.STRING,
+      gaji: {
+        type: Sequelize.INTEGER,
       },
-      range_awal_gaji: {
-        type: Sequelize.STRING,
-      },
-      range_akhir_gaji: {
+      skala_gaji: {
         type: Sequelize.STRING,
       },
       kualifikasi: {
         type: Sequelize.TEXT,
+      },
+      photo: {
+        type: Sequelize.STRING,
       },
       id_penyedia: {
         type: Sequelize.INTEGER,
@@ -50,8 +50,11 @@ module.exports = {
       fasilitas: {
         type: Sequelize.TEXT,
       },
-      lokasi_kerja: {
-        type: Sequelize.STRING,
+      lokasi_kerja_provinsi: {
+        type: Sequelize.INTEGER,
+      },
+      lokasi_kerja_kota: {
+        type: Sequelize.INTEGER,
       },
       lamar_sebelum_tgl: {
         type: Sequelize.INTEGER,
