@@ -11,9 +11,6 @@ module.exports = {
       name_bidang: {
         type: Sequelize.STRING,
       },
-      singkatan_bidang: {
-        type: Sequelize.STRING,
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.INTEGER,
