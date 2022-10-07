@@ -9,161 +9,139 @@ const env = dotenv.config().parsed;
 
 exports.getAllPekerjaan = async (req, res) => {
   try {
-    const headers = req.header("Authorization");
+    const userLogin = req.user;
 
     const limit = +req.query.limit || 10;
     const page = +req.query.page || 1;
 
     const { deadline, domisili, bidang_kerja, gaji, search } = req.query;
 
-    if (!headers) {
-      return errorResponse(res, 401, "UNAUTHORIZED");
+    if (userLogin.role_id !== 3) {
+      return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
     }
 
-    const token = headers.split(" ")[1];
+    if (!domisili && !bidang_kerja && !gaji && !deadline && !search) {
+      const totalRows = await Pekerjaan.count();
 
-    jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET, async (err, user) => {
-      if (err) {
-        return errorResponse(res, 403, "TOKEN_EXPIRED");
-      }
+      const totalPage = Math.ceil(totalRows / limit);
 
-      if (user.role !== 3) {
-        return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
-      }
+      const dataPekerjaan = await Pekerjaan.findAll({
+        attributes: {
+          exclude: ["updatedAt"],
+        },
+        limit: [(page - 1) * +limit, +limit],
+        order: [["id", "DESC"]],
+      });
 
-      if (!domisili && !bidang_kerja && !gaji && !deadline && !search) {
-        const totalRows = await Pekerjaan.count();
+      successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
+        pekerjaan: dataPekerjaan,
+        totalPage,
+        page,
+        limit,
+        totalRows,
+        totalPage,
+      });
+    } else {
+      const totalRows = await Pekerjaan.count({
+        where: {
+          [Op.or]: [
+            {
+              id_bidang_kerja: {
+                [Op.eq]: bidang_kerja,
+              },
+            },
+            {
+              lokasi_kerja_kota: {
+                [Op.eq]: domisili,
+              },
+            },
+            {
+              gaji: {
+                [Op.gte]: gaji,
+              },
+            },
+            {
+              lamar_sebelum_tgl: {
+                [Op.gte]: +new Date(deadline).getTime() / 1000,
+              },
+            },
+            {
+              kualifikasi: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+            {
+              deskripsi_kerja: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+            {
+              fasilitas: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+          ],
+        },
+      });
 
-        const totalPage = Math.ceil(totalRows / limit);
+      const totalPage = Math.ceil(totalRows / limit);
 
-        const dataPekerjaan = await Pekerjaan.findAll({
-          attributes: {
-            exclude: ["updatedAt"],
-          },
-          limit: [(page - 1) * +limit, +limit],
-          order: [["id", "DESC"]],
-        });
+      const dataPekerjaan = await Pekerjaan.findAll({
+        where: {
+          [Op.or]: [
+            {
+              id_bidang_kerja: {
+                [Op.eq]: bidang_kerja,
+              },
+            },
+            {
+              lokasi_kerja_kota: {
+                [Op.eq]: domisili,
+              },
+            },
+            {
+              gaji: {
+                [Op.gte]: gaji,
+              },
+            },
+            {
+              lamar_sebelum_tgl: {
+                [Op.gte]: +new Date(deadline).getTime() / 1000,
+              },
+            },
+            {
+              kualifikasi: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+            {
+              deskripsi_kerja: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+            {
+              fasilitas: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+          ],
+        },
+        attributes: {
+          exclude: ["updatedAt"],
+        },
+        limit: [(page - 1) * +limit, +limit],
+        order: [["id", "DESC"]],
+      });
 
-        successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
-          pekerjaan: dataPekerjaan,
-          totalPage,
-          page,
-          limit,
-          totalRows,
-          totalPage,
-        });
-      } else {
-        const totalRows = await Pekerjaan.count({
-          where: {
-            [Op.or]: [
-              {
-                id_bidang_kerja: {
-                  [Op.like]: bidang_kerja,
-                },
-              },
-              {
-                lokasi_kerja: {
-                  [Op.like]: domisili,
-                },
-              },
-              {
-                range_awal_gaji: {
-                  [Op.like]: gaji,
-                },
-              },
-              {
-                lamar_sebelum_tgl: {
-                  [Op.gte]: +new Date(deadline).getTime() / 1000,
-                },
-              },
-              {
-                posisi_kerja: {
-                  [Op.like]: `%${search}%`,
-                },
-              },
-              {
-                kualifikasi: {
-                  [Op.like]: `%${search}%`,
-                },
-              },
-              {
-                deskripsi_kerja: {
-                  [Op.like]: `%${search}%`,
-                },
-              },
-              {
-                fasilitas: {
-                  [Op.like]: `%${search}%`,
-                },
-              },
-            ],
-          },
-        });
-
-        const totalPage = Math.ceil(totalRows / limit);
-
-        const dataPekerjaan = await Pekerjaan.findAll({
-          where: {
-            [Op.or]: [
-              {
-                id_bidang_kerja: {
-                  [Op.like]: bidang_kerja,
-                },
-              },
-              {
-                lokasi_kerja: {
-                  [Op.like]: domisili,
-                },
-              },
-              {
-                range_awal_gaji: {
-                  [Op.like]: gaji,
-                },
-              },
-              {
-                lamar_sebelum_tgl: {
-                  [Op.gte]: +new Date(deadline).getTime() / 1000,
-                },
-              },
-              {
-                posisi_kerja: {
-                  [Op.like]: `%${search}%`,
-                },
-              },
-              {
-                kualifikasi: {
-                  [Op.like]: `%${search}%`,
-                },
-              },
-              {
-                deskripsi_kerja: {
-                  [Op.like]: `%${search}%`,
-                },
-              },
-              {
-                fasilitas: {
-                  [Op.like]: `%${search}%`,
-                },
-              },
-            ],
-          },
-          attributes: {
-            exclude: ["updatedAt"],
-          },
-          limit: [(page - 1) * +limit, +limit],
-          order: [["id", "DESC"]],
-        });
-
-        successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
-          pekerjaan: dataPekerjaan,
-          totalPage,
-          page,
-          limit,
-          totalRows,
-          totalPage,
-        });
-      }
-    });
+      successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
+        pekerjaan: dataPekerjaan,
+        totalPage,
+        page,
+        limit,
+        totalRows,
+        totalPage,
+      });
+    }
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
@@ -171,35 +149,22 @@ exports.getAllPekerjaan = async (req, res) => {
 
 exports.getAllPekerjanWithLimit = async (req, res) => {
   try {
+    const userLogin = req.user;
     const { limit } = req.params;
 
-    const headers = req.header("Authorization");
-
-    if (!headers) {
-      return errorResponse(res, 401, "UNAUTHORIZED");
+    if (userLogin.role_id !== 3) {
+      return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
     }
 
-    const token = headers.split(" ")[1];
-
-    jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET, async (err, user) => {
-      if (err) {
-        return errorResponse(res, 403, "TOKEN_EXPIRED");
-      }
-
-      if (user.role !== 3) {
-        return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
-      }
-
-      const dataPekerjaan = await Pekerjaan.findAll({
-        attributes: {
-          exclude: ["updatedAt"],
-        },
-        limit: +limit,
-        order: [["id", "DESC"]],
-      });
-
-      successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", dataPekerjaan);
+    const dataPekerjaan = await Pekerjaan.findAll({
+      attributes: {
+        exclude: ["updatedAt"],
+      },
+      limit: +limit,
+      order: [["id", "DESC"]],
     });
+
+    successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", dataPekerjaan);
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
@@ -209,38 +174,20 @@ exports.getByUUIDPekerjaan = async (req, res) => {
   try {
     const { uuid_kerja } = req.params;
 
-    const headers = req.header("Authorization");
+    const dataPekerja = await Pekerjaan.findOne({
+      where: {
+        uuid_kerja,
+      },
+      attributes: {
+        exclude: ["updatedAt"],
+      },
+    });
 
-    if (!headers) {
-      return errorResponse(res, 401, "UNAUTHORIZED");
+    if (!dataPekerja) {
+      return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
     }
 
-    const token = headers.split(" ")[1];
-
-    jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, data) => {
-      if (err) {
-        return errorResponse(res, 403, "TOKEN_EXPIRED");
-      }
-
-      if (!data) {
-        return errorResponse(res, 403, "TOKEN_INVALID");
-      } else {
-        const dataPekerja = await Pekerjaan.findOne({
-          where: {
-            uuid_kerja,
-          },
-          attributes: {
-            exclude: ["updatedAt"],
-          },
-        });
-
-        if (!dataPekerja) {
-          return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
-        }
-
-        successResWithData(res, 200, "LIST_PEKERJAAN", dataPekerja);
-      }
-    });
+    successResWithData(res, 200, "LIST_PEKERJAAN", dataPekerja);
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
@@ -248,77 +195,64 @@ exports.getByUUIDPekerjaan = async (req, res) => {
 
 exports.addPekerjaan = async (req, res) => {
   try {
+    const userLogin = req.user;
     const dataPekerjaan = req.body;
 
-    const headers = req.header("Authorization");
-
-    if (!headers) {
-      return errorResponse(res, 401, "Unauthorized");
+    if (userLogin.role_id !== 3) {
+      return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
     }
 
-    const token = headers.split(" ")[1];
-
-    jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET, async (err, user) => {
-      if (err) {
-        return errorResponse(res, 403, "TOKEN_EXPIRED");
-      }
-
-      if (user.role !== 3) {
-        return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
-      }
-
-      const dataPenyedia = await Penyedia.findOne({
-        where: {
-          user_id: user.id,
-        },
-        attributes: {
-          exclude: ["updatedAt"],
-        },
-      });
-
-      if (!dataPenyedia) {
-        return errorResponse(res, 404, "PENYEDIA_NOT_FOUND");
-      }
-
-      const schema = joi.object({
-        posisi_kerja: joi.string().min(3).required(),
-        range_awal_gaji: joi.string().required(),
-        range_akhir_gaji: joi.string().required(),
-        fasilitas: joi.string().required(),
-        kualifikasi: joi.string().min(8).required(),
-        id_bidang_kerja: joi.number().required(),
-        deskripsi_kerja: joi.string().required(),
-        lokasi_kerja: joi.string().optional(),
-        lamar_sebelum_tgl: joi.string().required(),
-      });
-
-      const { error } = schema.validate(dataPekerjaan);
-      if (error) {
-        return errorResponse(res, 400, error.details[0].message);
-      }
-
-      const deadline = new Date(dataPekerjaan.lamar_sebelum_tgl).getTime() / 1000;
-
-      const newPekerjaan = new Pekerjaan({
-        uuid_kerja: uuid.v4(),
-        posisi_kerja: dataPekerjaan.posisi_kerja,
-        range_awal_gaji: dataPekerjaan.range_awal_gaji,
-        range_akhir_gaji: dataPekerjaan.range_akhir_gaji,
-        kualifikasi: dataPekerjaan.kualifikasi,
-        id_penyedia: dataPenyedia.id,
-        id_bidang_kerja: dataPekerjaan.id_bidang_kerja,
-        deskripsi_kerja: dataPekerjaan.deskripsi_kerja,
-        lokasi_kerja: dataPekerjaan.lokasi_kerja,
-        isSave: false,
-        lamar_sebelum_tgl: +deadline,
-        createdAt: Math.floor(+new Date() / 1000),
-        fasilitas: dataPekerjaan.fasilitas,
-      });
-
-      await newPekerjaan.save();
-
-      successRes(res, 200, "SUCCESS_ADD_PEKERJAAN");
+    const dataPenyedia = await Penyedia.findOne({
+      where: {
+        user_id: userLogin.id,
+      },
+      attributes: {
+        exclude: ["updatedAt"],
+      },
     });
+
+    if (!dataPenyedia) {
+      return errorResponse(res, 404, "PENYEDIA_NOT_FOUND");
+    }
+
+    const schema = joi.object({
+      posisi_kerja: joi.string().min(3).required(),
+      range_awal_gaji: joi.string().required(),
+      range_akhir_gaji: joi.string().required(),
+      fasilitas: joi.string().required(),
+      kualifikasi: joi.string().min(8).required(),
+      id_bidang_kerja: joi.number().required(),
+      deskripsi_kerja: joi.string().required(),
+      lokasi_kerja: joi.string().optional(),
+      lamar_sebelum_tgl: joi.string().required(),
+    });
+
+    const { error } = schema.validate(dataPekerjaan);
+    if (error) {
+      return errorResponse(res, 400, error.details[0].message);
+    }
+
+    const deadline = new Date(dataPekerjaan.lamar_sebelum_tgl).getTime() / 1000;
+
+    const newPekerjaan = new Pekerjaan({
+      uuid_kerja: uuid.v4(),
+      posisi_kerja: dataPekerjaan.posisi_kerja,
+      range_awal_gaji: dataPekerjaan.range_awal_gaji,
+      range_akhir_gaji: dataPekerjaan.range_akhir_gaji,
+      kualifikasi: dataPekerjaan.kualifikasi,
+      id_penyedia: dataPenyedia.id,
+      id_bidang_kerja: dataPekerjaan.id_bidang_kerja,
+      deskripsi_kerja: dataPekerjaan.deskripsi_kerja,
+      lokasi_kerja: dataPekerjaan.lokasi_kerja,
+      isSave: false,
+      lamar_sebelum_tgl: +deadline,
+      createdAt: Math.floor(+new Date() / 1000),
+      fasilitas: dataPekerjaan.fasilitas,
+    });
+
+    await newPekerjaan.save();
+
+    successRes(res, 200, "SUCCESS_ADD_PEKERJAAN");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
@@ -328,55 +262,23 @@ exports.editPekerjaan = async (req, res) => {
   try {
     const { uuid_kerja } = req.params;
 
-    const headers = req.header("Authorization");
+    const dataPekerja = await Pekerjaan.findOne({
+      where: {
+        uuid_kerja,
+      },
+    });
 
-    if (!headers) {
-      return errorResponse(res, 401, "UNAUTHORIZED");
+    if (!dataPekerja) {
+      return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
     }
 
-    const token = headers.split(" ")[1];
-
-    jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, data) => {
-      if (err) {
-        return errorResponse(res, 403, "TOKEN_EXPIRED");
-      }
-
-      if (!data) {
-        return errorResponse(res, 403, "TOKEN_INVALID");
-      } else {
-        const user = await User.findOne({
-          where: {
-            id: data.id,
-          },
-          include: {
-            model: Penyedia,
-            as: "penyedia",
-          },
-        });
-
-        if (!user) {
-          return errorResponse(res, 404, "USER_NOT_FOUND");
-        }
-
-        const dataPekerja = await Pekerjaan.findOne({
-          where: {
-            uuid_kerja,
-          },
-        });
-
-        if (!dataPekerja) {
-          return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
-        }
-
-        await Pekerjaan.update(req.body, {
-          where: {
-            uuid_kerja,
-          },
-        });
-
-        successRes(res, 200, "SUCCESS_EDIT_PEKERJAAN");
-      }
+    await Pekerjaan.update(req.body, {
+      where: {
+        uuid_kerja,
+      },
     });
+
+    successRes(res, 200, "SUCCESS_EDIT_PEKERJAAN");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
@@ -386,55 +288,23 @@ exports.deletePekerjaan = async (req, res) => {
   try {
     const { uuid_kerja } = req.params;
 
-    const headers = req.header("Authorization");
+    const dataPekerja = await Pekerjaan.findOne({
+      where: {
+        uuid_kerja,
+      },
+    });
 
-    if (!headers) {
-      return errorResponse(res, 401, "UNAUTHORIZED");
+    if (!dataPekerja) {
+      return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
     }
 
-    const token = headers.split(" ")[1];
-
-    jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, data) => {
-      if (err) {
-        return errorResponse(res, 403, "TOKEN_EXPIRED");
-      }
-
-      if (!data) {
-        return errorResponse(res, 403, "TOKEN_INVALID");
-      } else {
-        const user = await User.findOne({
-          where: {
-            id: data.id,
-          },
-          include: {
-            model: Penyedia,
-            as: "penyedia",
-          },
-        });
-
-        if (!user) {
-          return errorResponse(res, 404, "USER_NOT_FOUND");
-        }
-
-        const dataPekerja = await Pekerjaan.findOne({
-          where: {
-            uuid_kerja,
-          },
-        });
-
-        if (!dataPekerja) {
-          return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
-        }
-
-        await Pekerjaan.destroy({
-          where: {
-            uuid_kerja,
-          },
-        });
-
-        successRes(res, 200, "SUCCESS_DELETE_PEKERJAAN");
-      }
+    await Pekerjaan.destroy({
+      where: {
+        uuid_kerja,
+      },
     });
+
+    successRes(res, 200, "SUCCESS_DELETE_PEKERJAAN");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
@@ -444,61 +314,43 @@ exports.savePekerjaan = async (req, res) => {
   try {
     const { uuid_kerja } = req.params;
 
-    const headers = req.header("Authorization");
+    const dataPekerjaan = await Pekerjaan.findOne({
+      where: {
+        uuid_kerja,
+      },
+    });
 
-    if (!headers) {
-      return errorResponse(res, 401, "UNAUTHORIZED");
+    if (!dataPekerjaan) {
+      return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
     }
 
-    const token = headers.split(" ")[1];
-
-    jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, data) => {
-      if (err) {
-        return errorResponse(res, 403, "TOKEN_EXPIRED");
-      }
-
-      if (!data) {
-        return errorResponse(res, 403, "TOKEN_INVALID");
-      }
-
-      const dataPekerjaan = await Pekerjaan.findOne({
-        where: {
-          uuid_kerja,
+    if (dataPekerjaan.isSave === true) {
+      await Pekerjaan.update(
+        {
+          isSave: false,
         },
-      });
-
-      if (!dataPekerjaan) {
-        return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
-      }
-
-      if (dataPekerjaan.isSave === true) {
-        await Pekerjaan.update(
-          {
-            isSave: false,
+        {
+          where: {
+            uuid_kerja,
           },
-          {
-            where: {
-              uuid_kerja,
-            },
-          }
-        );
+        }
+      );
 
-        successRes(res, 200, "SUCCESS_UNSAVE_PEKERJAAN");
-      } else {
-        await Pekerjaan.update(
-          {
-            isSave: true,
+      successRes(res, 200, "SUCCESS_UNSAVE_PEKERJAAN");
+    } else {
+      await Pekerjaan.update(
+        {
+          isSave: true,
+        },
+        {
+          where: {
+            uuid_kerja,
           },
-          {
-            where: {
-              uuid_kerja,
-            },
-          }
-        );
+        }
+      );
 
-        successRes(res, 200, "SUCCESS_SAVE_PEKERJAAN");
-      }
-    });
+      successRes(res, 200, "SUCCESS_SAVE_PEKERJAAN");
+    }
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
@@ -506,35 +358,26 @@ exports.savePekerjaan = async (req, res) => {
 
 exports.rekomendasiPekerjaan = async (req, res) => {
   try {
-    const { lokasi } = req.params;
+    const { bidang_kerja, kota } = req.query;
 
-    const headers = req.header("Authorization");
-
-    if (!headers) {
-      return errorResponse(res, 401, "UNAUTHORIZED");
-    }
-
-    const token = headers.split(" ")[1];
-
-    jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, data) => {
-      if (err) {
-        return errorResponse(res, 403, "TOKEN_EXPIRED");
-      }
-
-      if (!data) {
-        return errorResponse(res, 403, "TOKEN_INVALID");
-      }
-
-      const dataPekerjaan = await Pekerjaan.findAll({
-        where: {
-          lokasi_kerja: {
-            [Op.like]: `%${lokasi}%`,
+    const dataPekerjaan = await Pekerjaan.findAll({
+      where: {
+        [Op.or]: [
+          {
+            id_bidang_kerja: {
+              [Op.eq]: `%${bidang_kerja}%`,
+            },
           },
-        },
-      });
-
-      successResWithData(res, 200, "SUCCESS_GET_REKOMENDASI_PEKERJAAN", dataPekerjaan);
+          {
+            lokasi_kerja_kota: {
+              [Op.eq]: `%${kota}%`,
+            },
+          },
+        ],
+      },
     });
+
+    successResWithData(res, 200, "SUCCESS_GET_REKOMENDASI_PEKERJAAN", dataPekerjaan);
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
