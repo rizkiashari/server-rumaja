@@ -11,17 +11,18 @@ const {
   listUserPencari,
   updatePassword,
 } = require("../controllers/userController");
+const { authMiddleware } = require("../middlewares/auth");
 
 const router = Router();
 
-router.get("/all", getAllUser);
+router.get("/all", authMiddleware, getAllUser);
 router.post("/forgot-password", findEmailResetPassword);
 router.post("/change-password", changePassword);
-router.patch("/update-password", updatePassword);
+router.patch("/update-password", authMiddleware, updatePassword);
 
 router.get("/all-pencari", listUserPencari);
-router.post("/update/pencari", updateUserPencari);
-router.post("/update/penyedia", updateUserPenyedia);
+router.post("/update/pencari", authMiddleware, updateUserPencari);
+router.post("/update/penyedia", authMiddleware, updateUserPenyedia);
 
 router.get("/list-kerja", listBidangKerja);
 
