@@ -11,13 +11,13 @@ exports.getAllPekerjaan = async (req, res) => {
     const limit = +req.query.limit || 10;
     const page = +req.query.page || 1;
 
-    const { deadline, domisili, bidang_kerja, gaji, search } = req.query;
+    const { deadline, kota, bidang_kerja, gaji, search } = req.query;
 
     if (userLogin.role_id !== 3) {
       return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
     }
 
-    if (!domisili && !bidang_kerja && !gaji && !deadline && !search) {
+    if (!kota && !bidang_kerja && !gaji && !deadline && !search) {
       const totalRows = await Pekerjaan.count();
 
       const totalPage = Math.ceil(totalRows / limit);
@@ -49,7 +49,7 @@ exports.getAllPekerjaan = async (req, res) => {
             },
             {
               lokasi_kerja_kota: {
-                [Op.eq]: domisili,
+                [Op.eq]: kota,
               },
             },
             {
@@ -59,7 +59,9 @@ exports.getAllPekerjaan = async (req, res) => {
             },
             {
               lamar_sebelum_tgl: {
-                [Op.gte]: +new Date(deadline).getTime() / 1000,
+                [Op.gte]: deadline
+                  ? +new Date(deadline).getTime() / 1000
+                  : +new Date().getTime() / 1000,
               },
             },
             {
@@ -93,17 +95,19 @@ exports.getAllPekerjaan = async (req, res) => {
             },
             {
               lokasi_kerja_kota: {
-                [Op.eq]: domisili,
+                [Op.eq]: kota,
               },
             },
             {
               gaji: {
-                [Op.gte]: gaji,
+                [Op.lte]: gaji,
               },
             },
             {
               lamar_sebelum_tgl: {
-                [Op.gte]: +new Date(deadline).getTime() / 1000,
+                [Op.gte]: deadline
+                  ? +new Date(deadline).getTime() / 1000
+                  : +new Date().getTime() / 1000,
               },
             },
             {
@@ -140,6 +144,7 @@ exports.getAllPekerjaan = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
