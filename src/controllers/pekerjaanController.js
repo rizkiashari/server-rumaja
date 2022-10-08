@@ -1,7 +1,7 @@
 const joi = require("joi");
 const uuid = require("uuid");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
-const { Pekerjaan, Penyedia } = require("../../models");
+const { Pekerjaan, Penyedia, Bidang_Kerja } = require("../../models");
 const { Op } = require("sequelize");
 
 exports.getAllPekerjaan = async (req, res) => {
@@ -375,6 +375,18 @@ exports.rekomendasiPekerjaan = async (req, res) => {
     });
 
     successResWithData(res, 200, "SUCCESS_GET_REKOMENDASI_PEKERJAAN", dataPekerjaan);
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.listsLayanan = async (req, res) => {
+  try {
+    const dataLayanan = await Bidang_Kerja.findAll({
+      attributes: ["id", "name_bidang"],
+    });
+
+    successResWithData(res, 200, "SUCCESS_GET_LISTS_LAYANAN", dataLayanan);
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
