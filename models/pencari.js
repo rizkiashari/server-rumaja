@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
   Pencari.init(
     {
       photo_profile: DataTypes.STRING,
-      header_photo: DataTypes.STRING,
+      date_open_work: DataTypes.INTEGER,
       gender: DataTypes.STRING(100),
       alamat_rumah: DataTypes.STRING,
       tanggal_lahir: DataTypes.DATE,
