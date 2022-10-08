@@ -1,11 +1,8 @@
 const joi = require("joi");
-const dotenv = require("dotenv");
 const uuid = require("uuid");
-const jwt = require("jsonwebtoken");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
-const { Pekerjaan, Penyedia, User } = require("../../models");
+const { Pekerjaan, Penyedia } = require("../../models");
 const { Op } = require("sequelize");
-const env = dotenv.config().parsed;
 
 exports.getAllPekerjaan = async (req, res) => {
   try {
@@ -216,14 +213,14 @@ exports.addPekerjaan = async (req, res) => {
     }
 
     const schema = joi.object({
-      posisi_kerja: joi.string().min(3).required(),
-      range_awal_gaji: joi.string().required(),
-      range_akhir_gaji: joi.string().required(),
+      gaji: joi.number().required(),
+      skala_gaji: joi.string().valid("Hari", "Bulan", "Tahun").required(),
       fasilitas: joi.string().required(),
-      kualifikasi: joi.string().min(8).required(),
+      kualifikasi: joi.string().required(),
       id_bidang_kerja: joi.number().required(),
       deskripsi_kerja: joi.string().required(),
-      lokasi_kerja: joi.string().optional(),
+      lokasi_kerja_provinsi: joi.number().required(),
+      lokasi_kerja_kota: joi.number().required(),
       lamar_sebelum_tgl: joi.string().required(),
     });
 
@@ -236,14 +233,14 @@ exports.addPekerjaan = async (req, res) => {
 
     const newPekerjaan = new Pekerjaan({
       uuid_kerja: uuid.v4(),
-      posisi_kerja: dataPekerjaan.posisi_kerja,
-      range_awal_gaji: dataPekerjaan.range_awal_gaji,
-      range_akhir_gaji: dataPekerjaan.range_akhir_gaji,
+      gaji: dataPekerjaan.gaji,
+      skala_gaji: dataPekerjaan.skala_gaji,
       kualifikasi: dataPekerjaan.kualifikasi,
       id_penyedia: dataPenyedia.id,
       id_bidang_kerja: dataPekerjaan.id_bidang_kerja,
       deskripsi_kerja: dataPekerjaan.deskripsi_kerja,
-      lokasi_kerja: dataPekerjaan.lokasi_kerja,
+      lokasi_kerja_provinsi: dataPekerjaan.lokasi_kerja_provinsi,
+      lokasi_kerja_kota: dataPekerjaan.lokasi_kerja_kota,
       isSave: false,
       lamar_sebelum_tgl: +deadline,
       createdAt: Math.floor(+new Date() / 1000),
@@ -365,12 +362,12 @@ exports.rekomendasiPekerjaan = async (req, res) => {
         [Op.or]: [
           {
             id_bidang_kerja: {
-              [Op.eq]: `%${bidang_kerja}%`,
+              [Op.eq]: `${bidang_kerja ? +bidang_kerja : ""}`,
             },
           },
           {
             lokasi_kerja_kota: {
-              [Op.eq]: `%${kota}%`,
+              [Op.eq]: `${kota ? +kota : ""}`,
             },
           },
         ],
