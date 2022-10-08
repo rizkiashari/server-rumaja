@@ -30,8 +30,7 @@ module.exports = {
           updatedAt: new Date().getTime() / 1000,
         },
         {
-          name_bidang: "Gardener",
-          singkatan_bidang: "Tukang Kebun",
+          name_bidang: "Tukang Kebun",
           createdAt: new Date().getTime() / 1000,
           updatedAt: new Date().getTime() / 1000,
         },
