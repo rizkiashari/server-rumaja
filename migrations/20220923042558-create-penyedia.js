@@ -26,9 +26,6 @@ module.exports = {
       photo_profile: {
         type: Sequelize.STRING,
       },
-      header_profile: {
-        type: Sequelize.STRING,
-      },
       gender: {
         type: Sequelize.STRING(100),
       },

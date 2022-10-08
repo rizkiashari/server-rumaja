@@ -36,7 +36,6 @@ module.exports = (sequelize, DataTypes) => {
       kota: DataTypes.INTEGER,
       provinsi: DataTypes.INTEGER,
       photo_profile: DataTypes.STRING,
-      header_profile: DataTypes.STRING,
       gender: DataTypes.STRING(100),
       alamat_rumah: DataTypes.STRING,
       tanggal_lahir: DataTypes.DATE,
