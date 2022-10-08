@@ -22,6 +22,13 @@ module.exports = (sequelize, DataTypes) => {
           name: "user_id",
         },
       });
+
+      Pencari.hasOne(models.Review, {
+        as: "review",
+        foreignKey: {
+          name: "id_pencari",
+        },
+      });
     }
   }
   Pencari.init(
