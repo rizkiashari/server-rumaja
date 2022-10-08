@@ -31,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
       rating: DataTypes.FLOAT,
       periode_awal_kerja: DataTypes.INTEGER,
       periode_akhir_kerja: DataTypes.INTEGER,
+      createdAt: DataTypes.INTEGER,
     },
     {
       sequelize,
