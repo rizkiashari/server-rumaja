@@ -2,7 +2,7 @@ const joi = require("joi");
 const dotenv = require("dotenv");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { User, Penyedia, Pencari } = require("../../models");
+const { User, Penyedia, Pencari, Review, Bidang_Kerja } = require("../../models");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
 const { Op } = require("sequelize");
 
@@ -233,17 +233,77 @@ exports.listUserPencari = async (req, res) => {
         {
           model: User,
           as: "users",
-          attributes: {
-            exclude: ["password", "updatedAt", "user_id"],
+          attributes: ["name_user", "uuid_user"],
+          include: {
+            model: Bidang_Kerja,
+            as: "bidang_kerja",
+            attributes: ["id", "name_bidang"],
           },
         },
       ],
+      attributes: ["id", "photo_profile", "date_open_work", "gender", "isSave"],
+    });
+
+    const review = await Review.findAll({
       attributes: {
         exclude: ["updatedAt"],
       },
     });
 
-    successResWithData(res, 200, "SUCCESS_GET_LIST_USER_PENCARI", pencari);
+    const pencariData = pencari.map((item) => {
+      const reviewData = review.filter((itemReview) => {
+        return itemReview.id_pencari === item.id;
+      });
+
+      return {
+        id: item.id,
+        photo_profile: item.photo_profile,
+        date_open_work: item.date_open_work,
+        gender: item.gender,
+        isSave: item.isSave,
+        name_pencari: item.users.name_user,
+        uuid_user: item.users.uuid_user,
+        name_bidang: item.users.bidang_kerja.name_bidang,
+        review: reviewData,
+      };
+    });
+
+    successResWithData(res, 200, "SUCCESS_GET_LIST_USER_PENCARI", pencariData);
+  } catch (error) {
+    console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.detailUserPencari = async (req, res) => {
+  try {
+    const { uuid_user } = req.params;
+
+    console.log(uuid_user);
+
+    const userPencari = await User.findOne({
+      where: {
+        uuid_user,
+      },
+      include: [
+        {
+          model: Pencari,
+          as: "pencari",
+          attributes: {
+            exclude: ["updatedAt", "createdAt"],
+          },
+        },
+      ],
+      attributes: {
+        exclude: ["password", "updatedAt", "user_id", "resetPassword", "createdAt"],
+      },
+    });
+
+    if (!userPencari) {
+      return errorResponse(res, 404, "USER_NOT_FOUND");
+    }
+
+    successResWithData(res, 200, "SUCCESS_GET_DETAIL_USER_PENCARI", userPencari);
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }

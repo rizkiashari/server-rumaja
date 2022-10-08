@@ -10,6 +10,7 @@ const {
   updateUserPencari,
   listUserPencari,
   updatePassword,
+  detailUserPencari,
 } = require("../controllers/userController");
 const { authMiddleware } = require("../middlewares/auth");
 
@@ -23,6 +24,7 @@ router.patch("/update-password", authMiddleware, updatePassword);
 router.get("/all-pencari", listUserPencari);
 router.post("/update/pencari", authMiddleware, updateUserPencari);
 router.post("/update/penyedia", authMiddleware, updateUserPenyedia);
+router.get("/detail/pencari/:uuid_user", authMiddleware, detailUserPencari);
 
 router.get("/list-kerja", listBidangKerja);
 
