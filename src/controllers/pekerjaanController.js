@@ -4,6 +4,7 @@ const { errorResponse, successResWithData, successRes } = require("../helper/res
 const { Pekerjaan, Penyedia, Bidang_Kerja } = require("../../models");
 const { Op } = require("sequelize");
 
+// Penyedia
 exports.getAllPekerjaan = async (req, res) => {
   try {
     const userLogin = req.user;
@@ -270,7 +271,9 @@ exports.deletePekerjaan = async (req, res) => {
     errorResponse(res, 500, "Internal Server Error");
   }
 };
+// End
 
+// Pencari
 exports.savePekerjaan = async (req, res) => {
   try {
     const { uuid_kerja } = req.params;
@@ -360,6 +363,150 @@ exports.rekomendasiPekerjaan = async (req, res) => {
   }
 };
 
+exports.getPekerjaanByBidangKerja = async (req, res) => {
+  try {
+    const limit = +req.query.limit || 10;
+    const page = +req.query.page || 1;
+    const { bidang_kerja } = req.params;
+
+    const { kota, provinsi, jenis_gaji, urutan, search } = req.query;
+
+    let tempUrutan = [];
+
+    if (urutan === "Terbaru") {
+      tempUrutan = ["id", "DESC"];
+    }
+    if (urutan === "Terdekat") {
+      tempUrutan = ["lokasi_kerja_kota", "DESC"];
+    }
+    if (urutan === "GajiTertinggi") {
+      tempUrutan = ["gaji", "DESC"];
+    }
+
+    if (!kota && !provinsi && !jenis_gaji && !search) {
+      const totalRows = await Pekerjaan.count();
+
+      const totalPage = Math.ceil(totalRows / limit);
+
+      const dataPekerjaan = await Pekerjaan.findAll({
+        attributes: {
+          exclude: ["updatedAt"],
+        },
+        where: {
+          id_bidang_kerja: bidang_kerja,
+        },
+        limit: [(page - 1) * +limit, +limit],
+        order: [urutan ? tempUrutan : ["id", "DESC"]],
+      });
+
+      successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
+        pekerjaan: dataPekerjaan,
+        totalPage,
+        page,
+        limit,
+        totalRows,
+        totalPage,
+      });
+    } else {
+      const totalRows = await Pekerjaan.count({
+        where: {
+          [Op.or]: [
+            {
+              id_bidang_kerja: {
+                [Op.eq]: bidang_kerja,
+              },
+            },
+            {
+              lokasi_kerja_kota: {
+                [Op.eq]: kota,
+              },
+            },
+            {
+              lokasi_kerja_provinsi: {
+                [Op.eq]: provinsi,
+              },
+            },
+            {
+              kualifikasi: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+            {
+              deskripsi_kerja: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+            {
+              fasilitas: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+          ],
+        },
+      });
+
+      const totalPage = Math.ceil(totalRows / limit);
+
+      const dataPekerjaan = await Pekerjaan.findAll({
+        where: {
+          [Op.or]: [
+            {
+              id_bidang_kerja: {
+                [Op.eq]: bidang_kerja,
+              },
+            },
+            {
+              lokasi_kerja_kota: {
+                [Op.eq]: kota,
+              },
+            },
+            {
+              lokasi_kerja_provinsi: {
+                [Op.eq]: provinsi,
+              },
+            },
+            {
+              kualifikasi: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+            {
+              deskripsi_kerja: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+            {
+              fasilitas: {
+                [Op.like]: `%${search}%`,
+              },
+            },
+          ],
+        },
+        attributes: {
+          exclude: ["updatedAt"],
+        },
+        limit: [(page - 1) * +limit, +limit],
+        order: [urutan ? tempUrutan : ["id", "DESC"]],
+      });
+
+      successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
+        pekerjaan: dataPekerjaan,
+        totalPage,
+        page,
+        limit,
+        totalRows,
+        totalPage,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+// End
+
+// Global
 exports.listsLayanan = async (req, res) => {
   try {
     const dataLayanan = await Bidang_Kerja.findAll({
