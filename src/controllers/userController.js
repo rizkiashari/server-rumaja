@@ -270,7 +270,6 @@ exports.listUserPencari = async (req, res) => {
 
     successResWithData(res, 200, "SUCCESS_GET_LIST_USER_PENCARI", pencariData);
   } catch (error) {
-    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
