@@ -20,9 +20,6 @@ module.exports = {
       photo_profile: {
         type: Sequelize.STRING,
       },
-      date_open_work: {
-        type: Sequelize.INTEGER,
-      },
       gender: {
         type: Sequelize.STRING(100),
       },
