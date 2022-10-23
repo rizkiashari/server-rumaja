@@ -26,7 +26,6 @@ module.exports = (sequelize, DataTypes) => {
   Pekerjaan.init(
     {
       uuid_kerja: DataTypes.STRING,
-      photo: DataTypes.STRING,
       gaji: DataTypes.INTEGER,
       skala_gaji: DataTypes.STRING,
       kualifikasi: DataTypes.TEXT,
@@ -37,7 +36,6 @@ module.exports = (sequelize, DataTypes) => {
       fasilitas: DataTypes.TEXT,
       lokasi_kerja_provinsi: DataTypes.INTEGER,
       lokasi_kerja_kota: DataTypes.INTEGER,
-      lamar_sebelum_tgl: DataTypes.INTEGER,
       createdAt: DataTypes.INTEGER,
     },
     {

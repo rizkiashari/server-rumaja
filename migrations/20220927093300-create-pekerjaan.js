@@ -20,9 +20,6 @@ module.exports = {
       kualifikasi: {
         type: Sequelize.TEXT,
       },
-      photo: {
-        type: Sequelize.STRING,
-      },
       id_penyedia: {
         type: Sequelize.INTEGER,
         references: {
@@ -54,9 +51,6 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       lokasi_kerja_kota: {
-        type: Sequelize.INTEGER,
-      },
-      lamar_sebelum_tgl: {
         type: Sequelize.INTEGER,
       },
       createdAt: {
