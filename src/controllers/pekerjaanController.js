@@ -11,13 +11,13 @@ exports.getAllPekerjaan = async (req, res) => {
     const limit = +req.query.limit || 10;
     const page = +req.query.page || 1;
 
-    const { deadline, kota, bidang_kerja, gaji, search } = req.query;
+    const { kota, bidang_kerja, gaji, search } = req.query;
 
     if (userLogin.role_id !== 3) {
       return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
     }
 
-    if (!kota && !bidang_kerja && !gaji && !deadline && !search) {
+    if (!kota && !bidang_kerja && !gaji && !search) {
       const totalRows = await Pekerjaan.count();
 
       const totalPage = Math.ceil(totalRows / limit);
@@ -55,13 +55,6 @@ exports.getAllPekerjaan = async (req, res) => {
             {
               gaji: {
                 [Op.gte]: gaji,
-              },
-            },
-            {
-              lamar_sebelum_tgl: {
-                [Op.gte]: deadline
-                  ? +new Date(deadline).getTime() / 1000
-                  : +new Date().getTime() / 1000,
               },
             },
             {
@@ -104,13 +97,6 @@ exports.getAllPekerjaan = async (req, res) => {
               },
             },
             {
-              lamar_sebelum_tgl: {
-                [Op.gte]: deadline
-                  ? +new Date(deadline).getTime() / 1000
-                  : +new Date().getTime() / 1000,
-              },
-            },
-            {
               kualifikasi: {
                 [Op.like]: `%${search}%`,
               },
@@ -145,29 +131,6 @@ exports.getAllPekerjaan = async (req, res) => {
     }
   } catch (error) {
     console.log(error);
-    errorResponse(res, 500, "Internal Server Error");
-  }
-};
-
-exports.getAllPekerjanWithLimit = async (req, res) => {
-  try {
-    const userLogin = req.user;
-    const { limit } = req.params;
-
-    if (userLogin.role_id !== 3) {
-      return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
-    }
-
-    const dataPekerjaan = await Pekerjaan.findAll({
-      attributes: {
-        exclude: ["updatedAt"],
-      },
-      limit: +limit,
-      order: [["id", "DESC"]],
-    });
-
-    successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", dataPekerjaan);
-  } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
 };
@@ -226,15 +189,12 @@ exports.addPekerjaan = async (req, res) => {
       deskripsi_kerja: joi.string().required(),
       lokasi_kerja_provinsi: joi.number().required(),
       lokasi_kerja_kota: joi.number().required(),
-      lamar_sebelum_tgl: joi.string().required(),
     });
 
     const { error } = schema.validate(dataPekerjaan);
     if (error) {
       return errorResponse(res, 400, error.details[0].message);
     }
-
-    const deadline = new Date(dataPekerjaan.lamar_sebelum_tgl).getTime() / 1000;
 
     const newPekerjaan = new Pekerjaan({
       uuid_kerja: uuid.v4(),
@@ -247,7 +207,6 @@ exports.addPekerjaan = async (req, res) => {
       lokasi_kerja_provinsi: dataPekerjaan.lokasi_kerja_provinsi,
       lokasi_kerja_kota: dataPekerjaan.lokasi_kerja_kota,
       isSave: false,
-      lamar_sebelum_tgl: +deadline,
       createdAt: Math.floor(+new Date() / 1000),
       fasilitas: dataPekerjaan.fasilitas,
     });
@@ -360,26 +319,42 @@ exports.savePekerjaan = async (req, res) => {
 
 exports.rekomendasiPekerjaan = async (req, res) => {
   try {
-    const { bidang_kerja, kota } = req.query;
+    const { bidang_kerja, gaji } = req.query;
+
+    const limit = +req.query.limit || 5;
+    const page = +req.query.page || 1;
+
+    const totalRows = await Pekerjaan.count();
+
+    const totalPage = Math.ceil(totalRows / limit);
 
     const dataPekerjaan = await Pekerjaan.findAll({
       where: {
-        [Op.or]: [
+        [Op.and]: [
           {
             id_bidang_kerja: {
               [Op.eq]: `${bidang_kerja ? +bidang_kerja : ""}`,
             },
           },
           {
-            lokasi_kerja_kota: {
-              [Op.eq]: `${kota ? +kota : ""}`,
+            gaji: {
+              [Op.gte]: `${gaji ? +gaji : ""}`,
             },
           },
         ],
       },
+      limit: [(page - 1) * +limit, +limit],
+      order: [["id", "DESC"]],
     });
 
-    successResWithData(res, 200, "SUCCESS_GET_REKOMENDASI_PEKERJAAN", dataPekerjaan);
+    successResWithData(res, 200, "SUCCESS_GET_REKOMENDASI_PEKERJAAN", {
+      pekerjaan: dataPekerjaan,
+      totalPage,
+      page,
+      limit,
+      totalRows,
+      totalPage,
+    });
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
