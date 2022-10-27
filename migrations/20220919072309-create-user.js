@@ -36,6 +36,12 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue: null,
       },
+      domisili_kota: {
+        type: Sequelize.INTEGER,
+      },
+      domisili_provinsi: {
+        type: Sequelize.INTEGER,
+      },
       role_id: {
         type: Sequelize.INTEGER,
         references: {

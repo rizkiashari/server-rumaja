@@ -38,12 +38,6 @@ module.exports = {
       isSave: {
         type: Sequelize.BOOLEAN,
       },
-      kota: {
-        type: Sequelize.INTEGER,
-      },
-      provinsi: {
-        type: Sequelize.INTEGER,
-      },
       tinggi_badan: {
         type: Sequelize.INTEGER,
       },

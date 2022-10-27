@@ -17,12 +17,6 @@ module.exports = {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       },
-      kota: {
-        type: Sequelize.INTEGER,
-      },
-      provinsi: {
-        type: Sequelize.INTEGER,
-      },
       photo_profile: {
         type: Sequelize.STRING,
       },
