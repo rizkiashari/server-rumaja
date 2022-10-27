@@ -12,7 +12,7 @@ module.exports = {
      * }], {});
      */
     await queryInterface.bulkInsert(
-      "bidang_kerjas",
+      "bidang_kerja",
       [
         {
           name_bidang: "PRT",
@@ -46,6 +46,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    await queryInterface.bulkDelete("bidang_kerjas", null, {});
+    await queryInterface.bulkDelete("bidang_kerja", null, {});
   },
 };
