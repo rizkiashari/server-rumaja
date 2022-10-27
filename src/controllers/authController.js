@@ -41,10 +41,12 @@ exports.register = async (req, res) => {
     const schema = joi.object({
       name_user: joi.string().min(3).required(),
       email: joi.string().email().required(),
-      password: joi.string().min(8).required(),
-      role: joi.number().required(),
       nomor_wa: joi.string().min(10).max(17).required(),
+      domisili_kota: joi.number().required(),
+      domisili_provinsi: joi.number().required(),
+      password: joi.string().min(8).required(),
       bidang_kerja: joi.number().optional(),
+      role: joi.number().required(),
     });
 
     const { error } = schema.validate(dataUser);
@@ -66,10 +68,12 @@ exports.register = async (req, res) => {
       uuid_user: uuid.v4(),
       name_user: dataUser.name_user,
       email,
-      password: hash,
-      id_bidang_kerja: dataUser.bidang_kerja ? dataUser.bidang_kerja : null,
-      role_id: dataUser.role,
       nomor_wa: dataUser.nomor_wa,
+      domisili_provinsi: dataUser.domisili_provinsi,
+      domisili_kota: dataUser.domisili_kota,
+      password: hash,
+      role_id: dataUser.role,
+      id_bidang_kerja: dataUser.bidang_kerja ? dataUser.bidang_kerja : null,
       createdAt: Math.floor(+new Date() / 1000),
     });
 
