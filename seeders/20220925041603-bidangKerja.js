@@ -15,22 +15,26 @@ module.exports = {
       "bidang_kerja",
       [
         {
-          name_bidang: "PRT",
+          name_bidang: "ART",
+          bidang_detail: "Asisten Rumah Tangga",
           createdAt: new Date().getTime() / 1000,
           updatedAt: new Date().getTime() / 1000,
         },
         {
-          name_bidang: "Pengasuh Anak",
+          name_bidang: "Babysitter",
+          bidang_detail: "Pengasuh Anak",
           createdAt: new Date().getTime() / 1000,
           updatedAt: new Date().getTime() / 1000,
         },
         {
-          name_bidang: "Supir Pribadi",
+          name_bidang: "Driver",
+          bidang_detail: "Supir Pribadi",
           createdAt: new Date().getTime() / 1000,
           updatedAt: new Date().getTime() / 1000,
         },
         {
-          name_bidang: "Tukang Kebun",
+          name_bidang: "Gardener",
+          bidang_detail: "Tukang Kebun",
           createdAt: new Date().getTime() / 1000,
           updatedAt: new Date().getTime() / 1000,
         },

@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
   Bidang_Kerja.init(
     {
       name_bidang: DataTypes.STRING,
+      bidang_detail: DataTypes.STRING,
     },
     {
       sequelize,

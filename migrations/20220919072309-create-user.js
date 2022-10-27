@@ -23,7 +23,7 @@ module.exports = {
       id_bidang_kerja: {
         type: Sequelize.INTEGER,
         references: {
-          model: "bidang_kerjas",
+          model: "bidang_kerja",
           key: "id",
         },
         onDelete: "CASCADE",
