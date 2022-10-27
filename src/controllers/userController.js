@@ -58,7 +58,8 @@ exports.updateUserPenyedia = async (req, res) => {
       email: joi.string().email().required(),
       nomor_wa: joi.string().min(10).max(17).required(),
       alamat_rumah: joi.string().required(),
-      domisili: joi.string().required(),
+      domisili_kota: joi.number().required(),
+      domisili_provinsi: joi.number().required(),
       tentang: joi.string().required(),
       tanggal_lahir: joi.string().required(),
       photo_profile: joi.string().optional(),
@@ -75,6 +76,8 @@ exports.updateUserPenyedia = async (req, res) => {
         name_user: dataPenyedia.name_user,
         email: dataPenyedia.email,
         nomor_wa: dataPenyedia.nomor_wa,
+        domisili_kota: dataPenyedia.domisili_kota,
+        domisili_provinsi: dataPenyedia.domisili_provinsi,
       },
       {
         where: {
@@ -92,7 +95,6 @@ exports.updateUserPenyedia = async (req, res) => {
     if (dataPenyediaUpdate) {
       await Penyedia.update(
         {
-          domisili: dataPenyedia.domisili,
           photo_profile: dataPenyedia.photo_profile,
           gender: dataPenyedia.gender,
           alamat_rumah: dataPenyedia.alamat_rumah,
@@ -109,7 +111,6 @@ exports.updateUserPenyedia = async (req, res) => {
     } else {
       await Penyedia.create({
         user_id: userLogin.id,
-        domisili: dataPenyedia.domisili,
         photo_profile: dataPenyedia.photo_profile,
         gender: dataPenyedia.gender,
         alamat_rumah: dataPenyedia.alamat_rumah,
@@ -143,8 +144,8 @@ exports.updateUserPencari = async (req, res) => {
       nomor_wa: joi.string().min(10).max(17).required(),
       tanggal_lahir: joi.string().required(),
       alamat_rumah: joi.string().required(),
-      kota: joi.number().required(),
-      provinsi: joi.number().required(),
+      domisili_kota: joi.number().required(),
+      domisili_provinsi: joi.number().required(),
       tinggi_badan: joi.number().required(),
       tempat_lahir: joi.string().required(),
       berat_badan: joi.number().required(),
@@ -164,6 +165,8 @@ exports.updateUserPencari = async (req, res) => {
         email: dataPencari.email,
         nomor_wa: dataPencari.nomor_wa,
         id_bidang_kerja: dataPencari.bidang_kerja,
+        domisili_kota: dataPencari.domisili_kota,
+        domisili_provinsi: dataPencari.domisili_provinsi,
       },
       {
         where: {
@@ -189,8 +192,6 @@ exports.updateUserPencari = async (req, res) => {
           tempat_lahir: dataPencari.tempat_lahir,
           tentang: dataPencari.tentang,
           isSave: false,
-          kota: dataPencari.kota,
-          provinsi: dataPencari.provinsi,
           tinggi_badan: dataPencari.tinggi_badan,
           berat_badan: dataPencari.berat_badan,
           createdAt: Math.floor(+new Date() / 1000),
@@ -212,8 +213,6 @@ exports.updateUserPencari = async (req, res) => {
         tempat_lahir: dataPencari.tempat_lahir,
         tentang: dataPencari.tentang,
         isSave: false,
-        kota: dataPencari.kota,
-        provinsi: dataPencari.provinsi,
         tinggi_badan: dataPencari.tinggi_badan,
         berat_badan: dataPencari.berat_badan,
         createdAt: Math.floor(+new Date() / 1000),
