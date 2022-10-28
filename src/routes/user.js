@@ -26,6 +26,6 @@ router.post("/update/pencari", authMiddleware, updateUserPencari);
 router.post("/update/penyedia", authMiddleware, updateUserPenyedia);
 router.get("/detail/pencari/:uuid_user", authMiddleware, detailUserPencari);
 
-router.get("/list-kerja", listBidangKerja);
+router.get("/list-bidang", listBidangKerja);
 
 module.exports = router;
