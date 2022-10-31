@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const jwt = require("jsonwebtoken");
-const { User, Token } = require("../../models");
+const { User, Token, Pencari, Penyedia } = require("../../models");
 const { errorResponse, successRes, successResWithData } = require("../helper/response");
 
 const env = dotenv.config().parsed;
@@ -197,7 +197,7 @@ exports.refreshToken = async (req, res) => {
 exports.checkAuth = async (req, res) => {
   try {
     const headers = req.header("Authorization");
-
+    let isCompleted = false;
     if (!headers) {
       return errorResponse(res, 401, "UNAUTHORIZED");
     }
@@ -222,7 +222,31 @@ exports.checkAuth = async (req, res) => {
         return errorResponse(res, 404, "USER_NOT_FOUND");
       }
 
-      successResWithData(res, 200, "USER_FOUND", dataUser);
+      if (dataUser.role_id === 2) {
+        const dataPencari = await Pencari.findOne({
+          where: {
+            user_id: dataUser.id,
+          },
+        });
+
+        !dataPencari ? (isCompleted = false) : (isCompleted = true);
+      }
+      if (dataUser.role_id === 3) {
+        const dataPenyedia = await Penyedia.findOne({
+          where: {
+            user_id: dataUser.id,
+          },
+        });
+
+        !dataPenyedia ? (isCompleted = false) : (isCompleted = true);
+      }
+
+      successResWithData(
+        res,
+        200,
+        "USER_FOUND",
+        !isCompleted ? { user: dataUser, isCompleted } : dataUser
+      );
     });
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
