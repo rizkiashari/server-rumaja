@@ -33,7 +33,6 @@ module.exports = (sequelize, DataTypes) => {
   }
   Penyedia.init(
     {
-      kota: DataTypes.INTEGER,
       provinsi: DataTypes.INTEGER,
       photo_profile: DataTypes.STRING,
       gender: DataTypes.STRING(100),
