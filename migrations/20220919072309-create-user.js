@@ -36,6 +36,9 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue: null,
       },
+      photo_profile: {
+        type: Sequelize.STRING,
+      },
       domisili_kota: {
         type: Sequelize.INTEGER,
       },

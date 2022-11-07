@@ -34,7 +34,6 @@ module.exports = (sequelize, DataTypes) => {
   Penyedia.init(
     {
       provinsi: DataTypes.INTEGER,
-      photo_profile: DataTypes.STRING,
       gender: DataTypes.STRING(100),
       alamat_rumah: DataTypes.STRING,
       tanggal_lahir: DataTypes.DATE,

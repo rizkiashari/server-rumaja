@@ -17,9 +17,6 @@ module.exports = {
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       },
-      photo_profile: {
-        type: Sequelize.STRING,
-      },
       gender: {
         type: Sequelize.STRING(100),
       },

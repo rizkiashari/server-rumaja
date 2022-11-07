@@ -38,6 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       alamat_rumah: DataTypes.STRING,
       tanggal_lahir: DataTypes.DATE,
       tempat_lahir: DataTypes.STRING,
+      photo_profile: DataTypes.STRING,
       tentang: DataTypes.TEXT,
       isSave: DataTypes.BOOLEAN,
       tinggi_badan: DataTypes.INTEGER,
