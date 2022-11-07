@@ -74,6 +74,7 @@ exports.register = async (req, res) => {
       password: hash,
       role_id: dataUser.role,
       id_bidang_kerja: dataUser.bidang_kerja ? dataUser.bidang_kerja : null,
+      photo_profile: req.file.photo_profile,
       createdAt: Math.floor(+new Date() / 1000),
     });
 
