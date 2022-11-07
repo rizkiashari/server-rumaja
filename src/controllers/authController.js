@@ -203,6 +203,11 @@ exports.checkAuth = async (req, res) => {
     }
 
     const token = headers.split(" ")[1];
+    console.log("TOKEN", typeof token);
+
+    if (token === null || token === "null") {
+      return errorResponse(res, 401, "TOKEN_NOT_FOUND");
+    }
 
     jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, user) => {
       if (err) {
@@ -241,12 +246,7 @@ exports.checkAuth = async (req, res) => {
         !dataPenyedia ? (isCompleted = false) : (isCompleted = true);
       }
 
-      successResWithData(
-        res,
-        200,
-        "USER_FOUND",
-        !isCompleted ? { user: dataUser, isCompleted } : dataUser
-      );
+      successResWithData(res, 200, "USER_FOUND", { user: dataUser, isCompleted });
     });
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
