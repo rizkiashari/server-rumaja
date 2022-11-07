@@ -50,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
       id_bidang_kerja: DataTypes.INTEGER,
       nomor_wa: DataTypes.STRING(17),
       createdAt: DataTypes.INTEGER,
+      photo_profile: DataTypes.STRING,
     },
     {
       sequelize,
