@@ -78,6 +78,7 @@ exports.updateUserPenyedia = async (req, res) => {
         nomor_wa: dataPenyedia.nomor_wa,
         domisili_kota: dataPenyedia.domisili_kota,
         domisili_provinsi: dataPenyedia.domisili_provinsi,
+        photo_profile: dataPenyedia.photo_profile,
       },
       {
         where: {
@@ -95,7 +96,6 @@ exports.updateUserPenyedia = async (req, res) => {
     if (dataPenyediaUpdate) {
       await Penyedia.update(
         {
-          photo_profile: dataPenyedia.photo_profile,
           gender: dataPenyedia.gender,
           alamat_rumah: dataPenyedia.alamat_rumah,
           tanggal_lahir: dataPenyedia.tanggal_lahir,
@@ -111,7 +111,6 @@ exports.updateUserPenyedia = async (req, res) => {
     } else {
       await Penyedia.create({
         user_id: userLogin.id,
-        photo_profile: dataPenyedia.photo_profile,
         gender: dataPenyedia.gender,
         alamat_rumah: dataPenyedia.alamat_rumah,
         tanggal_lahir: dataPenyedia.tanggal_lahir,
@@ -167,6 +166,7 @@ exports.updateUserPencari = async (req, res) => {
         id_bidang_kerja: dataPencari.bidang_kerja,
         domisili_kota: dataPencari.domisili_kota,
         domisili_provinsi: dataPencari.domisili_provinsi,
+        photo_profile: dataPencari.photo_profile,
       },
       {
         where: {
@@ -184,7 +184,6 @@ exports.updateUserPencari = async (req, res) => {
     if (pencariData) {
       await Pencari.update(
         {
-          photo_profile: dataPencari.photo_profile,
           gender: dataPencari.gender,
           date_open_work: +new Date(dataPencari.date_open_work) / 1000,
           alamat_rumah: dataPencari.alamat_rumah,
@@ -205,7 +204,6 @@ exports.updateUserPencari = async (req, res) => {
     } else {
       await Pencari.create({
         user_id: userLogin.id,
-        photo_profile: dataPencari.photo_profile,
         gender: dataPencari.gender,
         date_open_work: +new Date(dataPencari.date_open_work) / 1000,
         alamat_rumah: dataPencari.alamat_rumah,

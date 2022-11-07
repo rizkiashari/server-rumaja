@@ -13,6 +13,7 @@ const {
   detailUserPencari,
 } = require("../controllers/userController");
 const { authMiddleware } = require("../middlewares/auth");
+const { uploadFile } = require("../middlewares/uploadFile");
 
 const router = Router();
 
@@ -22,8 +23,18 @@ router.post("/change-password", changePassword);
 router.patch("/update-password", authMiddleware, updatePassword);
 
 router.get("/all-pencari", listUserPencari);
-router.post("/update/pencari", authMiddleware, updateUserPencari);
-router.post("/update/penyedia", authMiddleware, updateUserPenyedia);
+router.post(
+  "/update/pencari",
+  authMiddleware,
+  uploadFile("photo_profile"),
+  updateUserPencari
+);
+router.post(
+  "/update/penyedia",
+  authMiddleware,
+  uploadFile("photo_profile"),
+  updateUserPenyedia
+);
 router.get("/detail/pencari/:uuid_user", authMiddleware, detailUserPencari);
 
 router.get("/list-bidang", listBidangKerja);
