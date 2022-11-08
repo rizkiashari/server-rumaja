@@ -74,14 +74,14 @@ exports.register = async (req, res) => {
       password: hash,
       role_id: dataUser.role,
       id_bidang_kerja: dataUser.bidang_kerja ? dataUser.bidang_kerja : null,
-      photo_profile: req.file.photo_profile,
+      photo_profile: req.file.path,
       createdAt: Math.floor(+new Date() / 1000),
     });
 
     await newUser.save();
 
     successRes(res, 200, "USER_REGISTER_SUCCESS");
-  } catch (error) {
+  } catch (error) { 
     errorResponse(res, 500, "Internal Server Error");
   }
 };
