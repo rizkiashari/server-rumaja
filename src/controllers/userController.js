@@ -76,7 +76,7 @@ exports.updateUserPenyedia = async (req, res) => {
         nomor_wa: dataPenyedia.nomor_wa,
         domisili_kota: dataPenyedia.domisili_kota,
         domisili_provinsi: dataPenyedia.domisili_provinsi,
-        photo_profile: req.file.path,
+        photo_profile: req.file != undefined ? req.file.path : null,
       },
       {
         where: {
@@ -152,7 +152,7 @@ exports.updateUserPencari = async (req, res) => {
         id_bidang_kerja: dataPencari.bidang_kerja,
         domisili_kota: dataPencari.domisili_kota,
         domisili_provinsi: dataPencari.domisili_provinsi,
-        photo_profile: req.file.path,
+        photo_profile: req.file != undefined ? req.file.path : null,
       },
       {
         where: {

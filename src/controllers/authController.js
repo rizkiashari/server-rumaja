@@ -72,7 +72,7 @@ exports.register = async (req, res) => {
       password: hash,
       domisili_provinsi: dataUser.domisili_provinsi,
       domisili_kota: dataUser.domisili_kota,
-      photo_profile: req.file.path,
+      photo_profile: req.file != undefined ? req.file.path : null,
       id_role: dataUser.role,
       createdAt: Math.floor(+new Date() / 1000),
     });
