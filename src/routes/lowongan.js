@@ -1,10 +1,10 @@
 const { Router } = require("express");
 const {
   addLowongan,
-  getAllPekerjaan,
-  getByUUIDPekerjaan,
+  getAllLowongan,
+  getByUUIDLowongan,
   editLowongan,
-  deletePekerjaan,
+  deleteLowongan,
   savePekerjaan,
   rekomendasiPekerjaan,
   listsLayanan,
@@ -16,9 +16,9 @@ const router = Router();
 
 router.post("/add", authMiddleware, addLowongan);
 router.patch("/update/:uuid_lowongan", authMiddleware, editLowongan);
-router.get("/list-pekerjaan", authMiddleware, getAllPekerjaan);
-router.get("/id/:uuid_kerja", authMiddleware, getByUUIDPekerjaan);
-router.delete("/delete/:uuid_kerja", authMiddleware, deletePekerjaan);
+router.get("/list-lowongan", authMiddleware, getAllLowongan);
+router.get("/id/:uuid_lowongan", authMiddleware, getByUUIDLowongan);
+router.delete("/delete/:uuid_lowongan", authMiddleware, deleteLowongan);
 router.patch("/save/:uuid_kerja", authMiddleware, savePekerjaan);
 router.get("/rekomendasi", authMiddleware, rekomendasiPekerjaan);
 router.get("/list-pekerjaan/:bidang_kerja", authMiddleware, getPekerjaanByBidangKerja);

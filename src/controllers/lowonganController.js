@@ -30,7 +30,7 @@ exports.addLowongan = async (req, res) => {
 
     const schema = joi.object({
       gaji: joi.number().required(),
-      skala_gaji: joi.string().valid("hari", "bulan", "tahun").required(),
+      skala_gaji: joi.string().valid("hari", "minggu", "bulan").required(),
       kualifikasi: joi.string().required(),
       fasilitas: joi.string().required(),
       id_bidang_kerja: joi.number().required(),
@@ -62,7 +62,7 @@ exports.addLowongan = async (req, res) => {
 
     await newPekerjaan.save();
 
-    successRes(res, 200, "SUCCESS_ADD_");
+    successRes(res, 200, "SUCCESS_ADD_LOWONGAN");
   } catch (error) {
     console.log(error);
     errorResponse(res, 500, "Internal Server Error");
@@ -80,7 +80,7 @@ exports.editLowongan = async (req, res) => {
     });
 
     if (!dataPekerja) {
-      return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
+      return errorResponse(res, 404, "LOWONGAN_NOT_FOUND");
     }
 
     await Lowongan.update(req.body, {
@@ -89,183 +89,89 @@ exports.editLowongan = async (req, res) => {
       },
     });
 
-    successRes(res, 200, "SUCCESS_EDIT_PEKERJAAN");
+    successRes(res, 200, "SUCCESS_EDIT_LOWONGAN");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
 };
 
-exports.getAllPekerjaan = async (req, res) => {
+exports.getAllLowongan = async (req, res) => {
   try {
     const userLogin = req.user;
 
     const limit = +req.query.limit || 10;
     const page = +req.query.page || 1;
 
-    const { kota, bidang_kerja, gaji, search } = req.query;
-
-    if (userLogin.role_id !== 3) {
+    if (userLogin.id_role !== 3) {
       return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
     }
 
-    if (!kota && !bidang_kerja && !gaji && !search) {
-      const totalRows = await Pekerjaan.count();
+    const totalRows = await Lowongan.count();
 
-      const totalPage = Math.ceil(totalRows / limit);
+    const totalPage = Math.ceil(totalRows / limit);
 
-      const dataPekerjaan = await Pekerjaan.findAll({
-        attributes: {
-          exclude: ["updatedAt"],
-        },
-        limit: [(page - 1) * +limit, +limit],
-        order: [["id", "DESC"]],
-      });
+    const dataLowongan = await Lowongan.findAll({
+      attributes: {
+        exclude: ["updatedAt"],
+      },
+      limit: [(page - 1) * +limit, +limit],
+      order: [["id", "DESC"]],
+    });
 
-      successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
-        pekerjaan: dataPekerjaan,
-        totalPage,
-        page,
-        limit,
-        totalRows,
-        totalPage,
-      });
-    } else {
-      const totalRows = await Pekerjaan.count({
-        where: {
-          [Op.or]: [
-            {
-              id_bidang_kerja: {
-                [Op.eq]: bidang_kerja,
-              },
-            },
-            {
-              lokasi_kerja_kota: {
-                [Op.eq]: kota,
-              },
-            },
-            {
-              gaji: {
-                [Op.gte]: gaji,
-              },
-            },
-            {
-              kualifikasi: {
-                [Op.like]: `%${search}%`,
-              },
-            },
-            {
-              deskripsi_kerja: {
-                [Op.like]: `%${search}%`,
-              },
-            },
-            {
-              fasilitas: {
-                [Op.like]: `%${search}%`,
-              },
-            },
-          ],
-        },
-      });
-
-      const totalPage = Math.ceil(totalRows / limit);
-
-      const dataPekerjaan = await Pekerjaan.findAll({
-        where: {
-          [Op.or]: [
-            {
-              id_bidang_kerja: {
-                [Op.eq]: bidang_kerja,
-              },
-            },
-            {
-              lokasi_kerja_kota: {
-                [Op.eq]: kota,
-              },
-            },
-            {
-              gaji: {
-                [Op.lte]: gaji,
-              },
-            },
-            {
-              kualifikasi: {
-                [Op.like]: `%${search}%`,
-              },
-            },
-            {
-              deskripsi_kerja: {
-                [Op.like]: `%${search}%`,
-              },
-            },
-            {
-              fasilitas: {
-                [Op.like]: `%${search}%`,
-              },
-            },
-          ],
-        },
-        attributes: {
-          exclude: ["updatedAt"],
-        },
-        limit: [(page - 1) * +limit, +limit],
-        order: [["id", "DESC"]],
-      });
-
-      successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
-        pekerjaan: dataPekerjaan,
-        totalPage,
-        page,
-        limit,
-        totalRows,
-        totalPage,
-      });
-    }
+    successResWithData(res, 200, "SUCCESS_GET_ALL_LOWONGAN", {
+      lowongan: dataLowongan,
+      totalPage,
+      page,
+      limit,
+      totalRows,
+      totalPage,
+    });
   } catch (error) {
     console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
 
-exports.getByUUIDPekerjaan = async (req, res) => {
+exports.getByUUIDLowongan = async (req, res) => {
   try {
-    const { uuid_kerja } = req.params;
+    const { uuid_lowongan } = req.params;
 
-    const dataPekerja = await Pekerjaan.findOne({
+    const dataLowongan = await Lowongan.findOne({
       where: {
-        uuid_kerja,
+        uuid_lowongan,
       },
       attributes: {
         exclude: ["updatedAt"],
       },
     });
 
-    if (!dataPekerja) {
-      return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
+    if (!dataLowongan) {
+      return errorResponse(res, 404, "LOWONGAN_NOT_FOUND");
     }
 
-    successResWithData(res, 200, "LIST_PEKERJAAN", dataPekerja);
+    successResWithData(res, 200, "LIST_LOWONGAN", dataLowongan);
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
 };
 
-exports.deletePekerjaan = async (req, res) => {
+exports.deleteLowongan = async (req, res) => {
   try {
-    const { uuid_kerja } = req.params;
+    const { uuid_lowongan } = req.params;
 
-    const dataPekerja = await Pekerjaan.findOne({
+    const dataLowongan = await Lowongan.findOne({
       where: {
-        uuid_kerja,
+        uuid_lowongan,
       },
     });
 
-    if (!dataPekerja) {
+    if (!dataLowongan) {
       return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
     }
 
-    await Pekerjaan.destroy({
+    await Lowongan.destroy({
       where: {
-        uuid_kerja,
+        uuid_lowongan,
       },
     });
 
@@ -513,11 +419,12 @@ exports.getPekerjaanByBidangKerja = async (req, res) => {
 exports.listsLayanan = async (req, res) => {
   try {
     const dataLayanan = await Bidang_Kerja.findAll({
-      attributes: ["id", "name_bidang"],
+      attributes: ["id", "nama_bidang"],
     });
 
     successResWithData(res, 200, "SUCCESS_GET_LISTS_LAYANAN", dataLayanan);
   } catch (error) {
+    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
