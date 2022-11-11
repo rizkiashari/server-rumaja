@@ -39,7 +39,7 @@ exports.register = async (req, res) => {
     const dataUser = req.body;
 
     const schema = joi.object({
-      name_user: joi.string().min(3).required(),
+      nama_user: joi.string().min(3).required(),
       email: joi.string().email().required(),
       nomor_wa: joi.string().min(10).max(17).required(),
       domisili_kota: joi.number().required(),
@@ -64,24 +64,47 @@ exports.register = async (req, res) => {
     let salt = await bcrypt.genSalt(+env.SALT);
     let hash = await bcrypt.hash(password, salt);
 
-    const newUser = new User({
+    const user = await User.create({
       uuid_user: uuid.v4(),
-      name_user: dataUser.name_user,
-      email,
+      nama_user: dataUser.nama_user,
       nomor_wa: dataUser.nomor_wa,
+      email,
+      password: hash,
       domisili_provinsi: dataUser.domisili_provinsi,
       domisili_kota: dataUser.domisili_kota,
-      password: hash,
-      role_id: dataUser.role,
-      id_bidang_kerja: dataUser.bidang_kerja ? dataUser.bidang_kerja : null,
       photo_profile: req.file.path,
+      id_role: dataUser.role,
       createdAt: Math.floor(+new Date() / 1000),
     });
 
-    await newUser.save();
+    const newUser = await User.findOne({
+      where: {
+        id: user.id,
+      },
+    });
+
+    if (newUser.id_role === 2) {
+      const newPencari = new Pencari({
+        id_bidang_kerja: dataUser.bidang_kerja,
+        id_user: newUser.id,
+        createdAt: Math.floor(+new Date() / 1000),
+      });
+
+      await newPencari.save();
+    }
+
+    if (newUser.id_role === 3) {
+      const newPenyedia = new Penyedia({
+        id_user: newUser.id,
+        createdAt: Math.floor(+new Date() / 1000),
+      });
+
+      await newPenyedia.save();
+    }
 
     successRes(res, 200, "USER_REGISTER_SUCCESS");
-  } catch (error) { 
+  } catch (error) {
+    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
@@ -197,58 +220,9 @@ exports.refreshToken = async (req, res) => {
 
 exports.checkAuth = async (req, res) => {
   try {
-    const headers = req.header("Authorization");
-    let isCompleted = false;
-    if (!headers) {
-      return errorResponse(res, 401, "UNAUTHORIZED");
-    }
+    const userData = req.user;
 
-    const token = headers.split(" ")[1];
-    console.log("TOKEN", typeof token);
-
-    if (token === null || token === "null") {
-      return errorResponse(res, 401, "TOKEN_NOT_FOUND");
-    }
-
-    jwt.verify(token, env.JWT_ACCESS_TOKEN_SECRET, async (err, user) => {
-      if (err) {
-        return errorResponse(res, 403, "TOKEN_EXPIRED");
-      }
-
-      const dataUser = await User.findOne({
-        where: {
-          id: user.id,
-        },
-        attributes: {
-          exclude: ["password", "createdAt", "updatedAt"],
-        },
-      });
-
-      if (!dataUser) {
-        return errorResponse(res, 404, "USER_NOT_FOUND");
-      }
-
-      if (dataUser.role_id === 2) {
-        const dataPencari = await Pencari.findOne({
-          where: {
-            user_id: dataUser.id,
-          },
-        });
-
-        !dataPencari ? (isCompleted = false) : (isCompleted = true);
-      }
-      if (dataUser.role_id === 3) {
-        const dataPenyedia = await Penyedia.findOne({
-          where: {
-            user_id: dataUser.id,
-          },
-        });
-
-        !dataPenyedia ? (isCompleted = false) : (isCompleted = true);
-      }
-
-      successResWithData(res, 200, "USER_FOUND", { user: dataUser, isCompleted });
-    });
+    successResWithData(res, 200, "USER_FOUND", userData);
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
