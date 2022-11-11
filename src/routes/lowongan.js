@@ -5,10 +5,10 @@ const {
   getByUUIDLowongan,
   editLowongan,
   deleteLowongan,
-  savePekerjaan,
-  rekomendasiPekerjaan,
+  saveLowongan,
+  rekomendasiLowongan,
   listsLayanan,
-  getPekerjaanByBidangKerja,
+  getLowonganByBidangKerja,
   publishLowongan,
 } = require("../controllers/lowonganController");
 const { authMiddleware } = require("../middlewares/auth");
@@ -23,9 +23,9 @@ router.patch("/update/:uuid_lowongan", authMiddleware, editLowongan);
 router.patch("/publish/:uuid_lowongan", authMiddleware, publishLowongan);
 
 // PENCARI
-router.patch("/save/:uuid_kerja", authMiddleware, savePekerjaan);
-router.get("/rekomendasi", authMiddleware, rekomendasiPekerjaan);
-router.get("/list-pekerjaan/:bidang_kerja", authMiddleware, getPekerjaanByBidangKerja);
+router.patch("/save/:uuid_lowongan", authMiddleware, saveLowongan);
+router.get("/rekomendasi", authMiddleware, rekomendasiLowongan);
+router.get("/list-pekerjaan/:bidang_kerja", authMiddleware, getLowonganByBidangKerja);
 
 // GLOBAL
 router.get("/layanan", authMiddleware, listsLayanan);

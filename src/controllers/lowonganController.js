@@ -5,10 +5,11 @@ const { Lowongan, Penyedia, Bidang_Kerja } = require("../../models");
 const { Op } = require("sequelize");
 
 // Penyedia
+// Done
 exports.addLowongan = async (req, res) => {
   try {
     const userLogin = req.user;
-    const dataPekerjaan = req.body;
+    const dataLowongan = req.body;
 
     if (userLogin.id_role !== 3) {
       return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
@@ -38,23 +39,23 @@ exports.addLowongan = async (req, res) => {
       provinsi_lowongan: joi.number().required(),
     });
 
-    const { error } = schema.validate(dataPekerjaan);
+    const { error } = schema.validate(dataLowongan);
     if (error) {
       return errorResponse(res, 400, error.details[0].message);
     }
 
     const newPekerjaan = new Lowongan({
       uuid_lowongan: uuid.v4(),
-      gaji: +dataPekerjaan.gaji,
-      skala_gaji: dataPekerjaan.skala_gaji,
-      kualifikasi: dataPekerjaan.kualifikasi,
+      gaji: +dataLowongan.gaji,
+      skala_gaji: dataLowongan.skala_gaji,
+      kualifikasi: dataLowongan.kualifikasi,
       isSave: false,
       isPublish: false,
-      deskripsi_lowongan: dataPekerjaan.deskripsi_lowongan,
-      fasilitas: dataPekerjaan.fasilitas,
-      kota_lowongan: dataPekerjaan.kota_lowongan,
-      provinsi_lowongan: dataPekerjaan.provinsi_lowongan,
-      id_bidang_kerja: dataPekerjaan.id_bidang_kerja,
+      deskripsi_lowongan: dataLowongan.deskripsi_lowongan,
+      fasilitas: dataLowongan.fasilitas,
+      kota_lowongan: dataLowongan.kota_lowongan,
+      provinsi_lowongan: dataLowongan.provinsi_lowongan,
+      id_bidang_kerja: dataLowongan.id_bidang_kerja,
       id_penyedia: dataPenyedia.id,
       createdAt: Math.floor(+new Date() / 1000),
     });
@@ -68,6 +69,7 @@ exports.addLowongan = async (req, res) => {
   }
 };
 
+// Done
 exports.editLowongan = async (req, res) => {
   try {
     const { uuid_lowongan } = req.params;
@@ -94,6 +96,7 @@ exports.editLowongan = async (req, res) => {
   }
 };
 
+// Done
 exports.getAllLowongan = async (req, res) => {
   try {
     const userLogin = req.user;
@@ -114,7 +117,17 @@ exports.getAllLowongan = async (req, res) => {
       return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
     }
 
-    if (!bidang_kerja && !provinsi_lowongan && !kota_lowongan && !jenis_gaji && !urutan) {
+    const tempUrutan = [];
+
+    if (urutan === "terbaru") {
+      tempUrutan = ["id", "DESC"];
+    }
+
+    if (urutan === "gaji") {
+      tempUrutan = ["gaji", "DESC"];
+    }
+
+    if (!bidang_kerja && !provinsi_lowongan && !kota_lowongan && !jenis_gaji) {
       const totalRows = await Lowongan.count({
         where: {
           isPublish: publish === "publish" ? 1 : 0,
@@ -130,7 +143,7 @@ exports.getAllLowongan = async (req, res) => {
           exclude: ["updatedAt"],
         },
         limit: [(page - 1) * +limit, +limit],
-        order: [["id", "DESC"]],
+        order: [urutan ? tempUrutan : ["id", "DESC"]],
       });
 
       successResWithData(res, 200, "SUCCESS_GET_ALL_LOWONGAN", {
@@ -167,18 +180,8 @@ exports.getAllLowongan = async (req, res) => {
                 [Op.eq]: jenis_gaji,
               },
             },
-            {
-              gaji: {
-                [Op.gte]: urutan,
-              },
-            },
           ],
         },
-        attributes: {
-          exclude: ["updatedAt"],
-        },
-        order: [["id", urutan === "terbaru" ? "DESC" : "ASC"]],
-        limit: [(page - 1) * +limit, +limit],
       });
 
       const totalPage = Math.ceil(totalRows / limit);
@@ -207,18 +210,13 @@ exports.getAllLowongan = async (req, res) => {
                 [Op.eq]: jenis_gaji,
               },
             },
-            {
-              gaji: {
-                [Op.gte]: urutan,
-              },
-            },
           ],
         },
         attributes: {
           exclude: ["updatedAt"],
         },
-        order: [["id", urutan === "terbaru" ? "DESC" : "ASC"]],
         limit: [(page - 1) * +limit, +limit],
+        order: [urutan ? tempUrutan : ["id", "DESC"]],
       });
 
       successResWithData(res, 200, "SUCCESS_GET_ALL_LOWONGAN", {
@@ -236,6 +234,7 @@ exports.getAllLowongan = async (req, res) => {
   }
 };
 
+// Done
 exports.deleteLowongan = async (req, res) => {
   try {
     const { uuid_lowongan } = req.params;
@@ -262,6 +261,7 @@ exports.deleteLowongan = async (req, res) => {
   }
 };
 
+// Done
 exports.publishLowongan = async (req, res) => {
   try {
     const { uuid_lowongan } = req.params;
@@ -310,64 +310,66 @@ exports.publishLowongan = async (req, res) => {
 // End
 
 // Pencari
-exports.savePekerjaan = async (req, res) => {
+// Done
+exports.saveLowongan = async (req, res) => {
   try {
-    const { uuid_kerja } = req.params;
+    const { uuid_lowongan } = req.params;
 
-    const dataPekerjaan = await Pekerjaan.findOne({
+    const dataLowongan = await Lowongan.findOne({
       where: {
-        uuid_kerja,
+        uuid_lowongan,
       },
     });
 
-    if (!dataPekerjaan) {
-      return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
+    if (!dataLowongan) {
+      return errorResponse(res, 404, "LOWONGAN_NOT_FOUND");
     }
 
-    if (dataPekerjaan.isSave === true) {
-      await Pekerjaan.update(
+    if (dataLowongan.isSave === true) {
+      await Lowongan.update(
         {
           isSave: false,
         },
         {
           where: {
-            uuid_kerja,
+            uuid_lowongan,
           },
         }
       );
 
-      successRes(res, 200, "SUCCESS_UNSAVE_PEKERJAAN");
+      successRes(res, 200, "SUCCESS_UNSAVE_LOWONGAN");
     } else {
-      await Pekerjaan.update(
+      await Lowongan.update(
         {
           isSave: true,
         },
         {
           where: {
-            uuid_kerja,
+            uuid_lowongan,
           },
         }
       );
 
-      successRes(res, 200, "SUCCESS_SAVE_PEKERJAAN");
+      successRes(res, 200, "SUCCESS_SAVE_LOWONGAN");
     }
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
 };
 
-exports.rekomendasiPekerjaan = async (req, res) => {
+// Done
+exports.rekomendasiLowongan = async (req, res) => {
   try {
     const { bidang_kerja, gaji } = req.query;
 
     const limit = +req.query.limit || 5;
     const page = +req.query.page || 1;
 
-    const totalRows = await Pekerjaan.count();
+    const totalRows = await Lowongan.count();
 
     const totalPage = Math.ceil(totalRows / limit);
 
-    const dataPekerjaan = await Pekerjaan.findAll({
+    const dataLowongan = await Lowongan.findAll({
       where: {
         [Op.and]: [
           {
@@ -386,8 +388,8 @@ exports.rekomendasiPekerjaan = async (req, res) => {
       order: [["id", "DESC"]],
     });
 
-    successResWithData(res, 200, "SUCCESS_GET_REKOMENDASI_PEKERJAAN", {
-      pekerjaan: dataPekerjaan,
+    successResWithData(res, 200, "SUCCESS_GET_REKOMENDASI_LOWONGAN", {
+      lowongan: dataLowongan,
       totalPage,
       page,
       limit,
@@ -399,32 +401,31 @@ exports.rekomendasiPekerjaan = async (req, res) => {
   }
 };
 
-exports.getPekerjaanByBidangKerja = async (req, res) => {
+// Done
+exports.getLowonganByBidangKerja = async (req, res) => {
   try {
     const limit = +req.query.limit || 10;
     const page = +req.query.page || 1;
     const { bidang_kerja } = req.params;
 
-    const { kota, provinsi, jenis_gaji, urutan, search } = req.query;
+    const { kota, provinsi, jenis_gaji, urutan } = req.query;
 
     let tempUrutan = [];
 
     if (urutan === "Terbaru") {
       tempUrutan = ["id", "DESC"];
     }
-    if (urutan === "Terdekat") {
-      tempUrutan = ["lokasi_kerja_kota", "DESC"];
-    }
+
     if (urutan === "GajiTertinggi") {
       tempUrutan = ["gaji", "DESC"];
     }
 
-    if (!kota && !provinsi && !jenis_gaji && !search) {
-      const totalRows = await Pekerjaan.count();
+    if (!kota && !provinsi && !jenis_gaji) {
+      const totalRows = await Lowongan.count();
 
       const totalPage = Math.ceil(totalRows / limit);
 
-      const dataPekerjaan = await Pekerjaan.findAll({
+      const dataLowongan = await Lowongan.findAll({
         attributes: {
           exclude: ["updatedAt"],
         },
@@ -436,7 +437,7 @@ exports.getPekerjaanByBidangKerja = async (req, res) => {
       });
 
       successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
-        pekerjaan: dataPekerjaan,
+        lowongan: dataLowongan,
         totalPage,
         page,
         limit,
@@ -444,7 +445,7 @@ exports.getPekerjaanByBidangKerja = async (req, res) => {
         totalPage,
       });
     } else {
-      const totalRows = await Pekerjaan.count({
+      const totalRows = await Lowongan.count({
         where: {
           [Op.or]: [
             {
@@ -453,28 +454,18 @@ exports.getPekerjaanByBidangKerja = async (req, res) => {
               },
             },
             {
-              lokasi_kerja_kota: {
+              kota_lowongan: {
                 [Op.eq]: kota,
               },
             },
             {
-              lokasi_kerja_provinsi: {
+              provinsi_lowongan: {
                 [Op.eq]: provinsi,
               },
             },
             {
-              kualifikasi: {
-                [Op.like]: `%${search}%`,
-              },
-            },
-            {
-              deskripsi_kerja: {
-                [Op.like]: `%${search}%`,
-              },
-            },
-            {
-              fasilitas: {
-                [Op.like]: `%${search}%`,
+              jenis_gaji: {
+                [Op.eq]: jenis_gaji,
               },
             },
           ],
@@ -483,7 +474,7 @@ exports.getPekerjaanByBidangKerja = async (req, res) => {
 
       const totalPage = Math.ceil(totalRows / limit);
 
-      const dataPekerjaan = await Pekerjaan.findAll({
+      const dataLowongan = await Lowongan.findAll({
         where: {
           [Op.or]: [
             {
@@ -492,28 +483,18 @@ exports.getPekerjaanByBidangKerja = async (req, res) => {
               },
             },
             {
-              lokasi_kerja_kota: {
+              kota_lowongan: {
                 [Op.eq]: kota,
               },
             },
             {
-              lokasi_kerja_provinsi: {
+              provinsi_lowongan: {
                 [Op.eq]: provinsi,
               },
             },
             {
-              kualifikasi: {
-                [Op.like]: `%${search}%`,
-              },
-            },
-            {
-              deskripsi_kerja: {
-                [Op.like]: `%${search}%`,
-              },
-            },
-            {
-              fasilitas: {
-                [Op.like]: `%${search}%`,
+              jenis_gaji: {
+                [Op.eq]: jenis_gaji,
               },
             },
           ],
@@ -526,7 +507,7 @@ exports.getPekerjaanByBidangKerja = async (req, res) => {
       });
 
       successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
-        pekerjaan: dataPekerjaan,
+        lowongan: dataLowongan,
         totalPage,
         page,
         limit,
@@ -542,6 +523,7 @@ exports.getPekerjaanByBidangKerja = async (req, res) => {
 // End
 
 // Global
+// Done
 exports.listsLayanan = async (req, res) => {
   try {
     const dataLayanan = await Bidang_Kerja.findAll({
@@ -554,6 +536,7 @@ exports.listsLayanan = async (req, res) => {
   }
 };
 
+// Done
 exports.getByUUIDLowongan = async (req, res) => {
   try {
     const { uuid_lowongan } = req.params;
