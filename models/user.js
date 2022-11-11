@@ -12,21 +12,21 @@ module.exports = (sequelize, DataTypes) => {
       User.belongsTo(models.Role, {
         as: "role",
         foreignKey: {
-          name: "role_id",
+          name: "id_role",
         },
       });
 
       User.hasOne(models.Penyedia, {
         as: "penyedia",
         foreignKey: {
-          name: "user_id",
+          name: "id_user",
         },
       });
 
       User.hasOne(models.Pencari, {
         as: "pencari",
         foreignKey: {
-          name: "user_id",
+          name: "id_user",
         },
       });
     }
@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
   User.init(
     {
       uuid_user: DataTypes.STRING(200),
-      name_user: DataTypes.STRING(50),
+      nama_user: DataTypes.STRING(50),
       email: DataTypes.STRING(50),
       password: DataTypes.STRING,
       resetPassword: DataTypes.STRING,
