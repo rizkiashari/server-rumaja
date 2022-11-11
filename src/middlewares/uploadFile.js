@@ -64,9 +64,9 @@ exports.uploadFile = (fieldName) => {
         return errorResponse(res, 400, err);
       }
 
-      if (!req.file) {
-        return errorResponse(res, 400, "File is required");
-      }
+      // if (!req.file) {
+      //   return errorResponse(res, 400, "File is required");
+      // }
 
       return next();
     });
