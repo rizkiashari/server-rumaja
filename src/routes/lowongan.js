@@ -3,7 +3,7 @@ const {
   addLowongan,
   getAllPekerjaan,
   getByUUIDPekerjaan,
-  editPekerjaan,
+  editLowongan,
   deletePekerjaan,
   savePekerjaan,
   rekomendasiPekerjaan,
@@ -15,9 +15,9 @@ const { authMiddleware } = require("../middlewares/auth");
 const router = Router();
 
 router.post("/add", authMiddleware, addLowongan);
+router.patch("/update/:uuid_lowongan", authMiddleware, editLowongan);
 router.get("/list-pekerjaan", authMiddleware, getAllPekerjaan);
 router.get("/id/:uuid_kerja", authMiddleware, getByUUIDPekerjaan);
-router.patch("/update/:uuid_kerja", authMiddleware, editPekerjaan);
 router.delete("/delete/:uuid_kerja", authMiddleware, deletePekerjaan);
 router.patch("/save/:uuid_kerja", authMiddleware, savePekerjaan);
 router.get("/rekomendasi", authMiddleware, rekomendasiPekerjaan);

@@ -62,9 +62,35 @@ exports.addLowongan = async (req, res) => {
 
     await newPekerjaan.save();
 
-    successRes(res, 200, "SUCCESS_ADD_LOWONGAN");
+    successRes(res, 200, "SUCCESS_ADD_");
   } catch (error) {
     console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.editLowongan = async (req, res) => {
+  try {
+    const { uuid_lowongan } = req.params;
+
+    const dataPekerja = await Lowongan.findOne({
+      where: {
+        uuid_lowongan,
+      },
+    });
+
+    if (!dataPekerja) {
+      return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
+    }
+
+    await Lowongan.update(req.body, {
+      where: {
+        uuid_lowongan,
+      },
+    });
+
+    successRes(res, 200, "SUCCESS_EDIT_PEKERJAAN");
+  } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
 };
@@ -218,32 +244,6 @@ exports.getByUUIDPekerjaan = async (req, res) => {
     }
 
     successResWithData(res, 200, "LIST_PEKERJAAN", dataPekerja);
-  } catch (error) {
-    errorResponse(res, 500, "Internal Server Error");
-  }
-};
-
-exports.editPekerjaan = async (req, res) => {
-  try {
-    const { uuid_kerja } = req.params;
-
-    const dataPekerja = await Pekerjaan.findOne({
-      where: {
-        uuid_kerja,
-      },
-    });
-
-    if (!dataPekerja) {
-      return errorResponse(res, 404, "PEKERJAAN_NOT_FOUND");
-    }
-
-    await Pekerjaan.update(req.body, {
-      where: {
-        uuid_kerja,
-      },
-    });
-
-    successRes(res, 200, "SUCCESS_EDIT_PEKERJAAN");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
