@@ -1,10 +1,74 @@
 const joi = require("joi");
 const uuid = require("uuid");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
-const { Pekerjaan, Penyedia, Bidang_Kerja } = require("../../models");
+const { Lowongan, Penyedia, Bidang_Kerja } = require("../../models");
 const { Op } = require("sequelize");
 
 // Penyedia
+
+exports.addLowongan = async (req, res) => {
+  try {
+    const userLogin = req.user;
+    const dataPekerjaan = req.body;
+
+    if (userLogin.id_role !== 3) {
+      return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
+    }
+
+    const dataPenyedia = await Penyedia.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+      attributes: {
+        exclude: ["updatedAt", "createdAt"],
+      },
+    });
+
+    if (!dataPenyedia) {
+      return errorResponse(res, 404, "PENYEDIA_NOT_FOUND");
+    }
+
+    const schema = joi.object({
+      gaji: joi.number().required(),
+      skala_gaji: joi.string().valid("hari", "bulan", "tahun").required(),
+      kualifikasi: joi.string().required(),
+      fasilitas: joi.string().required(),
+      id_bidang_kerja: joi.number().required(),
+      deskripsi_lowongan: joi.string().required(),
+      kota_lowongan: joi.number().required(),
+      provinsi_lowongan: joi.number().required(),
+    });
+
+    const { error } = schema.validate(dataPekerjaan);
+    if (error) {
+      return errorResponse(res, 400, error.details[0].message);
+    }
+
+    const newPekerjaan = new Lowongan({
+      uuid_lowongan: uuid.v4(),
+      gaji: +dataPekerjaan.gaji,
+      skala_gaji: dataPekerjaan.skala_gaji,
+      kualifikasi: dataPekerjaan.kualifikasi,
+      isSave: false,
+      isPublish: false,
+      deskripsi_lowongan: dataPekerjaan.deskripsi_lowongan,
+      fasilitas: dataPekerjaan.fasilitas,
+      kota_lowongan: dataPekerjaan.kota_lowongan,
+      provinsi_lowongan: dataPekerjaan.provinsi_lowongan,
+      id_bidang_kerja: dataPekerjaan.id_bidang_kerja,
+      id_penyedia: dataPenyedia.id,
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await newPekerjaan.save();
+
+    successRes(res, 200, "SUCCESS_ADD_LOWONGAN");
+  } catch (error) {
+    console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
 exports.getAllPekerjaan = async (req, res) => {
   try {
     const userLogin = req.user;
@@ -154,67 +218,6 @@ exports.getByUUIDPekerjaan = async (req, res) => {
     }
 
     successResWithData(res, 200, "LIST_PEKERJAAN", dataPekerja);
-  } catch (error) {
-    errorResponse(res, 500, "Internal Server Error");
-  }
-};
-
-exports.addPekerjaan = async (req, res) => {
-  try {
-    const userLogin = req.user;
-    const dataPekerjaan = req.body;
-
-    if (userLogin.role_id !== 3) {
-      return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
-    }
-
-    const dataPenyedia = await Penyedia.findOne({
-      where: {
-        user_id: userLogin.id,
-      },
-      attributes: {
-        exclude: ["updatedAt"],
-      },
-    });
-
-    if (!dataPenyedia) {
-      return errorResponse(res, 404, "PENYEDIA_NOT_FOUND");
-    }
-
-    const schema = joi.object({
-      gaji: joi.number().required(),
-      skala_gaji: joi.string().valid("Hari", "Bulan", "Tahun").required(),
-      fasilitas: joi.string().required(),
-      kualifikasi: joi.string().required(),
-      id_bidang_kerja: joi.number().required(),
-      deskripsi_kerja: joi.string().required(),
-      lokasi_kerja_provinsi: joi.number().required(),
-      lokasi_kerja_kota: joi.number().required(),
-    });
-
-    const { error } = schema.validate(dataPekerjaan);
-    if (error) {
-      return errorResponse(res, 400, error.details[0].message);
-    }
-
-    const newPekerjaan = new Pekerjaan({
-      uuid_kerja: uuid.v4(),
-      gaji: dataPekerjaan.gaji,
-      skala_gaji: dataPekerjaan.skala_gaji,
-      kualifikasi: dataPekerjaan.kualifikasi,
-      id_penyedia: dataPenyedia.id,
-      id_bidang_kerja: dataPekerjaan.id_bidang_kerja,
-      deskripsi_kerja: dataPekerjaan.deskripsi_kerja,
-      lokasi_kerja_provinsi: dataPekerjaan.lokasi_kerja_provinsi,
-      lokasi_kerja_kota: dataPekerjaan.lokasi_kerja_kota,
-      isSave: false,
-      createdAt: Math.floor(+new Date() / 1000),
-      fasilitas: dataPekerjaan.fasilitas,
-    });
-
-    await newPekerjaan.save();
-
-    successRes(res, 200, "SUCCESS_ADD_PEKERJAAN");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }

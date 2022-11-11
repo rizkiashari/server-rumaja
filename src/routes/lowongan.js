@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const {
-  addPekerjaan,
+  addLowongan,
   getAllPekerjaan,
   getByUUIDPekerjaan,
   editPekerjaan,
@@ -9,12 +9,12 @@ const {
   rekomendasiPekerjaan,
   listsLayanan,
   getPekerjaanByBidangKerja,
-} = require("../controllers/pekerjaanController");
+} = require("../controllers/lowonganController");
 const { authMiddleware } = require("../middlewares/auth");
 
 const router = Router();
 
-router.post("/add", authMiddleware, addPekerjaan);
+router.post("/add", authMiddleware, addLowongan);
 router.get("/list-pekerjaan", authMiddleware, getAllPekerjaan);
 router.get("/id/:uuid_kerja", authMiddleware, getByUUIDPekerjaan);
 router.patch("/update/:uuid_kerja", authMiddleware, editPekerjaan);
