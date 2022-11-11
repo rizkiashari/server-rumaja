@@ -1,7 +1,6 @@
 const joi = require("joi");
 const dotenv = require("dotenv");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const { User, Penyedia, Pencari, Review, Bidang_Kerja } = require("../../models");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
 const { Op } = require("sequelize");
@@ -46,23 +45,23 @@ exports.updateUserPenyedia = async (req, res) => {
   try {
     const userLogin = req.user;
 
-    if (userLogin.role_id !== 3) {
+    if (userLogin.id_role !== 3) {
       return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
     }
 
     const dataPenyedia = req.body;
 
     const schema = joi.object({
-      name_user: joi.string().min(3).required(),
-      gender: joi.string().required(),
-      email: joi.string().email().required(),
+      nama_user: joi.string().min(3).required(),
+      gender: joi.string().required().valid("pria", "wanita"),
       nomor_wa: joi.string().min(10).max(17).required(),
-      alamat_rumah: joi.string().required(),
       domisili_kota: joi.number().required(),
       domisili_provinsi: joi.number().required(),
       tentang: joi.string().required(),
       tanggal_lahir: joi.string().required(),
+      tempat_lahir: joi.string().required(),
       photo_profile: joi.string().optional(),
+      alamat_rumah: joi.string().required(),
     });
 
     const { error } = schema.validate(dataPenyedia);
@@ -73,8 +72,7 @@ exports.updateUserPenyedia = async (req, res) => {
 
     await User.update(
       {
-        name_user: dataPenyedia.name_user,
-        email: dataPenyedia.email,
+        nama_user: dataPenyedia.nama_user,
         nomor_wa: dataPenyedia.nomor_wa,
         domisili_kota: dataPenyedia.domisili_kota,
         domisili_provinsi: dataPenyedia.domisili_provinsi,
@@ -89,36 +87,25 @@ exports.updateUserPenyedia = async (req, res) => {
 
     const dataPenyediaUpdate = await Penyedia.findOne({
       where: {
-        user_id: userLogin.id,
+        id_user: userLogin.id,
       },
     });
 
-    if (dataPenyediaUpdate) {
-      await Penyedia.update(
-        {
-          gender: dataPenyedia.gender,
-          alamat_rumah: dataPenyedia.alamat_rumah,
-          tanggal_lahir: dataPenyedia.tanggal_lahir,
-          tentang: dataPenyedia.tentang,
-          createdAt: Math.floor(+new Date() / 1000),
-        },
-        {
-          where: {
-            id: dataPenyediaUpdate.id,
-          },
-        }
-      );
-    } else {
-      await Penyedia.create({
-        user_id: userLogin.id,
+    await Penyedia.update(
+      {
         gender: dataPenyedia.gender,
         alamat_rumah: dataPenyedia.alamat_rumah,
         tanggal_lahir: dataPenyedia.tanggal_lahir,
+        tempat_lahir: dataPenyedia.tempat_lahir,
         tentang: dataPenyedia.tentang,
         createdAt: Math.floor(+new Date() / 1000),
-      });
-    }
-
+      },
+      {
+        where: {
+          id: dataPenyediaUpdate.id,
+        },
+      }
+    );
     successRes(res, 200, "SUCCESS_UPDATE_USER_PENYEDIA");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
