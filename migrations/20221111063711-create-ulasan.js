@@ -1,57 +1,36 @@
 "use strict";
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("pekerjaan", {
+    await queryInterface.createTable("ulasan", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      uuid_kerja: {
-        type: Sequelize.STRING,
-      },
-      gaji: {
-        type: Sequelize.INTEGER,
-      },
-      skala_gaji: {
-        type: Sequelize.STRING,
-      },
-      kualifikasi: {
-        type: Sequelize.TEXT,
-      },
-      id_penyedia: {
+      id_lowongan: {
         type: Sequelize.INTEGER,
         references: {
-          model: "penyedia",
+          model: "lowongan",
           key: "id",
         },
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       },
-      id_bidang_kerja: {
+      id_pencari: {
         type: Sequelize.INTEGER,
         references: {
-          model: "bidang_kerja",
+          model: "pencari",
           key: "id",
         },
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
       },
-      isSave: {
-        type: Sequelize.BOOLEAN,
-      },
-      deskripsi_kerja: {
+      catatan_pencari: {
         type: Sequelize.TEXT,
       },
-      fasilitas: {
+      catatan_penyedia: {
         type: Sequelize.TEXT,
-      },
-      lokasi_kerja_provinsi: {
-        type: Sequelize.INTEGER,
-      },
-      lokasi_kerja_kota: {
-        type: Sequelize.INTEGER,
       },
       createdAt: {
         type: Sequelize.INTEGER,
@@ -64,6 +43,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("pekerjaan");
+    await queryInterface.dropTable("ulasan");
   },
 };

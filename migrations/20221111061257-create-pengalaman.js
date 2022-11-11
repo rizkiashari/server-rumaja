@@ -1,50 +1,35 @@
 "use strict";
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("pencari", {
+    await queryInterface.createTable("pengalaman", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      gender: {
-        type: Sequelize.ENUM("pria", "wanita"),
-      },
-      alamat_rumah: {
-        type: Sequelize.TEXT,
-      },
-      tanggal_lahir: {
-        type: Sequelize.DATE,
-      },
-      tempat_lahir: {
+      nama_pengalaman: {
         type: Sequelize.STRING(50),
       },
-      tentang: {
-        type: Sequelize.TEXT,
+      pengalaman_prov: {
+        type: Sequelize.INTEGER,
       },
-      isSave: {
+      pengalaman_kota: {
+        type: Sequelize.INTEGER,
+      },
+      tahun_mulai: {
+        type: Sequelize.INTEGER,
+      },
+      tahun_akhir: {
+        type: Sequelize.INTEGER,
+      },
+      isWork: {
         type: Sequelize.BOOLEAN,
       },
-      tinggi_badan: {
-        type: Sequelize.INTEGER,
-      },
-      berat_badan: {
-        type: Sequelize.INTEGER,
-      },
-      id_user: {
+      id_pencari: {
         type: Sequelize.INTEGER,
         references: {
-          model: "users",
-          key: "id",
-        },
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
-      },
-      id_bidang_kerja: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "bidang_kerja",
+          model: "pencari",
           key: "id",
         },
         onDelete: "CASCADE",
@@ -61,6 +46,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("pencari");
+    await queryInterface.dropTable("pengalaman");
   },
 };

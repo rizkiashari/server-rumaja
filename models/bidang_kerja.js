@@ -9,15 +9,15 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Bidang_Kerja.hasMany(models.User, {
-        as: "users",
+      Bidang_Kerja.hasMany(models.Lowongan, {
+        as: "lowongan",
         foreignKey: {
           name: "id_bidang_kerja",
         },
       });
 
-      Bidang_Kerja.hasMany(models.Pekerjaan, {
-        as: "pekerjaan",
+      Bidang_Kerja.hasMany(models.Pencari, {
+        as: "pencari",
         foreignKey: {
           name: "id_bidang_kerja",
         },
@@ -26,8 +26,8 @@ module.exports = (sequelize, DataTypes) => {
   }
   Bidang_Kerja.init(
     {
-      name_bidang: DataTypes.STRING,
-      bidang_detail: DataTypes.STRING,
+      nama_bidang: DataTypes.STRING(15),
+      detail_bidang: DataTypes.STRING(50),
     },
     {
       sequelize,

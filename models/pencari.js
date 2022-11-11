@@ -16,15 +16,29 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
 
-      Pencari.belongsTo(models.User, {
-        as: "users",
+      Pencari.hasMany(models.Pengalaman, {
+        as: "pengalaman",
         foreignKey: {
-          name: "user_id",
+          name: "id_pencari",
         },
       });
 
-      Pencari.hasOne(models.Review, {
-        as: "review",
+      Pencari.belongsTo(models.User, {
+        as: "users",
+        foreignKey: {
+          name: "id_user",
+        },
+      });
+
+      Pencari.belongsTo(models.Bidang_Kerja, {
+        as: "bidang_kerja",
+        foreignKey: {
+          name: "id_bidang_kerja",
+        },
+      });
+
+      Pencari.hasMany(models.Ulasan, {
+        as: "ulasan",
         foreignKey: {
           name: "id_pencari",
         },
@@ -33,10 +47,10 @@ module.exports = (sequelize, DataTypes) => {
   }
   Pencari.init(
     {
-      gender: DataTypes.STRING(100),
-      alamat_rumah: DataTypes.STRING,
+      gender: DataTypes.ENUM("pria", "wanita"),
+      alamat_rumah: DataTypes.TEXT,
       tanggal_lahir: DataTypes.DATE,
-      tempat_lahir: DataTypes.STRING,
+      tempat_lahir: DataTypes.STRING(50),
       tentang: DataTypes.TEXT,
       isSave: DataTypes.BOOLEAN,
       tinggi_badan: DataTypes.INTEGER,

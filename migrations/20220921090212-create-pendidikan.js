@@ -9,10 +9,16 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       uuid_pendidikan: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(200),
       },
-      nama: {
-        type: Sequelize.STRING,
+      nama_pendidikan: {
+        type: Sequelize.STRING(50),
+      },
+      tahun_awal: {
+        type: Sequelize.INTEGER,
+      },
+      tahun_akhir: {
+        type: Sequelize.INTEGER,
       },
       id_pencari: {
         type: Sequelize.INTEGER,
@@ -22,15 +28,6 @@ module.exports = {
         },
         onDelete: "CASCADE",
         onUpdate: "CASCADE",
-      },
-      jurusan: {
-        type: Sequelize.STRING,
-      },
-      tahun_awal: {
-        type: Sequelize.STRING(13),
-      },
-      tahun_akhir: {
-        type: Sequelize.STRING(13),
       },
       createdAt: {
         type: Sequelize.INTEGER,

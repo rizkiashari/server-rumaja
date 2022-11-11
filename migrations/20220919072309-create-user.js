@@ -9,25 +9,16 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       uuid_user: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(200),
+      },
+      nama_user: {
+        type: Sequelize.STRING(50),
       },
       nomor_wa: {
         type: Sequelize.STRING(17),
       },
-      name_user: {
-        type: Sequelize.STRING,
-      },
       email: {
-        type: Sequelize.STRING,
-      },
-      id_bidang_kerja: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "bidang_kerja",
-          key: "id",
-        },
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
+        type: Sequelize.STRING(50),
       },
       password: {
         type: Sequelize.STRING,
@@ -45,7 +36,7 @@ module.exports = {
       domisili_provinsi: {
         type: Sequelize.INTEGER,
       },
-      role_id: {
+      id_role: {
         type: Sequelize.INTEGER,
         references: {
           model: "roles",

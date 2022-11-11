@@ -1,7 +1,7 @@
 "use strict";
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-  class Pekerjaan extends Model {
+  class Lowongan extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -9,40 +9,47 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Pekerjaan.belongsTo(models.Penyedia, {
+      Lowongan.belongsTo(models.Penyedia, {
         as: "penyedia",
         foreignKey: {
           name: "id_penyedia",
         },
       });
-      Pekerjaan.belongsTo(models.Bidang_Kerja, {
+
+      Lowongan.belongsTo(models.Bidang_Kerja, {
         as: "bidang_kerja",
         foreignKey: {
           name: "id_bidang_kerja",
         },
       });
+    
+      Lowongan.hasMany(models.Ulasan, {
+        as: "ulasan",
+        foreignKey: {
+          name: "id_lowongan",
+        },
+      });
     }
   }
-  Pekerjaan.init(
+  Lowongan.init(
     {
-      uuid_kerja: DataTypes.STRING,
+      uuid_lowongan: DataTypes.STRING(200),
       gaji: DataTypes.INTEGER,
-      skala_gaji: DataTypes.STRING,
+      skala_gaji: DataTypes.ENUM("hari", "minggu", "bulan"),
       kualifikasi: DataTypes.TEXT,
-      id_penyedia: DataTypes.INTEGER,
-      id_bidang_kerja: DataTypes.INTEGER,
       isSave: DataTypes.BOOLEAN,
-      deskripsi_kerja: DataTypes.TEXT,
+      isPublish: DataTypes.BOOLEAN,
+      deskripsi_lowongan: DataTypes.TEXT,
       fasilitas: DataTypes.TEXT,
-      lokasi_kerja_provinsi: DataTypes.INTEGER,
-      lokasi_kerja_kota: DataTypes.INTEGER,
+      kota_lowongan: DataTypes.INTEGER,
+      provinsi_lowongan: DataTypes.INTEGER,
       createdAt: DataTypes.INTEGER,
     },
     {
       sequelize,
-      modelName: "Pekerjaan",
-      tableName: "pekerjaan",
+      modelName: "Lowongan",
+      tableName: "lowongan",
     }
   );
-  return Pekerjaan;
+  return Lowongan;
 };

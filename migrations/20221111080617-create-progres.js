@@ -1,30 +1,36 @@
 "use strict";
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("bidang_kerja", {
+    await queryInterface.createTable("progres", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      nama_bidang: {
-        type: Sequelize.STRING(15),
+      informasi: {
+        type: Sequelize.STRING,
       },
-      detail_bidang: {
-        type: Sequelize.STRING(50),
+      id_riwayat: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "riwayat",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       createdAt: {
-        allowNull: false,
         type: Sequelize.INTEGER,
+        allowNull: false,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.DATE,
       },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("bidang_kerja");
+    await queryInterface.dropTable("progres");
   },
 };

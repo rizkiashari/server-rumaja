@@ -15,17 +15,17 @@ module.exports = {
       "roles",
       [
         {
-          role_name: "superadmin",
+          nama_role: "superadmin",
           createdAt: new Date().getTime() / 1000,
           updatedAt: new Date().getTime() / 1000,
         },
         {
-          role_name: "pencari",
+          nama_role: "pencari",
           createdAt: new Date().getTime() / 1000,
           updatedAt: new Date().getTime() / 1000,
         },
         {
-          role_name: "penyedia",
+          nama_role: "penyedia",
           createdAt: new Date().getTime() / 1000,
           updatedAt: new Date().getTime() / 1000,
         },

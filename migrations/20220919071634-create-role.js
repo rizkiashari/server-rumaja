@@ -8,8 +8,8 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      role_name: {
-        type: Sequelize.STRING,
+      nama_role: {
+        type: Sequelize.STRING(15),
       },
       createdAt: {
         allowNull: false,

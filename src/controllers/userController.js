@@ -137,7 +137,6 @@ exports.updateUserPencari = async (req, res) => {
     const schema = joi.object({
       name_user: joi.string().min(3).required(),
       gender: joi.string().required(),
-      date_open_work: joi.string().required(),
       bidang_kerja: joi.number().optional(),
       email: joi.string().email().required(),
       nomor_wa: joi.string().min(10).max(17).required(),
@@ -185,7 +184,6 @@ exports.updateUserPencari = async (req, res) => {
       await Pencari.update(
         {
           gender: dataPencari.gender,
-          date_open_work: +new Date(dataPencari.date_open_work) / 1000,
           alamat_rumah: dataPencari.alamat_rumah,
           tanggal_lahir: dataPencari.tanggal_lahir,
           tempat_lahir: dataPencari.tempat_lahir,
@@ -205,7 +203,6 @@ exports.updateUserPencari = async (req, res) => {
       await Pencari.create({
         user_id: userLogin.id,
         gender: dataPencari.gender,
-        date_open_work: +new Date(dataPencari.date_open_work) / 1000,
         alamat_rumah: dataPencari.alamat_rumah,
         tanggal_lahir: dataPencari.tanggal_lahir,
         tempat_lahir: dataPencari.tempat_lahir,

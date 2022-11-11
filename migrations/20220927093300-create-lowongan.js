@@ -1,50 +1,56 @@
 "use strict";
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("pencari", {
+    await queryInterface.createTable("lowongan", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      gender: {
-        type: Sequelize.ENUM("pria", "wanita"),
+      uuid_lowongan: {
+        type: Sequelize.STRING(200),
       },
-      alamat_rumah: {
-        type: Sequelize.TEXT,
+      gaji: {
+        type: Sequelize.INTEGER,
       },
-      tanggal_lahir: {
-        type: Sequelize.DATE,
+      skala_gaji: {
+        type: Sequelize.ENUM("hari", "minggu", "bulan"),
       },
-      tempat_lahir: {
-        type: Sequelize.STRING(50),
-      },
-      tentang: {
+      kualifikasi: {
         type: Sequelize.TEXT,
       },
       isSave: {
         type: Sequelize.BOOLEAN,
       },
-      tinggi_badan: {
+      isPublish: {
+        type: Sequelize.BOOLEAN,
+      },
+      deskripsi_lowongan: {
+        type: Sequelize.TEXT,
+      },
+      fasilitas: {
+        type: Sequelize.TEXT,
+      },
+      kota_lowongan: {
         type: Sequelize.INTEGER,
       },
-      berat_badan: {
+      provinsi_lowongan: {
         type: Sequelize.INTEGER,
-      },
-      id_user: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "users",
-          key: "id",
-        },
-        onDelete: "CASCADE",
-        onUpdate: "CASCADE",
       },
       id_bidang_kerja: {
         type: Sequelize.INTEGER,
         references: {
           model: "bidang_kerja",
+          key: "id",
+        },
+        onDelete: "CASCADE",
+        onUpdate: "CASCADE",
+      },
+      id_penyedia: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "penyedia",
           key: "id",
         },
         onDelete: "CASCADE",
@@ -61,6 +67,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("pencari");
+    await queryInterface.dropTable("lowongan");
   },
 };

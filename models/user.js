@@ -16,13 +16,6 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
 
-      User.belongsTo(models.Bidang_Kerja, {
-        as: "bidang_kerja",
-        foreignKey: {
-          name: "id_bidang_kerja",
-        },
-      });
-
       User.hasOne(models.Penyedia, {
         as: "penyedia",
         foreignKey: {
@@ -40,14 +33,13 @@ module.exports = (sequelize, DataTypes) => {
   }
   User.init(
     {
-      uuid_user: DataTypes.STRING,
-      name_user: DataTypes.STRING,
-      email: DataTypes.STRING,
+      uuid_user: DataTypes.STRING(200),
+      name_user: DataTypes.STRING(50),
+      email: DataTypes.STRING(50),
       password: DataTypes.STRING,
       resetPassword: DataTypes.STRING,
       domisili_kota: DataTypes.INTEGER,
       domisili_provinsi: DataTypes.INTEGER,
-      id_bidang_kerja: DataTypes.INTEGER,
       nomor_wa: DataTypes.STRING(17),
       createdAt: DataTypes.INTEGER,
       photo_profile: DataTypes.STRING,
