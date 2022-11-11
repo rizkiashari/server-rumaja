@@ -24,7 +24,7 @@ exports.authMiddleware = (req, res, next) => {
           id,
         },
         attributes: {
-          exclude: ["password", "updatedAt"],
+          exclude: ["password", "updatedAt", "createdAt"],
         },
       });
 
