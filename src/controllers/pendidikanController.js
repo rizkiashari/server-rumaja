@@ -1,11 +1,9 @@
 const joi = require("joi");
-const dotenv = require("dotenv");
 const uuid = require("uuid");
-const jwt = require("jsonwebtoken");
-const { User, Pendidikan, Pencari } = require("../../models");
+const { Pendidikan, Pencari } = require("../../models");
 const { errorResponse, successRes, successResWithData } = require("../helper/response");
-const env = dotenv.config().parsed;
 
+// Done
 exports.addPendidikan = async (req, res) => {
   try {
     const userLogin = req.user;
@@ -13,7 +11,7 @@ exports.addPendidikan = async (req, res) => {
 
     const pencari = await Pencari.findOne({
       where: {
-        user_id: userLogin.id,
+        id_user: userLogin.id,
       },
     });
 
@@ -23,9 +21,8 @@ exports.addPendidikan = async (req, res) => {
 
     const schema = joi.object({
       nama: joi.string().required(),
-      jurusan: joi.string().required(),
-      tahun_awal: joi.string().required(),
-      tahun_akhir: joi.string().required(),
+      tahun_awal: joi.number().required().max(4),
+      tahun_akhir: joi.number().required().max(4),
     });
 
     const { error } = schema.validate(dataPendidikan);
@@ -35,10 +32,9 @@ exports.addPendidikan = async (req, res) => {
     }
 
     const newPendidikan = new Pendidikan({
-      nama: dataPendidikan.nama,
       uuid_pendidikan: uuid.v4(),
+      nama_pendidikan: dataPendidikan.nama,
       id_pencari: pencari.id,
-      jurusan: dataPendidikan.jurusan,
       tahun_awal: dataPendidikan.tahun_awal,
       tahun_akhir: dataPendidikan.tahun_akhir,
       createdAt: Math.floor(+new Date() / 1000),
@@ -52,13 +48,14 @@ exports.addPendidikan = async (req, res) => {
   }
 };
 
+// Done
 exports.listsAllPendidikan = async (req, res) => {
   try {
     const userLogin = req.user;
 
     const pencari = await Pencari.findOne({
       where: {
-        user_id: userLogin.id,
+        id_user: userLogin.id,
       },
     });
 
@@ -71,7 +68,7 @@ exports.listsAllPendidikan = async (req, res) => {
         id_pencari: pencari.id,
       },
       attributes: {
-        exclude: ["updatedAt"],
+        exclude: ["updatedAt", "createdAt"],
       },
     });
 
@@ -81,6 +78,7 @@ exports.listsAllPendidikan = async (req, res) => {
   }
 };
 
+// Done
 exports.getPendidikanByUUID = async (req, res) => {
   try {
     const userLogin = req.user;
@@ -88,7 +86,7 @@ exports.getPendidikanByUUID = async (req, res) => {
 
     const pencari = await Pencari.findOne({
       where: {
-        user_id: userLogin.id,
+        id_user: userLogin.id,
       },
     });
 
@@ -101,7 +99,7 @@ exports.getPendidikanByUUID = async (req, res) => {
         uuid_pendidikan: uuid_pendidikan,
       },
       attributes: {
-        exclude: ["updatedAt"],
+        exclude: ["updatedAt", "createdAt"],
       },
     });
 
@@ -115,6 +113,7 @@ exports.getPendidikanByUUID = async (req, res) => {
   }
 };
 
+// Done
 exports.editPendidikan = async (req, res) => {
   try {
     const { uuid_pendidikan } = req.params;
@@ -124,7 +123,7 @@ exports.editPendidikan = async (req, res) => {
         uuid_pendidikan,
       },
       attributes: {
-        exclude: ["updatedAt"],
+        exclude: ["updatedAt", "createdAt"],
       },
     });
 
@@ -132,11 +131,20 @@ exports.editPendidikan = async (req, res) => {
       return errorResponse(res, 404, "PENDIDIKAN_NOT_FOUND");
     }
 
-    await Pendidikan.update(req.body, {
-      where: {
-        uuid_pendidikan,
+    const pendidikans = await Pendidikan.update(
+      {
+        nama_pendidikan: req.body.nama,
+        tahun_awal: req.body.tahun_awal,
+        tahun_akhir: req.body.tahun_akhir,
       },
-    });
+      {
+        where: {
+          uuid_pendidikan,
+        },
+      }
+    );
+
+    console.log(pendidikans);
 
     successRes(res, 200, "EDIT_PENDIDIKAN_SUCCESS");
   } catch (error) {
@@ -144,6 +152,7 @@ exports.editPendidikan = async (req, res) => {
   }
 };
 
+// Done
 exports.deletePendidikan = async (req, res) => {
   try {
     const { uuid_pendidikan } = req.params;
@@ -153,7 +162,7 @@ exports.deletePendidikan = async (req, res) => {
         uuid_pendidikan,
       },
       attributes: {
-        exclude: ["updatedAt"],
+        exclude: ["updatedAt", "createdAt"],
       },
     });
 
