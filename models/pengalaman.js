@@ -19,10 +19,10 @@ module.exports = (sequelize, DataTypes) => {
   }
   Pengalaman.init(
     {
+      uuid_pengalaman: DataTypes.STRING(200),
       nama_pengalaman: DataTypes.STRING(50),
       pengalaman_prov: DataTypes.INTEGER,
-      pengalaman_kota: DataTypes.INTEGER,
-      tahun_awal: DataTypes.INTEGER,
+      tahun_mulai: DataTypes.INTEGER,
       tahun_akhir: DataTypes.INTEGER,
       isWork: DataTypes.BOOLEAN,
       createdAt: DataTypes.INTEGER,

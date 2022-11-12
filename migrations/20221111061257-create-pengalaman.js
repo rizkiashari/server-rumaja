@@ -8,13 +8,13 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      uuid_pengalaman: {
+        type: Sequelize.STRING(200),
+      },
       nama_pengalaman: {
         type: Sequelize.STRING(50),
       },
       pengalaman_prov: {
-        type: Sequelize.INTEGER,
-      },
-      pengalaman_kota: {
         type: Sequelize.INTEGER,
       },
       tahun_mulai: {

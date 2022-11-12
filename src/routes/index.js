@@ -5,6 +5,7 @@ const pendidikan = require("./pendidikan.js");
 const wilayahIndonesia = require("./wilayahIndo.js");
 const lowongan = require("./lowongan.js");
 const lamaran = require("./lamaran.js");
+const pengalaman = require("./pengalaman.js");
 const router = Router();
 
 router.get("/test", (req, res) => {
@@ -16,6 +17,7 @@ router.use("/user", user);
 router.use("/pendidikan", pendidikan);
 router.use("/lowongan", lowongan);
 router.use("/lamaran", lamaran);
+router.use("/pengalaman", pengalaman);
 
 router.use("/wilayah-indo", wilayahIndonesia);
 
