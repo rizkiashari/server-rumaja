@@ -14,7 +14,10 @@ module.exports = {
       info_riwayat: {
         type: Sequelize.ENUM("applied", "hired"),
       },
-      catatan_riwayat: {
+      catatan_riwayat_pencari: {
+        type: Sequelize.TEXT,
+      },
+      catatan_riwayat_penyedia: {
         type: Sequelize.TEXT,
       },
       waktu_mulai_kerja: {
