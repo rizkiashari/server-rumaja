@@ -117,25 +117,24 @@ exports.updateUserPencari = async (req, res) => {
     const userLogin = req.user;
     const dataPencari = req.body;
 
-    if (userLogin.role_id !== 2) {
+    if (userLogin.id_role !== 2) {
       return errorResponse(res, 403, "YOUR_NOT_PENCARI");
     }
 
     const schema = joi.object({
-      name_user: joi.string().min(3).required(),
-      gender: joi.string().required(),
+      photo_profile: joi.string().optional(),
+      nama_user: joi.string().min(3).required(),
+      gender: joi.string().required().valid("pria", "wanita"),
       bidang_kerja: joi.number().optional(),
-      email: joi.string().email().required(),
       nomor_wa: joi.string().min(10).max(17).required(),
+      tempat_lahir: joi.string().required(),
       tanggal_lahir: joi.string().required(),
-      alamat_rumah: joi.string().required(),
       domisili_kota: joi.number().required(),
       domisili_provinsi: joi.number().required(),
+      alamat_rumah: joi.string().required(),
       tinggi_badan: joi.number().required(),
-      tempat_lahir: joi.string().required(),
       berat_badan: joi.number().required(),
       tentang: joi.string().required(),
-      photo_profile: joi.string().optional(),
     });
 
     const { error } = schema.validate(dataPencari);
@@ -146,10 +145,8 @@ exports.updateUserPencari = async (req, res) => {
 
     await User.update(
       {
-        name_user: dataPencari.name_user,
-        email: dataPencari.email,
+        nama_user: dataPencari.nama_user,
         nomor_wa: dataPencari.nomor_wa,
-        id_bidang_kerja: dataPencari.bidang_kerja,
         domisili_kota: dataPencari.domisili_kota,
         domisili_provinsi: dataPencari.domisili_provinsi,
         photo_profile: req.file != undefined ? req.file.path : null,
@@ -163,43 +160,27 @@ exports.updateUserPencari = async (req, res) => {
 
     const pencariData = await Pencari.findOne({
       where: {
-        user_id: userLogin.id,
+        id_user: userLogin.id,
       },
     });
 
-    if (pencariData) {
-      await Pencari.update(
-        {
-          gender: dataPencari.gender,
-          alamat_rumah: dataPencari.alamat_rumah,
-          tanggal_lahir: dataPencari.tanggal_lahir,
-          tempat_lahir: dataPencari.tempat_lahir,
-          tentang: dataPencari.tentang,
-          isSave: false,
-          tinggi_badan: dataPencari.tinggi_badan,
-          berat_badan: dataPencari.berat_badan,
-          createdAt: Math.floor(+new Date() / 1000),
-        },
-        {
-          where: {
-            id: pencariData.id,
-          },
-        }
-      );
-    } else {
-      await Pencari.create({
-        user_id: userLogin.id,
+    await Pencari.update(
+      {
         gender: dataPencari.gender,
         alamat_rumah: dataPencari.alamat_rumah,
         tanggal_lahir: dataPencari.tanggal_lahir,
         tempat_lahir: dataPencari.tempat_lahir,
         tentang: dataPencari.tentang,
-        isSave: false,
-        tinggi_badan: dataPencari.tinggi_badan,
-        berat_badan: dataPencari.berat_badan,
+        tinggi_badan: +dataPencari.tinggi_badan,
+        berat_badan: +dataPencari.berat_badan,
         createdAt: Math.floor(+new Date() / 1000),
-      });
-    }
+      },
+      {
+        where: {
+          id: pencariData.id,
+        },
+      }
+    );
 
     successRes(res, 200, "SUCCESS_UPDATE_USER_PENCARI");
   } catch (error) {
