@@ -21,8 +21,8 @@ exports.addPendidikan = async (req, res) => {
 
     const schema = joi.object({
       nama: joi.string().required(),
-      tahun_awal: joi.number().required().max(4),
-      tahun_akhir: joi.number().required().max(4),
+      tahun_awal: joi.string().required().max(4),
+      tahun_akhir: joi.string().required().max(4),
     });
 
     const { error } = schema.validate(dataPendidikan);
@@ -35,8 +35,8 @@ exports.addPendidikan = async (req, res) => {
       uuid_pendidikan: uuid.v4(),
       nama_pendidikan: dataPendidikan.nama,
       id_pencari: pencari.id,
-      tahun_awal: dataPendidikan.tahun_awal,
-      tahun_akhir: dataPendidikan.tahun_akhir,
+      tahun_awal: +dataPendidikan.tahun_awal,
+      tahun_akhir: +dataPendidikan.tahun_akhir,
       createdAt: Math.floor(+new Date() / 1000),
     });
 
@@ -131,7 +131,7 @@ exports.editPendidikan = async (req, res) => {
       return errorResponse(res, 404, "PENDIDIKAN_NOT_FOUND");
     }
 
-    const pendidikans = await Pendidikan.update(
+    await Pendidikan.update(
       {
         nama_pendidikan: req.body.nama,
         tahun_awal: req.body.tahun_awal,
@@ -143,8 +143,6 @@ exports.editPendidikan = async (req, res) => {
         },
       }
     );
-
-    console.log(pendidikans);
 
     successRes(res, 200, "EDIT_PENDIDIKAN_SUCCESS");
   } catch (error) {
