@@ -7,40 +7,58 @@ const { Op } = require("sequelize");
 
 const env = dotenv.config().parsed;
 
-exports.getAllUser = async (req, res) => {
+// Done
+exports.updatePassword = async (req, res) => {
   try {
-    const { search } = req.query;
     const userLogin = req.user;
 
-    if (userLogin.role_id === 1) {
-      return errorResponse(res, 403, "YOUR_NOT_ADMIN");
-    } else {
-      const users = await User.findAll({
-        where: {
-          [Op.or]: [
-            {
-              name_user: {
-                [Op.like]: `%${search ? search : ""}%`,
-              },
-            },
-            {
-              email: {
-                [Op.like]: `%${search ? search : ""}%`,
-              },
-            },
-          ],
-        },
-        attributes: { exclude: ["password", "updatedAt"] },
-      });
+    const { oldPassword, newPassword } = req.body;
+    const dataPassword = req.body;
 
-      successResWithData(res, 200, "SUCCESS_GET_ALL_USER", users);
+    const schema = joi.object({
+      oldPassword: joi.string().min(8).required(),
+      newPassword: joi.string().min(8).required(),
+    });
+
+    const { error } = schema.validate(dataPassword);
+
+    if (error) {
+      return errorResponse(res, 400, error.details[0].message);
     }
+
+    const user = await User.findOne({
+      where: {
+        id: userLogin.id,
+      },
+    });
+
+    const validPassword = await bcrypt.compareSync(oldPassword, user.password);
+
+    if (!validPassword) {
+      return errorResponse(res, 400, "PASSWORD_NOT_MATCH");
+    }
+
+    const salt = await bcrypt.genSalt(+env.SALT);
+    const hashPassword = await bcrypt.hash(newPassword, salt);
+
+    await user.update(
+      {
+        password: hashPassword,
+      },
+      {
+        where: {
+          id: user.id,
+        },
+      }
+    );
+
+    successRes(res, 200, "SUCCESS_CHANGE_PASSWORD");
   } catch (error) {
-    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
 
+// Done
 exports.updateUserPenyedia = async (req, res) => {
   try {
     const userLogin = req.user;
@@ -112,6 +130,7 @@ exports.updateUserPenyedia = async (req, res) => {
   }
 };
 
+// Done
 exports.updateUserPencari = async (req, res) => {
   try {
     const userLogin = req.user;
@@ -203,7 +222,7 @@ exports.listUserPencari = async (req, res) => {
           },
         },
       ],
-      attributes: ["id", "photo_profile", "date_open_work", "gender", "isSave"],
+      attributes: ["id", "photo_profile", "date_open_work", "gender"],
     });
 
     const review = await Review.findAll({
@@ -222,7 +241,6 @@ exports.listUserPencari = async (req, res) => {
         photo_profile: item.photo_profile,
         date_open_work: item.date_open_work,
         gender: item.gender,
-        isSave: item.isSave,
         name_pencari: item.users.name_user,
         uuid_user: item.users.uuid_user,
         name_bidang: item.users.bidang_kerja.name_bidang,
@@ -239,8 +257,6 @@ exports.listUserPencari = async (req, res) => {
 exports.detailUserPencari = async (req, res) => {
   try {
     const { uuid_user } = req.params;
-
-    console.log(uuid_user);
 
     const userPencari = await User.findOne({
       where: {
@@ -270,53 +286,36 @@ exports.detailUserPencari = async (req, res) => {
   }
 };
 
-exports.updatePassword = async (req, res) => {
+// Untuk Super admin
+exports.getAllUser = async (req, res) => {
   try {
+    const { search } = req.query;
     const userLogin = req.user;
 
-    const { oldPassword, newPassword } = req.body;
-    const dataPassword = req.body;
-
-    const schema = joi.object({
-      oldPassword: joi.string().min(8).required(),
-      newPassword: joi.string().min(8).required(),
-    });
-
-    const { error } = schema.validate(dataPassword);
-
-    if (error) {
-      return errorResponse(res, 400, error.details[0].message);
-    }
-
-    const user = await User.findOne({
-      where: {
-        id: userLogin.id,
-      },
-    });
-
-    const validPassword = await bcrypt.compareSync(oldPassword, user.password);
-
-    if (!validPassword) {
-      return errorResponse(res, 400, "PASSWORD_NOT_MATCH");
-    }
-
-    const salt = await bcrypt.genSalt(+env.SALT);
-    const hashPassword = await bcrypt.hash(newPassword, salt);
-
-    await user.update(
-      {
-        password: hashPassword,
-      },
-      {
+    if (userLogin.role_id === 1) {
+      return errorResponse(res, 403, "YOUR_NOT_ADMIN");
+    } else {
+      const users = await User.findAll({
         where: {
-          id: user.id,
+          [Op.or]: [
+            {
+              name_user: {
+                [Op.like]: `%${search ? search : ""}%`,
+              },
+            },
+            {
+              email: {
+                [Op.like]: `%${search ? search : ""}%`,
+              },
+            },
+          ],
         },
-      }
-    );
+        attributes: { exclude: ["password", "updatedAt"] },
+      });
 
-    successRes(res, 200, "SUCCESS_CHANGE_PASSWORD");
+      successResWithData(res, 200, "SUCCESS_GET_ALL_USER", users);
+    }
   } catch (error) {
-    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };

@@ -1,9 +1,8 @@
 const joi = require("joi");
 const uuid = require("uuid");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
-const { Lowongan, Penyedia, Bidang_Kerja } = require("../../models");
+const { Lowongan, Penyedia, Bidang_Kerja, Simpan_Lowongan } = require("../../models");
 const { Op } = require("sequelize");
-
 // Penyedia
 // Done
 exports.addLowongan = async (req, res) => {
@@ -64,7 +63,6 @@ exports.addLowongan = async (req, res) => {
 
     successRes(res, 200, "SUCCESS_ADD_LOWONGAN");
   } catch (error) {
-    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
@@ -229,7 +227,6 @@ exports.getAllLowongan = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
@@ -314,6 +311,11 @@ exports.publishLowongan = async (req, res) => {
 exports.saveLowongan = async (req, res) => {
   try {
     const { uuid_lowongan } = req.params;
+    const userLogin = req.user;
+
+    if (userLogin.id_role === 3) {
+      return errorResponse(res, 403, "YOUR_NOT_PENCARI");
+    }
 
     const dataLowongan = await Lowongan.findOne({
       where: {
@@ -325,33 +327,47 @@ exports.saveLowongan = async (req, res) => {
       return errorResponse(res, 404, "LOWONGAN_NOT_FOUND");
     }
 
-    if (dataLowongan.isSave === true) {
-      await Lowongan.update(
-        {
-          isSave: false,
-        },
-        {
-          where: {
-            uuid_lowongan,
-          },
-        }
-      );
+    await Simpan_Lowongan.create({
+      uuid_simpan: uuid.v4(),
+      id_pencari: userLogin.id,
+      id_lowongan: dataLowongan.id,
+      isSave: true,
+      createdAt: Math.floor(+new Date() / 1000),
+    });
 
-      successRes(res, 200, "SUCCESS_UNSAVE_LOWONGAN");
-    } else {
-      await Lowongan.update(
-        {
-          isSave: true,
-        },
-        {
-          where: {
-            uuid_lowongan,
-          },
-        }
-      );
+    successRes(res, 200, "SUCCESS_SAVE_LOWONGAN");
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
 
-      successRes(res, 200, "SUCCESS_SAVE_LOWONGAN");
+// Done
+exports.deleteSaveLowongan = async (req, res) => {
+  try {
+    const { uuid_simpan } = req.params;
+    const userLogin = req.user;
+
+    if (userLogin.id_role === 3) {
+      return errorResponse(res, 403, "YOUR_NOT_PENCARI");
     }
+
+    const dataSimpan = await Simpan_Lowongan.findOne({
+      where: {
+        uuid_simpan,
+      },
+    });
+
+    if (!dataSimpan) {
+      return errorResponse(res, 404, "LOWONGAN_TERSIMPAN_NOT_FOUND");
+    }
+
+    await Simpan_Lowongan.destroy({
+      where: {
+        uuid_simpan,
+      },
+    });
+
+    successRes(res, 200, "SUCCESS_DELETE_SAVE_LOWONGAN");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
@@ -365,7 +381,22 @@ exports.rekomendasiLowongan = async (req, res) => {
     const limit = +req.query.limit || 5;
     const page = +req.query.page || 1;
 
-    const totalRows = await Lowongan.count();
+    const totalRows = await Lowongan.count({
+      where: {
+        [Op.and]: [
+          {
+            id_bidang_kerja: {
+              [Op.eq]: `${bidang_kerja ? +bidang_kerja : ""}`,
+            },
+          },
+          {
+            gaji: {
+              [Op.gte]: `${gaji ? +gaji : ""}`,
+            },
+          },
+        ],
+      },
+    });
 
     const totalPage = Math.ceil(totalRows / limit);
 
@@ -384,6 +415,25 @@ exports.rekomendasiLowongan = async (req, res) => {
           },
         ],
       },
+      attributes: {
+        exclude: ["updatedAt"],
+      },
+      include: [
+        {
+          model: Bidang_Kerja,
+          as: "bidang_kerja",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+        {
+          model: Simpan_Lowongan,
+          as: "simpan_lowongan",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "id_lowongan", "id_pencari", "id"],
+          },
+        },
+      ],
       limit: [(page - 1) * +limit, +limit],
       order: [["id", "DESC"]],
     });
@@ -421,7 +471,11 @@ exports.getLowonganByBidangKerja = async (req, res) => {
     }
 
     if (!kota && !provinsi && !jenis_gaji) {
-      const totalRows = await Lowongan.count();
+      const totalRows = await Lowongan.count({
+        where: {
+          id_bidang_kerja: bidang_kerja,
+        },
+      });
 
       const totalPage = Math.ceil(totalRows / limit);
 
@@ -433,7 +487,7 @@ exports.getLowonganByBidangKerja = async (req, res) => {
           id_bidang_kerja: bidang_kerja,
         },
         limit: [(page - 1) * +limit, +limit],
-        order: [urutan ? tempUrutan : ["id", "DESC"]],
+        order: [urutan ? tempUrutan : ["id", "ASC"]],
       });
 
       successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
@@ -445,78 +499,157 @@ exports.getLowonganByBidangKerja = async (req, res) => {
         totalPage,
       });
     } else {
-      const totalRows = await Lowongan.count({
-        where: {
-          [Op.or]: [
-            {
-              id_bidang_kerja: {
-                [Op.eq]: bidang_kerja,
+      if (kota && provinsi && jenis_gaji) {
+        const totalRows = await Lowongan.count({
+          where: {
+            [Op.and]: [
+              {
+                id_bidang_kerja: {
+                  [Op.eq]: bidang_kerja,
+                },
               },
-            },
-            {
-              kota_lowongan: {
-                [Op.eq]: kota,
+              {
+                kota_lowongan: {
+                  [Op.eq]: kota,
+                },
               },
-            },
-            {
-              provinsi_lowongan: {
-                [Op.eq]: provinsi,
+              {
+                provinsi_lowongan: {
+                  [Op.eq]: provinsi,
+                },
               },
-            },
-            {
-              jenis_gaji: {
-                [Op.eq]: jenis_gaji,
+              {
+                skala_gaji: {
+                  [Op.eq]: jenis_gaji,
+                },
               },
-            },
-          ],
-        },
-      });
+            ],
+          },
+        });
 
-      const totalPage = Math.ceil(totalRows / limit);
+        const totalPage = Math.ceil(totalRows / limit);
 
-      const dataLowongan = await Lowongan.findAll({
-        where: {
-          [Op.or]: [
-            {
-              id_bidang_kerja: {
-                [Op.eq]: bidang_kerja,
+        const dataLowongan = await Lowongan.findAll({
+          where: {
+            [Op.and]: [
+              {
+                id_bidang_kerja: {
+                  [Op.eq]: bidang_kerja,
+                },
               },
-            },
-            {
-              kota_lowongan: {
-                [Op.eq]: kota,
+              {
+                kota_lowongan: {
+                  [Op.eq]: kota,
+                },
               },
-            },
-            {
-              provinsi_lowongan: {
-                [Op.eq]: provinsi,
+              {
+                provinsi_lowongan: {
+                  [Op.eq]: provinsi,
+                },
               },
-            },
-            {
-              jenis_gaji: {
-                [Op.eq]: jenis_gaji,
+              {
+                skala_gaji: {
+                  [Op.eq]: jenis_gaji,
+                },
               },
-            },
-          ],
-        },
-        attributes: {
-          exclude: ["updatedAt"],
-        },
-        limit: [(page - 1) * +limit, +limit],
-        order: [urutan ? tempUrutan : ["id", "DESC"]],
-      });
+            ],
+          },
+          attributes: {
+            exclude: ["updatedAt"],
+          },
+          limit: [(page - 1) * +limit, +limit],
+          order: [urutan ? tempUrutan : ["id", "ASC"]],
+        });
 
-      successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
-        lowongan: dataLowongan,
-        totalPage,
-        page,
-        limit,
-        totalRows,
-        totalPage,
-      });
+        successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
+          lowongan: dataLowongan,
+          totalPage,
+          page,
+          limit,
+          totalRows,
+          totalPage,
+        });
+      } else {
+        const totalRows = await Lowongan.count({
+          where: {
+            [Op.and]: [
+              {
+                id_bidang_kerja: {
+                  [Op.eq]: bidang_kerja,
+                },
+              },
+              {
+                [Op.or]: [
+                  {
+                    kota_lowongan: {
+                      [Op.eq]: kota,
+                    },
+                  },
+                  {
+                    provinsi_lowongan: {
+                      [Op.eq]: provinsi,
+                    },
+                  },
+                  {
+                    skala_gaji: {
+                      [Op.eq]: jenis_gaji,
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        });
+
+        const totalPage = Math.ceil(totalRows / limit);
+
+        const dataLowongan = await Lowongan.findAll({
+          where: {
+            [Op.and]: [
+              {
+                id_bidang_kerja: {
+                  [Op.eq]: bidang_kerja,
+                },
+              },
+              {
+                [Op.or]: [
+                  {
+                    kota_lowongan: {
+                      [Op.eq]: kota,
+                    },
+                  },
+                  {
+                    provinsi_lowongan: {
+                      [Op.eq]: provinsi,
+                    },
+                  },
+                  {
+                    skala_gaji: {
+                      [Op.eq]: jenis_gaji,
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+          attributes: {
+            exclude: ["updatedAt"],
+          },
+          limit: [(page - 1) * +limit, +limit],
+          order: [urutan ? tempUrutan : ["id", "ASC"]],
+        });
+
+        successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
+          lowongan: dataLowongan,
+          totalPage,
+          page,
+          limit,
+          totalRows,
+          totalPage,
+        });
+      }
     }
   } catch (error) {
-    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
@@ -527,7 +660,9 @@ exports.getLowonganByBidangKerja = async (req, res) => {
 exports.listsLayanan = async (req, res) => {
   try {
     const dataLayanan = await Bidang_Kerja.findAll({
-      attributes: ["id", "name_bidang"],
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
     });
 
     successResWithData(res, 200, "SUCCESS_GET_LISTS_LAYANAN", dataLayanan);
