@@ -430,7 +430,7 @@ exports.rekomendasiLowongan = async (req, res) => {
           model: Simpan_Lowongan,
           as: "simpan_lowongan",
           attributes: {
-            exclude: ["createdAt", "updatedAt", "id_lowongan", "id_pencari", "id"],
+            exclude: ["createdAt", "updatedAt", "id"],
           },
         },
       ],
@@ -486,6 +486,22 @@ exports.getLowonganByBidangKerja = async (req, res) => {
         where: {
           id_bidang_kerja: bidang_kerja,
         },
+        include: [
+          {
+            model: Bidang_Kerja,
+            as: "bidang_kerja",
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+          },
+          {
+            model: Simpan_Lowongan,
+            as: "simpan_lowongan",
+            attributes: {
+              exclude: ["createdAt", "updatedAt", "id"],
+            },
+          },
+        ],
         limit: [(page - 1) * +limit, +limit],
         order: [urutan ? tempUrutan : ["id", "ASC"]],
       });
@@ -557,6 +573,22 @@ exports.getLowonganByBidangKerja = async (req, res) => {
           attributes: {
             exclude: ["updatedAt"],
           },
+          include: [
+            {
+              model: Bidang_Kerja,
+              as: "bidang_kerja",
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+            },
+            {
+              model: Simpan_Lowongan,
+              as: "simpan_lowongan",
+              attributes: {
+                exclude: ["createdAt", "updatedAt", "id"],
+              },
+            },
+          ],
           limit: [(page - 1) * +limit, +limit],
           order: [urutan ? tempUrutan : ["id", "ASC"]],
         });
@@ -635,6 +667,22 @@ exports.getLowonganByBidangKerja = async (req, res) => {
           attributes: {
             exclude: ["updatedAt"],
           },
+          include: [
+            {
+              model: Bidang_Kerja,
+              as: "bidang_kerja",
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+            },
+            {
+              model: Simpan_Lowongan,
+              as: "simpan_lowongan",
+              attributes: {
+                exclude: ["createdAt", "updatedAt", "id"],
+              },
+            },
+          ],
           limit: [(page - 1) * +limit, +limit],
           order: [urutan ? tempUrutan : ["id", "ASC"]],
         });
