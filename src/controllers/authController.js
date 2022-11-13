@@ -104,7 +104,6 @@ exports.register = async (req, res) => {
 
     successRes(res, 200, "USER_REGISTER_SUCCESS");
   } catch (error) {
-    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };

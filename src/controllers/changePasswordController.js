@@ -33,7 +33,6 @@ exports.findEmailResetPassword = async (req, res) => {
 
     successResWithData(res, 200, "SUCCESS_FIND_EMAIL", { link: resetPassword });
   } catch (error) {
-    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
@@ -49,7 +48,6 @@ exports.changePassword = async (req, res) => {
     const { error } = schema.validate({ password });
 
     if (error) {
-      console.log(error);
       return errorResponse(res, 400, error.details[0].message);
     }
 
