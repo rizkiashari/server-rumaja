@@ -1,7 +1,13 @@
 const joi = require("joi");
 const uuid = require("uuid");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
-const { Lowongan, Penyedia, Bidang_Kerja, Simpan_Lowongan } = require("../../models");
+const {
+  Lowongan,
+  Penyedia,
+  Bidang_Kerja,
+  Simpan_Lowongan,
+  Pencari,
+} = require("../../models");
 const { Op } = require("sequelize");
 // Penyedia
 // Done
@@ -313,6 +319,12 @@ exports.saveLowongan = async (req, res) => {
     const { uuid_lowongan } = req.params;
     const userLogin = req.user;
 
+    const dataPencari = await Pencari.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
+
     if (userLogin.id_role === 3) {
       return errorResponse(res, 403, "YOUR_NOT_PENCARI");
     }
@@ -321,15 +333,25 @@ exports.saveLowongan = async (req, res) => {
       where: {
         uuid_lowongan,
       },
+      include: [
+        {
+          model: Simpan_Lowongan,
+          as: "simpan_lowongan",
+        },
+      ],
     });
 
     if (!dataLowongan) {
       return errorResponse(res, 404, "LOWONGAN_NOT_FOUND");
     }
 
+    if (dataLowongan.simpan_lowongan) {
+      return errorResponse(res, 403, "LOWONGAN_ALREADY_SAVED");
+    }
+
     await Simpan_Lowongan.create({
       uuid_simpan: uuid.v4(),
-      id_pencari: userLogin.id,
+      id_pencari: dataPencari.id,
       id_lowongan: dataLowongan.id,
       isSave: true,
       createdAt: Math.floor(+new Date() / 1000),
@@ -701,6 +723,166 @@ exports.getLowonganByBidangKerja = async (req, res) => {
     errorResponse(res, 500, "Internal Server Error");
   }
 };
+
+// Done
+exports.getSaveLowongan = async (req, res) => {
+  try {
+    const userLogin = req.user;
+
+    const { bidang_kerja, kota, provinsi, skala_gaji, urutan } = req.query;
+
+    const dataPencari = await Pencari.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
+
+    let tempUrutan = [];
+
+    if (urutan === "terbaru") {
+      tempUrutan = ["id", "DESC"];
+    }
+    if (urutan === "GajiTertinggi") {
+      tempUrutan = ["gaji", "DESC"];
+    }
+
+    if (!bidang_kerja && !kota && !provinsi && !skala_gaji && !urutan) {
+      const dataSimpanLowongan = await Lowongan.findAll({
+        attributes: {
+          exclude: ["updatedAt", "id_bidang_kerja"],
+        },
+        include: [
+          {
+            model: Simpan_Lowongan,
+            as: "simpan_lowongan",
+            attributes: {
+              exclude: ["createdAt", "updatedAt", "id"],
+            },
+            where: {
+              id_pencari: dataPencari.id,
+            },
+          },
+          {
+            model: Bidang_Kerja,
+            as: "bidang_kerja",
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+          },
+        ],
+      });
+      successResWithData(res, 200, "SUCCESS_GET_SAVE_PEKERJAAN", dataSimpanLowongan);
+    } else {
+      if (bidang_kerja && kota && provinsi && skala_gaji) {
+        const dataSimpanLowongan = await Lowongan.findAll({
+          where: {
+            [Op.and]: [
+              {
+                id_bidang_kerja: {
+                  [Op.eq]: bidang_kerja,
+                },
+              },
+              {
+                kota_lowongan: {
+                  [Op.eq]: kota,
+                },
+              },
+              {
+                provinsi_lowongan: {
+                  [Op.eq]: provinsi,
+                },
+              },
+              {
+                skala_gaji: {
+                  [Op.eq]: skala_gaji,
+                },
+              },
+            ],
+          },
+          include: [
+            {
+              model: Simpan_Lowongan,
+              as: "simpan_lowongan",
+              attributes: {
+                exclude: ["createdAt", "updatedAt", "id"],
+              },
+              where: {
+                id_pencari: dataPencari.id,
+              },
+            },
+            {
+              model: Bidang_Kerja,
+              as: "bidang_kerja",
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+            },
+          ],
+          order: [urutan ? tempUrutan : ["id", "ASC"]],
+          attributes: {
+            exclude: ["updatedAt", "id_bidang_kerja"],
+          },
+        });
+        successResWithData(res, 200, "SUCCESS_GET_SAVE_PEKERJAAN", dataSimpanLowongan);
+      } else {
+        const dataSimpanLowongan = await Lowongan.findAll({
+          where: {
+            [Op.or]: [
+              {
+                id_bidang_kerja: {
+                  [Op.eq]: bidang_kerja,
+                },
+              },
+              {
+                kota_lowongan: {
+                  [Op.eq]: kota,
+                },
+              },
+              {
+                provinsi_lowongan: {
+                  [Op.eq]: provinsi,
+                },
+              },
+              {
+                skala_gaji: {
+                  [Op.eq]: skala_gaji,
+                },
+              },
+            ],
+          },
+          include: [
+            {
+              model: Simpan_Lowongan,
+              as: "simpan_lowongan",
+              attributes: {
+                exclude: ["createdAt", "updatedAt", "id"],
+              },
+              where: {
+                id_pencari: dataPencari.id,
+              },
+            },
+            {
+              model: Bidang_Kerja,
+              as: "bidang_kerja",
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+            },
+          ],
+          order: [urutan ? tempUrutan : ["id", "ASC"]],
+          attributes: {
+            exclude: ["updatedAt", "id_bidang_kerja"],
+          },
+        });
+        successResWithData(res, 200, "SUCCESS_GET_SAVE_PEKERJAAN", dataSimpanLowongan);
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
 // End
 
 // Global

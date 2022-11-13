@@ -11,6 +11,7 @@ const {
   getLowonganByBidangKerja,
   publishLowongan,
   deleteSaveLowongan,
+  getSaveLowongan,
 } = require("../controllers/lowonganController");
 const { authMiddleware } = require("../middlewares/auth");
 
@@ -28,6 +29,7 @@ router.patch("/save/:uuid_lowongan", authMiddleware, saveLowongan);
 router.delete("/delete/save/:uuid_simpan", authMiddleware, deleteSaveLowongan);
 router.get("/rekomendasi", authMiddleware, rekomendasiLowongan);
 router.get("/list/:bidang_kerja", authMiddleware, getLowonganByBidangKerja);
+router.get("/list-save", authMiddleware, getSaveLowongan);
 
 // GLOBAL
 router.get("/layanan", authMiddleware, listsLayanan);
