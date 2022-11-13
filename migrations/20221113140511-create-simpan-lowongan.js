@@ -8,6 +8,9 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      uuid_simpan: {
+        type: Sequelize.STRING(200),
+      },
       id_lowongan: {
         type: Sequelize.INTEGER,
         references: {

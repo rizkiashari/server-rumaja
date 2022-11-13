@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Simpan_Pencari.init(
     {
+      uuid_simpan: DataTypes.STRING(200),
       isSave: DataTypes.BOOLEAN,
       createdAt: DataTypes.INTEGER,
     },
