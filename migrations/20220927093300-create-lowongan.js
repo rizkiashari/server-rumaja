@@ -20,9 +20,6 @@ module.exports = {
       kualifikasi: {
         type: Sequelize.TEXT,
       },
-      isSave: {
-        type: Sequelize.BOOLEAN,
-      },
       isPublish: {
         type: Sequelize.BOOLEAN,
       },

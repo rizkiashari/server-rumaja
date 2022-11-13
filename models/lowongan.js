@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
           name: "id_bidang_kerja",
         },
       });
-    
+
       Lowongan.hasMany(models.Ulasan, {
         as: "ulasan",
         foreignKey: {
@@ -37,7 +37,6 @@ module.exports = (sequelize, DataTypes) => {
       gaji: DataTypes.INTEGER,
       skala_gaji: DataTypes.ENUM("hari", "minggu", "bulan"),
       kualifikasi: DataTypes.TEXT,
-      isSave: DataTypes.BOOLEAN,
       isPublish: DataTypes.BOOLEAN,
       deskripsi_lowongan: DataTypes.TEXT,
       fasilitas: DataTypes.TEXT,

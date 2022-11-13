@@ -23,9 +23,6 @@ module.exports = {
       tentang: {
         type: Sequelize.TEXT,
       },
-      isSave: {
-        type: Sequelize.BOOLEAN,
-      },
       tinggi_badan: {
         type: Sequelize.INTEGER,
       },
