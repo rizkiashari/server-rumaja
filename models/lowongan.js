@@ -29,6 +29,13 @@ module.exports = (sequelize, DataTypes) => {
           name: "id_lowongan",
         },
       });
+
+      Lowongan.hasMany(models.Simpan_Lowongan, {
+        as: "simpan_lowongan",
+        foreignKey: {
+          name: "id_lowongan",
+        },
+      });
     }
   }
   Lowongan.init(
