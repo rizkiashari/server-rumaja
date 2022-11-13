@@ -44,14 +44,14 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
 
-      Pencari.hasMany(models.Simpan_Lowongan, {
+      Pencari.hasOne(models.Simpan_Lowongan, {
         as: "simpan_lowongan",
         foreignKey: {
           name: "id_pencari",
         },
       });
 
-      Pencari.hasMany(models.Simpan_Pencari, {
+      Pencari.hasOne(models.Simpan_Pencari, {
         as: "simpan_pencari",
         foreignKey: {
           name: "id_pencari",

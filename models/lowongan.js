@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
         },
       });
 
-      Lowongan.hasMany(models.Simpan_Lowongan, {
+      Lowongan.hasOne(models.Simpan_Lowongan, {
         as: "simpan_lowongan",
         foreignKey: {
           name: "id_lowongan",
