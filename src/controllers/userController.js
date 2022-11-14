@@ -286,6 +286,62 @@ exports.detailUserPencari = async (req, res) => {
   }
 };
 
+exports.profilePencari = async (req, res) => {
+  try {
+    const userLogin = req.user;
+
+    const userPencari = await User.findOne({
+      where: {
+        id: userLogin.id,
+      },
+      include: [
+        {
+          model: Pencari,
+          as: "pencari",
+          attributes: {
+            exclude: ["updatedAt", "createdAt", "id_user"],
+          },
+        },
+      ],
+      attributes: {
+        exclude: ["updatedAt", "createdAt"],
+      },
+    });
+
+    successResWithData(res, 200, "SUCCESS_GET_PROFILE_PENCARI", userPencari);
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.profilePenyedia = async (req, res) => {
+  try {
+    const userLogin = req.user;
+
+    const userPenyedia = await User.findOne({
+      where: {
+        id: userLogin.id,
+      },
+      include: [
+        {
+          model: Penyedia,
+          as: "penyedia",
+          attributes: {
+            exclude: ["updatedAt", "createdAt", "id_user"],
+          },
+        },
+      ],
+      attributes: {
+        exclude: ["updatedAt", "createdAt"],
+      },
+    });
+
+    successResWithData(res, 200, "SUCCESS_GET_PROFILE_PENYEDIA", userPenyedia);
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
 // Untuk Super admin
 exports.getAllUser = async (req, res) => {
   try {

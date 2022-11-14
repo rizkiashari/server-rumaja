@@ -11,6 +11,8 @@ const {
   listUserPencari,
   updatePassword,
   detailUserPencari,
+  profilePencari,
+  profilePenyedia,
 } = require("../controllers/userController");
 const { authMiddleware } = require("../middlewares/auth");
 const { uploadFile } = require("../middlewares/uploadFile");
@@ -38,5 +40,8 @@ router.post(
 router.get("/detail/pencari/:uuid_user", authMiddleware, detailUserPencari);
 
 router.get("/list-bidang", listBidangKerja);
+
+router.get("/profile-pencari", authMiddleware, profilePencari);
+router.get("/profile-penyedia", authMiddleware, profilePenyedia);
 
 module.exports = router;
