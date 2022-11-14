@@ -40,6 +40,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Riwayat.init(
     {
+      uuid_riwayat: DataTypes.STRING(200),
       status: DataTypes.ENUM("diproses", "bekerja", "selesai", "ditolak"),
       info_riwayat: DataTypes.ENUM("applied", "hired"),
       catatan_riwayat_pencari: DataTypes.TEXT,

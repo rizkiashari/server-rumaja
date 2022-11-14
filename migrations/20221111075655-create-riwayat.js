@@ -8,6 +8,9 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      uuid_riwayat: {
+        type: Sequelize.STRING(200),
+      },
       status: {
         type: Sequelize.ENUM("diproses", "bekerja", "selesai", "ditolak"),
       },
