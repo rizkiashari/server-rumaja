@@ -1,11 +1,16 @@
-const { tolakLamaran, tawarkanPekerjaan } = require("../controllers/lamaranController");
+const {
+  tolakLamaran,
+  appliedPekerjaan,
+  terimaLamaran,
+} = require("../controllers/lamaranController");
 const { authMiddleware } = require("../middlewares/auth");
 
 const { Router } = require("express");
 
 const router = Router();
 
-router.post("/tolak", authMiddleware, tolakLamaran);
-router.post("/tawarkan", authMiddleware, tawarkanPekerjaan);
+router.patch("/tolak/:uuid_riwayat", authMiddleware, tolakLamaran);
+router.patch("/terima/:uuid_riwayat", authMiddleware, terimaLamaran);
+router.post("/applied", authMiddleware, appliedPekerjaan);
 
 module.exports = router;
