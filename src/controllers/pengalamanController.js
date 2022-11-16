@@ -22,8 +22,8 @@ exports.addPengalaman = async (req, res) => {
     const schema = joi.object({
       nama: joi.string().required(),
       pengalaman_prov: joi.string().required(),
-      tahun_mulai: joi.string().required().max(4),
-      tahun_akhir: joi.string().required().max(4),
+      tahun_mulai: joi.string().required(),
+      tahun_akhir: joi.string().required(),
     });
 
     const { error } = schema.validate(dataPengalaman);
@@ -36,8 +36,8 @@ exports.addPengalaman = async (req, res) => {
       uuid_pengalaman: uuid.v4(),
       nama_pengalaman: dataPengalaman.nama,
       pengalaman_prov: +dataPengalaman.pengalaman_prov,
-      tahun_mulai: +dataPengalaman.tahun_mulai,
-      tahun_akhir: +dataPengalaman.tahun_akhir,
+      tahun_mulai: Math.floor(+new Date(dataPengalaman.tahun_mulai) / 1000),
+      tahun_akhir: Math.floor(+new Date(dataPengalaman.tahun_akhir) / 1000),
       isWork: dataPengalaman.isWork ? true : false,
       id_pencari: pencari.id,
       createdAt: Math.floor(+new Date() / 1000),

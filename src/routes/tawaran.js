@@ -5,4 +5,5 @@ const { authMiddleware } = require("../middlewares/auth");
 
 const router = Router();
 router.post("/tawarkan-pekerjaan", authMiddleware, tawarkanPekerjaan);
+
 module.exports = router;
