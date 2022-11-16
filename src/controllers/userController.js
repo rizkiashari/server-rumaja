@@ -1,7 +1,18 @@
 const joi = require("joi");
 const dotenv = require("dotenv");
 const bcrypt = require("bcrypt");
-const { User, Penyedia, Pencari, Review, Bidang_Kerja } = require("../../models");
+const uuid = require("uuid");
+const {
+  User,
+  Penyedia,
+  Pencari,
+  Bidang_Kerja,
+  Simpan_Pencari,
+  Pengalaman,
+  sequelize,
+  Ulasan,
+  Lowongan,
+} = require("../../models");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
 const { Op } = require("sequelize");
 
@@ -207,53 +218,67 @@ exports.updateUserPencari = async (req, res) => {
   }
 };
 
-exports.listUserPencari = async (req, res) => {
+// Done
+exports.listRekomendasiUserPencari = async (req, res) => {
   try {
     const pencari = await Pencari.findAll({
+      attributes: {
+        exclude: ["id_user", "updatedAt", "createdAt", "id_bidang_kerja"],
+      },
       include: [
         {
           model: User,
           as: "users",
-          attributes: ["name_user", "uuid_user"],
-          include: {
-            model: Bidang_Kerja,
-            as: "bidang_kerja",
-            attributes: ["id", "name_bidang"],
+          attributes: {
+            exclude: [
+              "password",
+              "createdAt",
+              "updatedAt",
+              "resetPassword",
+              "nomor_wa",
+              "email",
+              "id_role",
+            ],
           },
         },
+        {
+          model: Simpan_Pencari,
+          as: "simpan_pencari",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+        {
+          model: Bidang_Kerja,
+          as: "bidang_kerja",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+        {
+          model: Pengalaman,
+          as: "pengalaman",
+          attributes: ["id", "nama_pengalaman"],
+        },
       ],
-      attributes: ["id", "photo_profile", "date_open_work", "gender"],
-    });
-
-    const review = await Review.findAll({
-      attributes: {
-        exclude: ["updatedAt"],
-      },
     });
 
     const pencariData = pencari.map((item) => {
-      const reviewData = review.filter((itemReview) => {
-        return itemReview.id_pencari === item.id;
-      });
-
       return {
-        id: item.id,
-        photo_profile: item.photo_profile,
-        date_open_work: item.date_open_work,
-        gender: item.gender,
-        name_pencari: item.users.name_user,
-        uuid_user: item.users.uuid_user,
-        name_bidang: item.users.bidang_kerja.name_bidang,
-        review: reviewData,
+        ...item.dataValues,
+        pengalaman: item.dataValues.pengalaman.length,
+        bidang_kerja: item.dataValues.bidang_kerja.nama_bidang,
       };
     });
 
     successResWithData(res, 200, "SUCCESS_GET_LIST_USER_PENCARI", pencariData);
   } catch (error) {
+    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
 
+// Done
 exports.detailUserPencari = async (req, res) => {
   try {
     const { uuid_user } = req.params;
@@ -267,8 +292,50 @@ exports.detailUserPencari = async (req, res) => {
           model: Pencari,
           as: "pencari",
           attributes: {
-            exclude: ["updatedAt", "createdAt"],
+            exclude: ["updatedAt", "createdAt", "id_user", "id_bidang_kerja"],
           },
+          include: [
+            {
+              model: Pengalaman,
+              as: "pengalaman",
+              attributes: {
+                exclude: ["createdAt", "updatedAt", "id_pencari", "uuid_pengalaman"],
+              },
+            },
+            {
+              model: Bidang_Kerja,
+              as: "bidang_kerja",
+              attributes: ["id", "nama_bidang", "detail_bidang"],
+            },
+            {
+              model: Ulasan,
+              as: "ulasan",
+              attributes: {
+                exclude: ["createdAt", "updatedAt", "id_pencari", "id_lowongan"],
+              },
+              include: [
+                {
+                  model: Lowongan,
+                  as: "lowongan",
+                  attributes: ["id"],
+                  include: [
+                    {
+                      model: Penyedia,
+                      as: "penyedia",
+                      attributes: ["id_user"],
+                      include: [
+                        {
+                          model: User,
+                          as: "users",
+                          attributes: ["nama_user"],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
         },
       ],
       attributes: {
@@ -282,10 +349,12 @@ exports.detailUserPencari = async (req, res) => {
 
     successResWithData(res, 200, "SUCCESS_GET_DETAIL_USER_PENCARI", userPencari);
   } catch (error) {
+    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
 
+// Done
 exports.profilePencari = async (req, res) => {
   try {
     const userLogin = req.user;
@@ -314,6 +383,7 @@ exports.profilePencari = async (req, res) => {
   }
 };
 
+// Done
 exports.profilePenyedia = async (req, res) => {
   try {
     const userLogin = req.user;
@@ -337,6 +407,82 @@ exports.profilePenyedia = async (req, res) => {
     });
 
     successResWithData(res, 200, "SUCCESS_GET_PROFILE_PENYEDIA", userPenyedia);
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+// Done
+exports.savePencari = async (req, res) => {
+  try {
+    const userLogin = req.user;
+    const dataSimpan = req.body;
+
+    const schema = joi.object({
+      id_pencari: joi.number().required(),
+      isSave: joi.boolean().required(),
+    });
+
+    const { error } = schema.validate(dataSimpan);
+
+    if (error) {
+      return errorResponse(res, 400, error.details[0].message);
+    }
+
+    const penyedia = await Penyedia.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
+
+    if (!penyedia) {
+      return errorResponse(res, 404, "PENYEDIA_NOT_FOUND");
+    }
+
+    await Simpan_Pencari.create({
+      id_penyedia: penyedia.id,
+      id_pencari: dataSimpan.id_pencari,
+      isSave: dataSimpan.isSave,
+      createdAt: Math.floor(+new Date() / 1000),
+      uuid_simpan: uuid.v4(),
+    });
+
+    successRes(res, 200, "SUCCESS_SIMPAN_PENCARI");
+  } catch (error) {
+    console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+// Done
+exports.unSavePencari = async (req, res) => {
+  try {
+    const userLogin = req.user;
+
+    const { uuid_simpan } = req.params;
+
+    const penyedia = await Penyedia.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
+
+    if (!penyedia) {
+      return errorResponse(res, 404, "PENYEDIA_NOT_FOUND");
+    }
+
+    await Simpan_Pencari.update(
+      {
+        isSave: false,
+      },
+      {
+        where: {
+          uuid_simpan,
+        },
+      }
+    );
+
+    successRes(res, 200, "SUCCESS_UNSAVE_PENCARI");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }

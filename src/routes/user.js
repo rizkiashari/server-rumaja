@@ -8,11 +8,13 @@ const {
   getAllUser,
   updateUserPenyedia,
   updateUserPencari,
-  listUserPencari,
+  listRekomendasiUserPencari,
   updatePassword,
   detailUserPencari,
   profilePencari,
   profilePenyedia,
+  savePencari,
+  unSavePencari,
 } = require("../controllers/userController");
 const { authMiddleware } = require("../middlewares/auth");
 const { uploadFile } = require("../middlewares/uploadFile");
@@ -24,7 +26,7 @@ router.post("/forgot-password", findEmailResetPassword);
 router.post("/change-password", changePassword);
 router.patch("/update-password", authMiddleware, updatePassword);
 
-router.get("/all-pencari", listUserPencari);
+router.get("/rekomendasi-pencari", authMiddleware, listRekomendasiUserPencari);
 router.post(
   "/update/pencari",
   authMiddleware,
@@ -37,6 +39,10 @@ router.post(
   uploadFile("photo_profile"),
   updateUserPenyedia
 );
+
+router.post("/save-pencari", authMiddleware, savePencari);
+router.patch("/unsave-pencari/:uuid_simpan", authMiddleware, unSavePencari);
+
 router.get("/detail/pencari/:uuid_user", authMiddleware, detailUserPencari);
 
 router.get("/list-bidang", listBidangKerja);
