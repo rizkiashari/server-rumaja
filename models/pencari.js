@@ -57,6 +57,13 @@ module.exports = (sequelize, DataTypes) => {
           name: "id_pencari",
         },
       });
+
+      Pencari.hasMany(models.Masukkan, {
+        as: "masukkan",
+        foreignKey: {
+          name: "id_pencari",
+        },
+      });
     }
   }
   Pencari.init(

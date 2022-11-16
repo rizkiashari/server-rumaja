@@ -29,6 +29,13 @@ module.exports = (sequelize, DataTypes) => {
           name: "id_penyedia",
         },
       });
+
+      Penyedia.hasOne(models.Masukkan, {
+        as: "masukkan",
+        foreignKey: {
+          name: "id_penyedia",
+        },
+      });
     }
   }
   Penyedia.init(

@@ -1,32 +1,34 @@
 "use strict";
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("ulasan", {
+    await queryInterface.createTable("masukkan", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      id_lowongan: {
+      id_penyedia: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
-          model: "lowongan",
+          model: "penyedia",
           key: "id",
         },
-        onDelete: "CASCADE",
         onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       id_pencari: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: "pencari",
           key: "id",
         },
-        onDelete: "CASCADE",
         onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
-      catatan: {
+      detail_masukkan: {
         type: Sequelize.TEXT,
       },
       createdAt: {
@@ -40,6 +42,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("ulasan");
+    await queryInterface.dropTable("masukkan");
   },
 };
