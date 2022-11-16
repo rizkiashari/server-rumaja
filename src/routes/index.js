@@ -7,6 +7,7 @@ const lowongan = require("./lowongan.js");
 const lamaran = require("./lamaran.js");
 const tawarkan = require("./tawaran.js");
 const pengalaman = require("./pengalaman.js");
+const ulasan = require("./ulasan.js");
 const router = Router();
 
 router.get("/test", (req, res) => {
@@ -20,6 +21,7 @@ router.use("/lowongan", lowongan);
 router.use("/lamaran", lamaran);
 router.use("/tawarkan", tawarkan);
 router.use("/pengalaman", pengalaman);
+router.use("/ulasan", ulasan);
 
 router.use("/wilayah-indo", wilayahIndonesia);
 
