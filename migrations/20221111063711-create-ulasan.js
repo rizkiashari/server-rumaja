@@ -29,6 +29,9 @@ module.exports = {
       catatan: {
         type: Sequelize.TEXT,
       },
+      rating: {
+        type: Sequelize.INTEGER,
+      },
       createdAt: {
         type: Sequelize.INTEGER,
         allowNull: false,

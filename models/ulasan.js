@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
   Ulasan.init(
     {
       catatan: DataTypes.TEXT,
+      rating: DataTypes.INTEGER,
       createdAt: DataTypes.INTEGER,
     },
     {
