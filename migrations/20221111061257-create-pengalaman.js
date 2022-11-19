@@ -15,7 +15,7 @@ module.exports = {
         type: Sequelize.STRING(50),
       },
       pengalaman_prov: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING(50),
       },
       tahun_mulai: {
         type: Sequelize.INTEGER,

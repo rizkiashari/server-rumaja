@@ -31,10 +31,10 @@ module.exports = {
         type: Sequelize.STRING,
       },
       domisili_kota: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING(50),
       },
       domisili_provinsi: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING(50),
       },
       id_role: {
         type: Sequelize.INTEGER,

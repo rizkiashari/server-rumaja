@@ -42,8 +42,8 @@ exports.register = async (req, res) => {
       nama_user: joi.string().min(3).required(),
       email: joi.string().email().required(),
       nomor_wa: joi.string().min(10).max(17).required(),
-      domisili_kota: joi.number().required(),
-      domisili_provinsi: joi.number().required(),
+      domisili_kota: joi.string().required(),
+      domisili_provinsi: joi.string().required(),
       password: joi.string().min(8).required(),
       bidang_kerja: joi.number().optional(),
       role: joi.number().required(),
@@ -72,7 +72,6 @@ exports.register = async (req, res) => {
       password: hash,
       domisili_provinsi: dataUser.domisili_provinsi,
       domisili_kota: dataUser.domisili_kota,
-      photo_profile: req.file != undefined ? req.file.path : null,
       id_role: dataUser.role,
       createdAt: Math.floor(+new Date() / 1000),
     });

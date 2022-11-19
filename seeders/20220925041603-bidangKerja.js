@@ -22,7 +22,7 @@ module.exports = {
         },
         {
           nama_bidang: "Babysitter",
-          detail_bidang: "Pengasuh Anak",
+          detail_bidang: "Pengasuh Anak Rumah",
           createdAt: new Date().getTime() / 1000,
           updatedAt: new Date().getTime() / 1000,
         },
@@ -34,7 +34,7 @@ module.exports = {
         },
         {
           nama_bidang: "Gardener",
-          detail_bidang: "Tukang Kebun",
+          detail_bidang: "Tukang Kebun Rumah",
           createdAt: new Date().getTime() / 1000,
           updatedAt: new Date().getTime() / 1000,
         },

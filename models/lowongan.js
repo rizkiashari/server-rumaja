@@ -47,8 +47,8 @@ module.exports = (sequelize, DataTypes) => {
       isPublish: DataTypes.BOOLEAN,
       deskripsi_lowongan: DataTypes.TEXT,
       fasilitas: DataTypes.TEXT,
-      kota_lowongan: DataTypes.INTEGER,
-      provinsi_lowongan: DataTypes.INTEGER,
+      kota_lowongan: DataTypes.STRING(50),
+      provinsi_lowongan: DataTypes.STRING(50),
       createdAt: DataTypes.INTEGER,
     },
     {

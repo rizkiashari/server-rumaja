@@ -30,10 +30,10 @@ module.exports = {
         type: Sequelize.TEXT,
       },
       kota_lowongan: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING(50),
       },
       provinsi_lowongan: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING(50),
       },
       id_bidang_kerja: {
         type: Sequelize.INTEGER,

@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       uuid_pengalaman: DataTypes.STRING(200),
       nama_pengalaman: DataTypes.STRING(50),
-      pengalaman_prov: DataTypes.INTEGER,
+      pengalaman_prov: DataTypes.STRING(50),
       tahun_mulai: DataTypes.INTEGER,
       tahun_akhir: DataTypes.INTEGER,
       isWork: DataTypes.BOOLEAN,
