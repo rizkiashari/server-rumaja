@@ -35,7 +35,7 @@ exports.addPengalaman = async (req, res) => {
     const newPengalaman = new Pengalaman({
       uuid_pengalaman: uuid.v4(),
       nama_pengalaman: dataPengalaman.nama,
-      pengalaman_prov: +dataPengalaman.pengalaman_prov,
+      pengalaman_prov: dataPengalaman.pengalaman_prov,
       tahun_mulai: Math.floor(+new Date(dataPengalaman.tahun_mulai) / 1000),
       tahun_akhir: Math.floor(+new Date(dataPengalaman.tahun_akhir) / 1000),
       isWork: dataPengalaman.isWork ? true : false,
@@ -137,7 +137,7 @@ exports.editPengalaman = async (req, res) => {
     await Pengalaman.update(
       {
         nama_pengalaman: req.body.nama,
-        pengalaman_prov: +req.body.pengalaman_prov,
+        pengalaman_prov: req.body.pengalaman_prov,
         tahun_mulai: +req.body.tahun_mulai,
         tahun_akhir: +req.body.tahun_akhir,
         isWork: req.body.isWork ? true : false,
