@@ -438,7 +438,7 @@ exports.rekomendasiLowongan = async (req, res) => {
         ],
       },
       attributes: {
-        exclude: ["updatedAt"],
+        exclude: ["updatedAt", "id_bidang_kerja"],
       },
       include: [
         {
