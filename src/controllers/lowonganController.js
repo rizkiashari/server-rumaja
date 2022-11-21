@@ -503,7 +503,7 @@ exports.getLowonganByBidangKerja = async (req, res) => {
 
       const dataLowongan = await Lowongan.findAll({
         attributes: {
-          exclude: ["updatedAt"],
+          exclude: ["updatedAt", "id_bidang_kerja"],
         },
         where: {
           id_bidang_kerja: bidang_kerja,
@@ -593,7 +593,7 @@ exports.getLowonganByBidangKerja = async (req, res) => {
             ],
           },
           attributes: {
-            exclude: ["updatedAt"],
+            exclude: ["updatedAt", "id_bidang_kerja"],
           },
           include: [
             {
@@ -687,7 +687,7 @@ exports.getLowonganByBidangKerja = async (req, res) => {
             ],
           },
           attributes: {
-            exclude: ["updatedAt"],
+            exclude: ["updatedAt", "id_bidang_kerja"],
           },
           include: [
             {
