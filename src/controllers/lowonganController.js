@@ -534,7 +534,6 @@ exports.getLowonganByBidangKerja = async (req, res) => {
         page,
         limit,
         totalRows,
-        totalPage,
       });
     } else {
       if (kota && provinsi && jenis_gaji) {
@@ -621,7 +620,6 @@ exports.getLowonganByBidangKerja = async (req, res) => {
           page,
           limit,
           totalRows,
-          totalPage,
         });
       } else {
         const totalRows = await Lowongan.count({
@@ -715,7 +713,6 @@ exports.getLowonganByBidangKerja = async (req, res) => {
           page,
           limit,
           totalRows,
-          totalPage,
         });
       }
     }
