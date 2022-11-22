@@ -15,6 +15,7 @@ const {
   profilePenyedia,
   savePencari,
   unSavePencari,
+  pencariByBidangKerja,
 } = require("../controllers/userController");
 const { authMiddleware } = require("../middlewares/auth");
 const { uploadFile } = require("../middlewares/uploadFile");
@@ -42,6 +43,8 @@ router.post(
 
 router.post("/save-pencari", authMiddleware, savePencari);
 router.patch("/unsave-pencari/:uuid_simpan", authMiddleware, unSavePencari);
+
+router.get("/pencari/:bidang_kerja", authMiddleware, pencariByBidangKerja);
 
 router.get("/detail/pencari/:uuid_user", authMiddleware, detailUserPencari);
 
