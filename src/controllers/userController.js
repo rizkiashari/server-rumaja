@@ -258,26 +258,36 @@ exports.listRekomendasiUserPencari = async (req, res) => {
         {
           model: Pengalaman,
           as: "pengalaman",
-          attributes: ["id", "nama_pengalaman"],
         },
         {
           model: Ulasan,
           as: "ulasan",
-          attributes: [[sequelize.fn("AVG", sequelize.col("rating")), "rating"]],
         },
       ],
     });
 
-    const pencariData = pencari.map((item) => {
+    const pencariData = pencari.map((item) => { 
+
+      let totalRating = 0;
+
+      for (let i = 0; i < item.ulasan.length; i++) {
+        totalRating += item.ulasan[i].rating / item.ulasan.length;
+      }
+
       return {
         ...item.dataValues,
         pengalaman: item.dataValues.pengalaman.length,
         bidang_kerja: item.dataValues.bidang_kerja.nama_bidang,
-        ulasan: +Number(item.dataValues.ulasan[0].rating).toFixed(3),
+        ulasan: totalRating,
       };
     });
 
-    successResWithData(res, 200, "SUCCESS_GET_REKOMENDASI_PENCARI", pencariData);
+    successResWithData(
+      res,
+      200,
+      "SUCCESS_GET_REKOMENDASI_PENCARI",
+      pencariData.filter((item) => item.pengalaman > 0 && item.ulasan)
+    );
   } catch (error) {
     console.log(error);
     errorResponse(res, 500, "Internal Server Error");

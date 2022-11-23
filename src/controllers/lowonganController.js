@@ -55,8 +55,7 @@ exports.addLowongan = async (req, res) => {
       gaji: +dataLowongan.gaji,
       skala_gaji: dataLowongan.skala_gaji,
       kualifikasi: dataLowongan.kualifikasi,
-      isSave: false,
-      isPublish: false,
+      isPublish: true,
       deskripsi_lowongan: dataLowongan.deskripsi_lowongan,
       fasilitas: dataLowongan.fasilitas,
       kota_lowongan: dataLowongan.kota_lowongan,
@@ -109,6 +108,12 @@ exports.getAllLowongan = async (req, res) => {
     const limit = +req.query.limit || 10;
     const page = +req.query.page || 1;
 
+    const dataPenyedia = await Penyedia.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
+
     const {
       bidang_kerja,
       provinsi_lowongan,
@@ -136,6 +141,7 @@ exports.getAllLowongan = async (req, res) => {
       const totalRows = await Lowongan.count({
         where: {
           isPublish: publish === "publish" ? 1 : 0,
+          id_penyedia: dataPenyedia.id,
         },
       });
       const totalPage = Math.ceil(totalRows / limit);
@@ -143,7 +149,15 @@ exports.getAllLowongan = async (req, res) => {
       const dataLowongan = await Lowongan.findAll({
         where: {
           isPublish: publish === "publish" ? 1 : 0,
+          id_penyedia: dataPenyedia.id,
         },
+        include: [
+          {
+            model: Bidang_Kerja,
+            as: "bidang_kerja",
+            attributes: ["nama_bidang", "detail_bidang", "id"],
+          },
+        ],
         attributes: {
           exclude: ["updatedAt"],
         },
@@ -163,6 +177,7 @@ exports.getAllLowongan = async (req, res) => {
       const totalRows = await Lowongan.count({
         where: {
           isPublish: publish === "publish" ? 1 : 0,
+          id_penyedia: dataPenyedia.id,
           [Op.or]: [
             {
               id_bidang_kerja: {
@@ -194,6 +209,7 @@ exports.getAllLowongan = async (req, res) => {
       const dataLowongan = await Lowongan.findAll({
         where: {
           isPublish: publish === "publish" ? 1 : 0,
+          id_penyedia: dataPenyedia.id,
           [Op.or]: [
             {
               id_bidang_kerja: {
