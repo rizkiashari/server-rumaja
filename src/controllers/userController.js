@@ -489,13 +489,125 @@ exports.unSavePencari = async (req, res) => {
   }
 };
 
+// Done
 exports.pencariByBidangKerja = async (req, res) => {
   try {
     const limit = +req.query.limit || 10;
     const page = +req.query.page || 1;
     const { bidang_kerja } = req.params;
 
-    const { kota, provinsi, urutan, jenis_kelamin, min_usia, max_usia } = req.query;
+    const { kota, provinsi, urutan, jenis_kelamin, min_usia, max_usia, search } =
+      req.query;
+
+    if (search !== "" && search !== undefined) {
+      const totalRows = await Pencari.count({
+        where: {
+          id_bidang_kerja: bidang_kerja,
+        },
+      });
+
+      const totalPage = Math.ceil(totalRows / limit);
+
+      const pencari = await Pencari.findAll({
+        attributes: {
+          exclude: ["id_user", "updatedAt", "createdAt", "id_bidang_kerja"],
+          include: [
+            [
+              sequelize.literal("(SELECT TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()))"),
+              "usia",
+            ],
+          ],
+        },
+        include: [
+          {
+            model: User,
+            as: "users",
+            attributes: {
+              exclude: [
+                "password",
+                "createdAt",
+                "updatedAt",
+                "resetPassword",
+                "nomor_wa",
+                "email",
+                "id_role",
+              ],
+            },
+          },
+          {
+            model: Simpan_Pencari,
+            as: "simpan_pencari",
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+          },
+          {
+            model: Bidang_Kerja,
+            as: "bidang_kerja",
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+          },
+        ],
+        limit: [(page - 1) * +limit, +limit],
+        where: {
+          [Op.and]: [
+            {
+              id_bidang_kerja: bidang_kerja,
+            },
+            {
+              "$users.nama_user$": {
+                [Op.like]: `%${search}%`,
+              },
+            },
+          ],
+        },
+      });
+
+      const pencariWithRating = await Promise.all(
+        pencari.map(async (pencari) => {
+          const rating = await Ulasan.findOne({
+            where: {
+              id_pencari: pencari.id,
+            },
+            attributes: [[sequelize.fn("AVG", sequelize.col("rating")), "rating"]],
+            order:
+              urutan === "penilaian"
+                ? [[sequelize.fn("AVG", sequelize.col("rating")), "DESC"]]
+                : [],
+          });
+
+          const pengalaman = await Pengalaman.findOne({
+            where: {
+              id_pencari: pencari.id,
+            },
+            attributes: [[sequelize.fn("COUNT", sequelize.col("id")), "pengalaman"]],
+            order:
+              urutan === "pengalaman"
+                ? [[sequelize.fn("COUNT", sequelize.col("id")), "DESC"]]
+                : [],
+          });
+
+          return {
+            ...pencari.dataValues,
+            rating:
+              rating.dataValues.rating === null
+                ? 0
+                : +Number(rating.dataValues.rating).toFixed(3),
+            pengalaman: pengalaman.dataValues.pengalaman,
+            bidang_kerja: pencari.bidang_kerja.detail_bidang,
+          };
+        })
+      );
+
+      return successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJA", {
+        pekerja: pencariWithRating,
+        totalPage,
+        page,
+        limit,
+        totalRows,
+      });
+    }
 
     if (max_usia < min_usia) {
       return errorResponse(res, 400, "MAX_USIA_LESS_THAN_MIN_USIA");
@@ -593,7 +705,7 @@ exports.pencariByBidangKerja = async (req, res) => {
         })
       );
 
-      successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJA", {
+      return successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJA", {
         pekerja: pencariWithRating,
         totalPage,
         page,
@@ -784,7 +896,7 @@ exports.pencariByBidangKerja = async (req, res) => {
           })
         );
 
-        successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJA", {
+        return successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJA", {
           pekerja: pencariWithRating,
           totalPage,
           page,
@@ -981,7 +1093,7 @@ exports.pencariByBidangKerja = async (req, res) => {
           })
         );
 
-        successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJA", {
+        return successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJA", {
           pekerja: pencariWithRating,
           totalPage,
           page,
@@ -990,6 +1102,105 @@ exports.pencariByBidangKerja = async (req, res) => {
         });
       }
     }
+  } catch (error) {
+    console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.getDataSavePencari = async (req, res) => {
+  try {
+    const userLogin = req.user;
+
+    const dataPenyedia = await Penyedia.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
+
+    const dataSimpan = await Simpan_Pencari.findAll({
+      where: {
+        id_penyedia: dataPenyedia.id,
+      },
+    });
+
+    const dataPencari = await Promise.all(
+      dataSimpan.map(async (simpan) => {
+        const pencari = await Pencari.findOne({
+          where: {
+            id: simpan.id_pencari,
+          },
+          attributes: {
+            exclude: ["id_user", "updatedAt", "createdAt", "id_bidang_kerja"],
+            include: [
+              [
+                sequelize.literal(
+                  "(SELECT TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()))"
+                ),
+                "usia",
+              ],
+            ],
+          },
+          include: [
+            {
+              model: Bidang_Kerja,
+              as: "bidang_kerja",
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+            },
+            {
+              model: User,
+              as: "users",
+              attributes: {
+                exclude: [
+                  "password",
+                  "createdAt",
+                  "updatedAt",
+                  "resetPassword",
+                  "nomor_wa",
+                  "email",
+                  "id_role",
+                ],
+              },
+            },
+          ],
+        });
+
+        const rating = await Ulasan.findOne({
+          where: {
+            id_pencari: pencari.id,
+          },
+          attributes: [[sequelize.fn("AVG", sequelize.col("rating")), "rating"]],
+        });
+
+        const pengalaman = await Pengalaman.findOne({
+          where: {
+            id_pencari: pencari.id,
+          },
+          attributes: [[sequelize.fn("COUNT", sequelize.col("id")), "pengalaman"]],
+        });
+
+        return {
+          ...pencari.dataValues,
+          rating:
+            rating.dataValues.rating === null
+              ? 0
+              : +Number(rating.dataValues.rating).toFixed(3),
+          pengalaman: pengalaman.dataValues.pengalaman,
+          bidang_kerja: pencari.bidang_kerja.detail_bidang,
+          simpan_pencari: {
+            id: simpan.id,
+            isSave: simpan.isSave,
+            uuid_simpan: simpan.uuid_simpan,
+          },
+        };
+      })
+    );
+
+    successResWithData(res, 200, "SUCCESS_GET_DATA_SAVE_PENCARI", {
+      pekerja: dataPencari,
+    });
   } catch (error) {
     console.log(error);
     errorResponse(res, 500, "Internal Server Error");
