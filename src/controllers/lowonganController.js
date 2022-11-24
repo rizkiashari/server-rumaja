@@ -69,6 +69,7 @@ exports.addLowongan = async (req, res) => {
 
     successRes(res, 200, "SUCCESS_ADD_LOWONGAN");
   } catch (error) {
+    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };

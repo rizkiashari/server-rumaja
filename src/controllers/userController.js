@@ -266,8 +266,7 @@ exports.listRekomendasiUserPencari = async (req, res) => {
       ],
     });
 
-    const pencariData = pencari.map((item) => { 
-
+    const pencariData = pencari.map((item) => {
       let totalRating = 0;
 
       for (let i = 0; i < item.ulasan.length; i++) {
@@ -384,12 +383,24 @@ exports.profilePencari = async (req, res) => {
           model: Pencari,
           as: "pencari",
           attributes: {
-            exclude: ["updatedAt", "createdAt", "id_user"],
+            exclude: ["updatedAt", "createdAt", "id_user", "id_bidang_kerja"],
           },
+          include: [
+            {
+              model: Bidang_Kerja,
+              as: "bidang_kerja",
+              attributes: ["detail_bidang"],
+            },
+            {
+              model: Ulasan,
+              as: "ulasan",
+              attributes: ["rating"],
+            },
+          ],
         },
       ],
       attributes: {
-        exclude: ["updatedAt", "createdAt"],
+        exclude: ["updatedAt", "createdAt", "password", "resetPassword", "id_role"],
       },
     });
 
