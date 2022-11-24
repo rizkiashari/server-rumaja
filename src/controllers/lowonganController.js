@@ -418,6 +418,14 @@ exports.rekomendasiLowongan = async (req, res) => {
   try {
     const { bidang_kerja, gaji } = req.query;
 
+    const userLogin = req.user;
+
+    const dataPencari = await Pencari.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
+
     const limit = +req.query.limit || 5;
     const page = +req.query.page || 1;
 
@@ -441,6 +449,18 @@ exports.rekomendasiLowongan = async (req, res) => {
     const totalPage = Math.ceil(totalRows / limit);
 
     const dataLowongan = await Lowongan.findAll({
+      attributes: {
+        exclude: ["updatedAt", "id_bidang_kerja"],
+      },
+      include: [
+        {
+          model: Bidang_Kerja,
+          as: "bidang_kerja",
+          attributes: {
+            exclude: ["createdAt", "updatedAt"],
+          },
+        },
+      ],
       where: {
         [Op.and]: [
           {
@@ -453,33 +473,33 @@ exports.rekomendasiLowongan = async (req, res) => {
               [Op.gte]: `${gaji ? +gaji : ""}`,
             },
           },
+          {
+            isPublish: true,
+          },
         ],
       },
-      attributes: {
-        exclude: ["updatedAt", "id_bidang_kerja"],
-      },
-      include: [
-        {
-          model: Bidang_Kerja,
-          as: "bidang_kerja",
-          attributes: {
-            exclude: ["createdAt", "updatedAt"],
-          },
-        },
-        {
-          model: Simpan_Lowongan,
-          as: "simpan_lowongan",
-          attributes: {
-            exclude: ["createdAt", "updatedAt", "id"],
-          },
-        },
-      ],
       limit: [(page - 1) * +limit, +limit],
       order: [["id", "DESC"]],
     });
 
+    const newLowongan = await Promise.all(
+      dataLowongan.map(async (lowongan) => {
+        const dataSimpan = await Simpan_Lowongan.findOne({
+          where: {
+            id_pencari: dataPencari.id,
+            id_lowongan: lowongan.id,
+          },
+        });
+
+        return {
+          ...lowongan.dataValues,
+          simpan_lowongan: dataSimpan ? dataSimpan.dataValues : null,
+        };
+      })
+    );
+
     successResWithData(res, 200, "SUCCESS_GET_REKOMENDASI_LOWONGAN", {
-      lowongan: dataLowongan,
+      lowongan: newLowongan,
       totalPage,
       page,
       limit,
@@ -487,6 +507,7 @@ exports.rekomendasiLowongan = async (req, res) => {
       totalPage,
     });
   } catch (error) {
+    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
