@@ -1,8 +1,9 @@
 const joi = require("joi");
 const uuid = require("uuid");
-const { Penyedia, Pencari, Riwayat, Lowongan } = require("../../models");
+const { Penyedia, Pencari, Riwayat, Lowongan, User, Bidang_Kerja } = require("../../models");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
 const { Op } = require("sequelize");
+const riwayat = require("../../models/riwayat");
 
 // Done
 exports.tawarkanPekerjaan = async (req, res) => {
@@ -41,6 +42,106 @@ exports.tawarkanPekerjaan = async (req, res) => {
 
     successRes(res, 200, "SUCCESS_TAWARKAN_PEKERJAAN");
   } catch (error) {
+    console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+
+exports.getAllTawarkan = async (req, res) => {
+  try {
+    const userLogin = req.user;
+
+    const pencari = await Pencari.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
+
+    const dataRiwayat = await Riwayat.findAll({
+      where: {
+        id_pencari: pencari.id,
+        info_riwayat: "hired",
+      },
+      include: [
+        {
+          model: Lowongan,
+          as: "lowongan",
+          attributes: ["id", "gaji", "skala_gaji"],
+          
+        },
+        {
+          model: Pencari,
+          as: "pencari",
+          attributes: ["id_user"],
+          include: [
+            {
+              model: Bidang_Kerja,
+              as: "bidang_kerja"
+            },
+            {
+              model: User,
+              as: "users",
+              attributes: ["nama_user", "photo_profile", "domisili_kota", "domisili_provinsi"],
+            },
+          ],
+        },
+      ],
+      order: [["id", "DESC"]],
+    });
+    
+    successResWithData(res, 200, "GET_ALL_TAWARKAN_PENCARI_SUCCESS", dataRiwayat);
+  } catch (error) {
+    console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.getAllTawarkan = async (req, res) => {
+  try {
+    const userLogin = req.user;
+
+    const pencari = await Pencari.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
+
+    const dataRiwayat = await Riwayat.findAll({
+      where: {
+        id_pencari: pencari.id,
+        info_riwayat: "hired",
+      },
+      include: [
+        {
+          model: Lowongan,
+          as: "lowongan",
+          attributes: ["id", "gaji", "skala_gaji"],
+          
+        },
+        {
+          model: Pencari,
+          as: "pencari",
+          attributes: ["id_user"],
+          include: [
+            {
+              model: Bidang_Kerja,
+              as: "bidang_kerja"
+            },
+            {
+              model: User,
+              as: "users",
+              attributes: ["nama_user", "photo_profile", "domisili_kota", "domisili_provinsi"],
+            },
+          ],
+        },
+      ],
+      order: [["id", "DESC"]],
+    });
+    
+    successResWithData(res, 200, "GET_ALL_TAWARKAN_PENCARI_SUCCESS", dataRiwayat);
+  } catch (error) {
+    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
