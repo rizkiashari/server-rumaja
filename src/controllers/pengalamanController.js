@@ -24,6 +24,7 @@ exports.addPengalaman = async (req, res) => {
       pengalaman_prov: joi.string().required(),
       tahun_mulai: joi.string().required(),
       tahun_akhir: joi.string().required(),
+      isWork: joi.number().optional(),
     });
 
     const { error } = schema.validate(dataPengalaman);
@@ -36,8 +37,8 @@ exports.addPengalaman = async (req, res) => {
       uuid_pengalaman: uuid.v4(),
       nama_pengalaman: dataPengalaman.nama,
       pengalaman_prov: dataPengalaman.pengalaman_prov,
-      tahun_mulai: Math.floor(+new Date(dataPengalaman.tahun_mulai) / 1000),
-      tahun_akhir: Math.floor(+new Date(dataPengalaman.tahun_akhir) / 1000),
+      tahun_mulai: dataPengalaman.tahun_mulai,
+      tahun_akhir: dataPengalaman.tahun_akhir,
       isWork: dataPengalaman.isWork ? true : false,
       id_pencari: pencari.id,
       createdAt: Math.floor(+new Date() / 1000),
@@ -73,6 +74,7 @@ exports.listAllPengalaman = async (req, res) => {
       attributes: {
         exclude: ["updatedAt", "createdAt"],
       },
+      order: [["id", "DESC"]],
     });
 
     successResWithData(res, 200, "LIST_ALL_PENGALAMAN_SUCCESS", listPengalaman);

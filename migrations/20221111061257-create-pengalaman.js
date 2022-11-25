@@ -18,10 +18,10 @@ module.exports = {
         type: Sequelize.STRING(50),
       },
       tahun_mulai: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING(50),
       },
       tahun_akhir: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING(50),
       },
       isWork: {
         type: Sequelize.BOOLEAN,
