@@ -33,6 +33,13 @@ exports.addPengalaman = async (req, res) => {
       return errorResponse(res, 400, error.details[0].message);
     }
 
+    const tahunMulai = dataPengalaman.tahun_mulai;
+    const tahunAkhir = dataPengalaman.tahun_akhir;
+
+    if (tahunMulai > tahunAkhir) {
+      return errorResponse(res, 423, "YEAR_NOT_VALID");
+    }
+
     const newPengalaman = new Pengalaman({
       uuid_pengalaman: uuid.v4(),
       nama_pengalaman: dataPengalaman.nama,

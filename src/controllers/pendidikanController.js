@@ -31,6 +31,10 @@ exports.addPendidikan = async (req, res) => {
       return errorResponse(res, 400, error.details[0].message);
     }
 
+    if (dataPendidikan.tahun_awal > dataPendidikan.tahun_akhir) {
+      return errorResponse(res, 423, "YEAR_NOT_VALID");
+    }
+
     const newPendidikan = new Pendidikan({
       uuid_pendidikan: uuid.v4(),
       nama_pendidikan: dataPendidikan.nama,
