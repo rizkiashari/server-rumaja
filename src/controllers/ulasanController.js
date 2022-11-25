@@ -76,7 +76,7 @@ exports.getAllUlasanPencari = async (req, res) => {
                 {
                   model: User,
                   as: "users",
-                  attributes: ["nama_user"],
+                  attributes: ["nama_user", "photo_profile"],
                 },
               ],
             },
@@ -95,6 +95,7 @@ exports.getAllUlasanPencari = async (req, res) => {
         catatan: ulasan.catatan,
         nama_penyedia: ulasan.lowongan.penyedia.users.nama_user,
         createdAt: ulasan.createdAt,
+        photo_profile: ulasan.lowongan.penyedia.users.photo_profile,
       };
     });
 

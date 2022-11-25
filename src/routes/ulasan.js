@@ -5,6 +5,6 @@ const { authMiddleware } = require("../middlewares/auth");
 const router = Router();
 
 router.post("/add", authMiddleware, addUlasan);
-router.get("/all", authMiddleware, getAllUlasanPencari);
+router.get("/list-all", authMiddleware, getAllUlasanPencari);
 
 module.exports = router;
