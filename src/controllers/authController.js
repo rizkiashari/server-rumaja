@@ -51,6 +51,8 @@ exports.register = async (req, res) => {
 
     const { error } = schema.validate(dataUser);
 
+    console.log(error);
+
     if (error) {
       return errorResponse(res, 400, error.details[0].message);
     }

@@ -143,12 +143,16 @@ exports.editPengalaman = async (req, res) => {
       return errorResponse(res, 404, "PENGALAMAN_NOT_FOUND");
     }
 
+    if (req.body.tahun_mulai > req.body.tahun_akhir) {
+      return errorResponse(res, 423, "YEAR_NOT_VALID");
+    }
+
     await Pengalaman.update(
       {
         nama_pengalaman: req.body.nama,
         pengalaman_prov: req.body.pengalaman_prov,
-        tahun_mulai: +req.body.tahun_mulai,
-        tahun_akhir: +req.body.tahun_akhir,
+        tahun_mulai: req.body.tahun_mulai,
+        tahun_akhir: req.body.tahun_akhir,
         isWork: req.body.isWork ? true : false,
       },
       {

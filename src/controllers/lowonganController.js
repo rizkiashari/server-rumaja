@@ -363,9 +363,9 @@ exports.saveLowongan = async (req, res) => {
       return errorResponse(res, 404, "LOWONGAN_NOT_FOUND");
     }
 
-    if (dataLowongan.simpan_lowongan) {
-      return errorResponse(res, 403, "LOWONGAN_ALREADY_SAVED");
-    }
+    // if (dataLowongan.simpan_lowongan) {
+    //   return errorResponse(res, 403, "LOWONGAN_ALREADY_SAVED");
+    // }
 
     await Simpan_Lowongan.create({
       uuid_simpan: uuid.v4(),
