@@ -515,9 +515,16 @@ exports.rekomendasiLowongan = async (req, res) => {
 // Done
 exports.getLowonganByBidangKerja = async (req, res) => {
   try {
+    const userLogin = req.user;
     const limit = +req.query.limit || 10;
     const page = +req.query.page || 1;
     const { bidang_kerja } = req.params;
+
+    const dataPencari = await Pencari.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
 
     const { kota, provinsi, jenis_gaji, urutan } = req.query;
 
@@ -560,6 +567,9 @@ exports.getLowonganByBidangKerja = async (req, res) => {
             as: "simpan_lowongan",
             attributes: {
               exclude: ["createdAt", "updatedAt", "id"],
+            },
+            where: {
+              id_pencari: dataPencari.id,
             },
           },
         ],
@@ -646,6 +656,9 @@ exports.getLowonganByBidangKerja = async (req, res) => {
               as: "simpan_lowongan",
               attributes: {
                 exclude: ["createdAt", "updatedAt", "id"],
+              },
+              where: {
+                id_pencari: dataPencari.id,
               },
             },
           ],
@@ -740,6 +753,9 @@ exports.getLowonganByBidangKerja = async (req, res) => {
               attributes: {
                 exclude: ["createdAt", "updatedAt", "id"],
               },
+              where: {
+                id_pencari: dataPencari.id,
+              },
             },
           ],
           limit: [(page - 1) * +limit, +limit],
@@ -756,6 +772,7 @@ exports.getLowonganByBidangKerja = async (req, res) => {
       }
     }
   } catch (error) {
+    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
@@ -1085,7 +1102,7 @@ exports.getByUUIDLowongan = async (req, res) => {
           {
             model: Bidang_Kerja,
             as: "bidang_kerja",
-            attributes: ["nama_bidang", "detail_bidang"],
+            attributes: ["nama_bidang", "detail_bidang", "id"],
           },
         ],
       });
@@ -1122,7 +1139,7 @@ exports.getByUUIDLowongan = async (req, res) => {
           {
             model: Bidang_Kerja,
             as: "bidang_kerja",
-            attributes: ["nama_bidang", "detail_bidang"],
+            attributes: ["nama_bidang", "detail_bidang", "id"],
           },
         ],
       });
