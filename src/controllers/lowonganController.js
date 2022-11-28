@@ -1042,7 +1042,6 @@ exports.getSaveLowongan = async (req, res) => {
     errorResponse(res, 500, "Internal Server Error");
   }
 };
-
 // End
 
 // Global
@@ -1065,21 +1064,75 @@ exports.listsLayanan = async (req, res) => {
 exports.getByUUIDLowongan = async (req, res) => {
   try {
     const { uuid_lowongan } = req.params;
+    const userLogin = req.user;
 
-    const dataLowongan = await Lowongan.findOne({
+    const dataPencari = await Pencari.findOne({
       where: {
-        uuid_lowongan,
-      },
-      attributes: {
-        exclude: ["updatedAt"],
+        id_user: userLogin.id,
       },
     });
 
-    if (!dataLowongan) {
-      return errorResponse(res, 404, "LOWONGAN_NOT_FOUND");
-    }
+    if (userLogin.id_role === 2) {
+      const dataLowongan = await Lowongan.findOne({
+        where: {
+          uuid_lowongan,
+          isPublish: true,
+        },
+        attributes: {
+          exclude: ["updatedAt", "id_bidang_kerja"],
+        },
+        include: [
+          {
+            model: Bidang_Kerja,
+            as: "bidang_kerja",
+            attributes: ["nama_bidang", "detail_bidang"],
+          },
+        ],
+      });
 
-    successResWithData(res, 200, "LIST_LOWONGAN", dataLowongan);
+      if (!dataLowongan) {
+        return errorResponse(res, 404, "LOWONGAN_NOT_FOUND");
+      }
+
+      const simpanLowongan = await Simpan_Lowongan.findOne({
+        where: {
+          id_lowongan: dataLowongan.id,
+          id_pencari: dataPencari.id,
+        },
+        attributes: {
+          exclude: ["updatedAt"],
+        },
+      });
+
+      const mergeLowongan = {
+        ...dataLowongan.dataValues,
+        simpan_lowongan: simpanLowongan,
+      };
+
+      successResWithData(res, 200, "LIST_LOWONGAN", mergeLowongan);
+    } else {
+      const dataLowongan = await Lowongan.findOne({
+        where: {
+          uuid_lowongan,
+        },
+        attributes: {
+          exclude: ["updatedAt", "id_bidang_kerja"],
+        },
+        include: [
+          {
+            model: Bidang_Kerja,
+            as: "bidang_kerja",
+            attributes: ["nama_bidang", "detail_bidang"],
+          },
+        ],
+      });
+
+      if (!dataLowongan) {
+        return errorResponse(res, 404, "LOWONGAN_NOT_FOUND");
+      }
+
+      successResWithData(res, 200, "LIST_LOWONGAN", dataLowongan);
+    }
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
