@@ -7,6 +7,7 @@ const {
   Bidang_Kerja,
   Simpan_Lowongan,
   Pencari,
+  User,
 } = require("../../models");
 const { Op } = require("sequelize");
 
@@ -1096,13 +1097,25 @@ exports.getByUUIDLowongan = async (req, res) => {
           isPublish: true,
         },
         attributes: {
-          exclude: ["updatedAt", "id_bidang_kerja"],
+          exclude: ["updatedAt", "id_bidang_kerja", "id_penyedia"],
         },
         include: [
           {
             model: Bidang_Kerja,
             as: "bidang_kerja",
-            attributes: ["nama_bidang", "detail_bidang", "id"],
+            attributes: ["nama_bidang", "detail_bidang"],
+          },
+          {
+            model: Penyedia,
+            as: "penyedia",
+            attributes: ["id"],
+            include: [
+              {
+                model: User,
+                as: "users",
+                attributes: ["nama_user", "nomor_wa", "photo_profile"],
+              },
+            ],
           },
         ],
       });
@@ -1117,12 +1130,23 @@ exports.getByUUIDLowongan = async (req, res) => {
           id_pencari: dataPencari.id,
         },
         attributes: {
-          exclude: ["updatedAt"],
+          exclude: ["updatedAt", "createdAt"],
         },
       });
 
       const mergeLowongan = {
         ...dataLowongan.dataValues,
+        bidang_kerja: {
+          ...dataLowongan.bidang_kerja.dataValues,
+          photo:
+            dataLowongan.bidang_kerja.id === 1
+              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/art_tqnghe.png"
+              : dataLowongan.bidang_kerja.id === 2
+              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/pengasuh_chdloc.png"
+              : dataLowongan.bidang_kerja.id === 3
+              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/sopir_pribadi_quexmw.png"
+              : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
+        },
         simpan_lowongan: simpanLowongan,
       };
 
