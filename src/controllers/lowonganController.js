@@ -167,8 +167,25 @@ exports.getAllLowongan = async (req, res) => {
         order: [urutan ? tempUrutan : ["id", "DESC"]],
       });
 
+      const newLowongan = dataLowongan.map((item) => {
+        return {
+          ...item.dataValues,
+          bidang_kerja: {
+            ...item.bidang_kerja.dataValues,
+            photo:
+              item.bidang_kerja.id === 1
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/art_tqnghe.png"
+                : item.bidang_kerja.id === 2
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/pengasuh_chdloc.png"
+                : item.bidang_kerja.id === 3
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/sopir_pribadi_quexmw.png"
+                : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
+          },
+        };
+      });
+
       successResWithData(res, 200, "SUCCESS_GET_ALL_LOWONGAN", {
-        lowongan: dataLowongan,
+        lowongan: newLowongan,
         totalPage,
         page,
         limit,
@@ -242,8 +259,25 @@ exports.getAllLowongan = async (req, res) => {
         order: [urutan ? tempUrutan : ["id", "DESC"]],
       });
 
+      const newLowongan = dataLowongan.map((item) => {
+        return {
+          ...item.dataValues,
+          bidang_kerja: {
+            ...item.bidang_kerja.dataValues,
+            photo:
+              item.bidang_kerja.id === 1
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/art_tqnghe.png"
+                : item.bidang_kerja.id === 2
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/pengasuh_chdloc.png"
+                : item.bidang_kerja.id === 3
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/sopir_pribadi_quexmw.png"
+                : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
+          },
+        };
+      });
+
       successResWithData(res, 200, "SUCCESS_GET_ALL_LOWONGAN", {
-        lowongan: dataLowongan,
+        lowongan: newLowongan,
         totalPage,
         page,
         limit,
@@ -1200,7 +1234,22 @@ exports.getByUUIDLowongan = async (req, res) => {
         return errorResponse(res, 404, "LOWONGAN_NOT_FOUND");
       }
 
-      successResWithData(res, 200, "LIST_LOWONGAN", dataLowongan);
+      const newLowongan = {
+        ...dataLowongan.dataValues,
+        bidang_kerja: {
+          ...dataLowongan.bidang_kerja.dataValues,
+          photo:
+            dataLowongan.bidang_kerja.id === 1
+              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/art_tqnghe.png"
+              : dataLowongan.bidang_kerja.id === 2
+              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/pengasuh_chdloc.png"
+              : dataLowongan.bidang_kerja.id === 3
+              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/sopir_pribadi_quexmw.png"
+              : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
+        },
+      };
+
+      successResWithData(res, 200, "LIST_LOWONGAN", newLowongan);
     }
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
