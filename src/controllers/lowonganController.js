@@ -563,23 +563,33 @@ exports.getLowonganByBidangKerja = async (req, res) => {
               exclude: ["createdAt", "updatedAt"],
             },
           },
-          {
-            model: Simpan_Lowongan,
-            as: "simpan_lowongan",
-            attributes: {
-              exclude: ["createdAt", "updatedAt", "id"],
-            },
-            where: {
-              id_pencari: dataPencari.id,
-            },
-          },
         ],
         limit: [(page - 1) * +limit, +limit],
         order: [urutan ? tempUrutan : ["id", "ASC"]],
       });
 
+      const newLowongan = await Promise.all(
+        dataLowongan.map(async (lowongan) => {
+          const dataSimpan = await Simpan_Lowongan.findOne({
+            where: {
+              id_pencari: dataPencari.id,
+              id_lowongan: lowongan.id,
+            },
+
+            attributes: {
+              exclude: ["updatedAt", "id_pencari", "id_lowongan"],
+            },
+          });
+
+          return {
+            ...lowongan.dataValues,
+            simpan_lowongan: dataSimpan ? dataSimpan.dataValues : null,
+          };
+        })
+      );
+
       successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
-        lowongan: dataLowongan,
+        lowongan: newLowongan,
         totalPage,
         page,
         limit,
@@ -652,23 +662,32 @@ exports.getLowonganByBidangKerja = async (req, res) => {
                 exclude: ["createdAt", "updatedAt"],
               },
             },
-            {
-              model: Simpan_Lowongan,
-              as: "simpan_lowongan",
-              attributes: {
-                exclude: ["createdAt", "updatedAt", "id"],
-              },
-              where: {
-                id_pencari: dataPencari.id,
-              },
-            },
           ],
           limit: [(page - 1) * +limit, +limit],
           order: [urutan ? tempUrutan : ["id", "ASC"]],
         });
 
+        const newLowongan = await Promise.all(
+          dataLowongan.map(async (lowongan) => {
+            const dataSimpan = await Simpan_Lowongan.findOne({
+              where: {
+                id_pencari: dataPencari.id,
+                id_lowongan: lowongan.id,
+              },
+              attributes: {
+                exclude: ["updatedAt", "id_pencari", "id_lowongan"],
+              },
+            });
+
+            return {
+              ...lowongan.dataValues,
+              simpan_lowongan: dataSimpan ? dataSimpan.dataValues : null,
+            };
+          })
+        );
+
         successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
-          lowongan: dataLowongan,
+          lowongan: newLowongan,
           totalPage,
           page,
           limit,
@@ -748,23 +767,32 @@ exports.getLowonganByBidangKerja = async (req, res) => {
                 exclude: ["createdAt", "updatedAt"],
               },
             },
-            {
-              model: Simpan_Lowongan,
-              as: "simpan_lowongan",
-              attributes: {
-                exclude: ["createdAt", "updatedAt", "id"],
-              },
-              where: {
-                id_pencari: dataPencari.id,
-              },
-            },
           ],
           limit: [(page - 1) * +limit, +limit],
           order: [urutan ? tempUrutan : ["id", "ASC"]],
         });
 
+        const newLowongan = await Promise.all(
+          dataLowongan.map(async (lowongan) => {
+            const dataSimpan = await Simpan_Lowongan.findOne({
+              where: {
+                id_pencari: dataPencari.id,
+                id_lowongan: lowongan.id,
+              },
+              attributes: {
+                exclude: ["updatedAt", "id_pencari", "id_lowongan"],
+              },
+            });
+
+            return {
+              ...lowongan.dataValues,
+              simpan_lowongan: dataSimpan ? dataSimpan.dataValues : null,
+            };
+          })
+        );
+
         successResWithData(res, 200, "SUCCESS_GET_ALL_PEKERJAAN", {
-          lowongan: dataLowongan,
+          lowongan: newLowongan,
           totalPage,
           page,
           limit,
