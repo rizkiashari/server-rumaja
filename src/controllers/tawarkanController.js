@@ -64,12 +64,20 @@ exports.getAllTawarkan = async (req, res) => {
         {
           model: Lowongan,
           as: "lowongan",
-          attributes: ["id", "uuid_lowongan", "gaji", "skala_gaji", "id_penyedia"],
+          attributes: [
+            "id",
+            "uuid_lowongan",
+            "gaji",
+            "skala_gaji",
+            "id_penyedia",
+            "kota_lowongan",
+            "provinsi_lowongan",
+          ],
           include: [
             {
               model: Bidang_Kerja,
               as: "bidang_kerja",
-              attributes: ["nama_bidang", "detail_bidang"],
+              attributes: ["id", "nama_bidang", "detail_bidang"],
             },
           ],
         },
@@ -85,7 +93,31 @@ exports.getAllTawarkan = async (req, res) => {
       order: [["id", "DESC"]],
     });
 
-    successResWithData(res, 200, "GET_ALL_TAWARKAN_PENCARI_SUCCESS", dataRiwayat);
+    const newDataRiwayat = dataRiwayat.map((item) => {
+      const { lowongan } = item;
+      const { bidang_kerja } = lowongan;
+      const { nama_bidang, detail_bidang, id } = bidang_kerja;
+      return {
+        ...item.dataValues,
+        lowongan: {
+          ...lowongan.dataValues,
+          bidang_kerja: {
+            nama_bidang,
+            detail_bidang,
+            photo:
+              id === 1
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/art_tqnghe.png"
+                : id === 2
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/pengasuh_chdloc.png"
+                : id === 3
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/sopir_pribadi_quexmw.png"
+                : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
+          },
+        },
+      };
+    });
+
+    successResWithData(res, 200, "GET_ALL_TAWARKAN_PENCARI_SUCCESS", newDataRiwayat);
   } catch (error) {
     console.log(error);
     errorResponse(res, 500, "Internal Server Error");
