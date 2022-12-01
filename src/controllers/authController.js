@@ -51,8 +51,6 @@ exports.register = async (req, res) => {
 
     const { error } = schema.validate(dataUser);
 
-    console.log(error);
-
     if (error) {
       return errorResponse(res, 400, error.details[0].message);
     }
@@ -223,6 +221,74 @@ exports.checkAuth = async (req, res) => {
     const userData = req.user;
 
     successResWithData(res, 200, "USER_FOUND", userData);
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+// Done : 01/12/2022
+exports.checkPassword = async (req, res) => {
+  try {
+    const userLogin = req.user;
+
+    const user = await User.findOne({
+      where: {
+        id: userLogin.id,
+      },
+    });
+
+    const { password } = req.body;
+
+    const isMatch = await bcrypt.compareSync(password, user.password);
+
+    if (!isMatch) {
+      return errorResponse(res, 428, "PASSWORD_NOT_MATCH");
+    }
+
+    successRes(res, 200, "PASSWORD_MATCH");
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+// Done: 01/12/2022
+exports.changePassword = async (req, res) => {
+  try {
+    const userLogin = req.user;
+
+    const user = await User.findOne({
+      where: {
+        id: userLogin.id,
+      },
+    });
+
+    const { password, newPassword, confirmPassowrd } = req.body;
+
+    const isMatch = await bcrypt.compareSync(password, user.password);
+
+    if (!isMatch) {
+      return errorResponse(res, 428, "PASSWORD_NOT_MATCH");
+    }
+
+    if (newPassword !== confirmPassowrd) {
+      return errorResponse(res, 428, "CONFIRM_PASSWORD_NOT_MATCH");
+    }
+
+    let salt = await bcrypt.genSalt(+env.SALT);
+    let hash = await bcrypt.hash(newPassword, salt);
+
+    await User.update(
+      {
+        password: hash,
+      },
+      {
+        where: {
+          id: user.id,
+        },
+      }
+    );
+
+    successRes(res, 200, "SUCCESS_PASSWORD_CHANGED");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
