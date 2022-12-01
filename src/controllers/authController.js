@@ -262,15 +262,14 @@ exports.changePassword = async (req, res) => {
       },
     });
 
-    const { password, newPassword, confirmPassowrd } = req.body;
+    const { password, newPassword, confirmPasword } = req.body;
 
     const isMatch = await bcrypt.compareSync(password, user.password);
-
     if (!isMatch) {
       return errorResponse(res, 428, "PASSWORD_NOT_MATCH");
     }
 
-    if (newPassword !== confirmPassowrd) {
+    if (newPassword !== confirmPasword) {
       return errorResponse(res, 428, "CONFIRM_PASSWORD_NOT_MATCH");
     }
 
