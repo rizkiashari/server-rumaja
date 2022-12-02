@@ -220,10 +220,18 @@ exports.updateUserPencari = async (req, res) => {
 
 // Done
 exports.listRekomendasiUserPencari = async (req, res) => {
+  const userLogin = req.user;
+
+  const penyedia = await Penyedia.findOne({
+    where: {
+      id_user: userLogin.id,
+    },
+  });
+
   try {
     const pencari = await Pencari.findAll({
       attributes: {
-        exclude: ["id_user", "updatedAt", "createdAt", "id_bidang_kerja"],
+        exclude: ["updatedAt", "createdAt", "id_bidang_kerja"],
       },
       include: [
         {
@@ -239,13 +247,6 @@ exports.listRekomendasiUserPencari = async (req, res) => {
               "email",
               "id_role",
             ],
-          },
-        },
-        {
-          model: Simpan_Pencari,
-          as: "simpan_pencari",
-          attributes: {
-            exclude: ["createdAt", "updatedAt"],
           },
         },
         {
@@ -266,20 +267,30 @@ exports.listRekomendasiUserPencari = async (req, res) => {
       ],
     });
 
-    const pencariData = pencari.map((item) => {
-      let totalRating = 0;
+    const pencariData = await Promise.all(
+      pencari.map(async (item) => {
+        let totalRating = 0;
 
-      for (let i = 0; i < item.ulasan.length; i++) {
-        totalRating += item.ulasan[i].rating / item.ulasan.length;
-      }
+        for (let i = 0; i < item.ulasan.length; i++) {
+          totalRating += item.ulasan[i].rating / item.ulasan.length;
+        }
 
-      return {
-        ...item.dataValues,
-        pengalaman: item.dataValues.pengalaman.length,
-        bidang_kerja: item.dataValues.bidang_kerja.nama_bidang,
-        ulasan: totalRating,
-      };
-    });
+        const simpan_pencari = await Simpan_Pencari.findOne({
+          where: {
+            id_penyedia: penyedia.id,
+            id_pencari: item.id,
+          },
+        });
+
+        return {
+          ...item.dataValues,
+          pengalaman: item.dataValues.pengalaman.length,
+          bidang_kerja: item.dataValues.bidang_kerja.nama_bidang,
+          ulasan: totalRating,
+          simpan_pencari: simpan_pencari ? simpan_pencari : null,
+        };
+      })
+    );
 
     successResWithData(
       res,
