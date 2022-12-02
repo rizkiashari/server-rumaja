@@ -1,6 +1,6 @@
 const joi = require("joi");
 const uuid = require("uuid");
-const { Pencari, Riwayat, Lowongan, User, Bidang_Kerja } = require("../../models");
+const { Pencari, Riwayat, Lowongan, Penyedia, Bidang_Kerja } = require("../../models");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
 
 // Done
@@ -118,6 +118,76 @@ exports.getAllTawarkan = async (req, res) => {
     });
 
     successResWithData(res, 200, "GET_ALL_TAWARKAN_PENCARI_SUCCESS", newDataRiwayat);
+  } catch (error) {
+    console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.getAllTawaranTerkirim = async (req, res) => {
+  try {
+    const userLogin = req.user;
+
+    const dataPenyedia = await Penyedia.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
+
+    const lowonganData = await Lowongan.findAll({
+      where: {
+        id_penyedia: dataPenyedia.id,
+      },
+      include: [
+        {
+          model: Bidang_Kerja,
+          as: "bidang_kerja",
+          attributes: ["id", "nama_bidang", "detail_bidang"],
+        },
+      ],
+      attributes: {
+        exclude: ["updatedAt", "id_bidang_kerja"],
+      },
+    });
+
+    const lowonganWithPelamar = await Promise.all(
+      lowonganData.map(async (item) => {
+        const { bidang_kerja } = item;
+        const { nama_bidang, detail_bidang, id } = bidang_kerja;
+
+        const pelamar = await Riwayat.count({
+          where: {
+            id_lowongan: item.id,
+            info_riwayat: "hired",
+            status: "diproses",
+          },
+        });
+
+        return {
+          ...item.dataValues,
+          bidang_kerja: {
+            nama_bidang,
+            detail_bidang,
+            photo:
+              id === 1
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/art_tqnghe.png"
+                : id === 2
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/pengasuh_chdloc.png"
+                : id === 3
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/sopir_pribadi_quexmw.png"
+                : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
+          },
+          jumlah_pelamar: pelamar,
+        };
+      })
+    );
+
+    successResWithData(
+      res,
+      200,
+      "GET_ALL_PELAMAR_SUCCESS",
+      lowonganWithPelamar.filter((item) => item.jumlah_pelamar > 0)
+    );
   } catch (error) {
     console.log(error);
     errorResponse(res, 500, "Internal Server Error");
