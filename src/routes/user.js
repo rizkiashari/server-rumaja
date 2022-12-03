@@ -17,6 +17,8 @@ const {
   unSavePencari,
   pencariByBidangKerja,
   getDataSavePencari,
+  detailProfilePenyedia,
+  detailProfilePencari,
 } = require("../controllers/userController");
 const { authMiddleware } = require("../middlewares/auth");
 const { uploadFile } = require("../middlewares/uploadFile");
@@ -54,5 +56,8 @@ router.get("/list-bidang", listBidangKerja);
 
 router.get("/profile-pencari", authMiddleware, profilePencari);
 router.get("/profile-penyedia", authMiddleware, profilePenyedia);
+
+router.get("/detail-penyedia/:uuid_user", authMiddleware, detailProfilePenyedia);
+router.get("/detail-pencari/:uuid_user", authMiddleware, detailProfilePencari);
 
 module.exports = router;

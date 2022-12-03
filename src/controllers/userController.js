@@ -12,6 +12,7 @@ const {
   sequelize,
   Ulasan,
   Lowongan,
+  Pendidikan,
 } = require("../../models");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
 const { Op } = require("sequelize");
@@ -1140,7 +1141,7 @@ exports.pencariByBidangKerja = async (req, res) => {
   }
 };
 
-// Belum filter
+// Done
 exports.getDataSavePencari = async (req, res) => {
   try {
     const userLogin = req.user;
@@ -1558,6 +1559,113 @@ exports.getDataSavePencari = async (req, res) => {
         });
       }
     }
+  } catch (error) {
+    console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+// Detail Profile Penyedia
+exports.detailProfilePenyedia = async (req, res) => {
+  try {
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+// Detail Profile Pencari
+// Done
+exports.detailProfilePencari = async (req, res) => {
+  try {
+    const { uuid_user } = req.params;
+
+    const pencari = await User.findOne({
+      where: {
+        uuid_user,
+      },
+      attributes: {
+        exclude: ["password", "createdAt", "updatedAt", "resetPassword", "id_role", "id"],
+      },
+      include: [
+        {
+          model: Pencari,
+          as: "pencari",
+          attributes: {
+            exclude: ["createdAt", "updatedAt", "id_user", "id_bidang_kerja"],
+          },
+          include: [
+            {
+              model: Bidang_Kerja,
+              as: "bidang_kerja",
+              attributes: {
+                exclude: ["id", "createdAt", "updatedAt"],
+              },
+            },
+            {
+              model: Ulasan,
+              as: "ulasan",
+              attributes: {
+                exclude: ["id", "updatedAt", "id_pencari", "id_lowongan"],
+              },
+              include: [
+                {
+                  model: Lowongan,
+                  as: "lowongan",
+                  attributes: {
+                    exclude: [
+                      "id",
+                      "createdAt",
+                      "updatedAt",
+                      "id_penyedia",
+                      "id_bidang_kerja",
+                    ],
+                  },
+                  include: [
+                    {
+                      model: Bidang_Kerja,
+                      as: "bidang_kerja",
+                      attributes: ["id"],
+                    },
+                    {
+                      model: Penyedia,
+                      as: "penyedia",
+                      attributes: ["id"],
+                      include: [
+                        {
+                          model: User,
+                          as: "users",
+                          attributes: ["nama_user"],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              model: Pendidikan,
+              as: "pendidikan",
+              attributes: ["tahun_awal", "tahun_akhir", "nama_pendidikan"],
+            },
+            {
+              model: Pengalaman,
+              as: "pengalaman",
+              attributes: {
+                exclude: [
+                  "id",
+                  "createdAt",
+                  "updatedAt",
+                  "id_pencari",
+                  "uuid_pengalaman",
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    successResWithData(res, 200, "SUCCESS_GET_DETAIL_PENCARI", pencari);
   } catch (error) {
     console.log(error);
     errorResponse(res, 500, "Internal Server Error");
