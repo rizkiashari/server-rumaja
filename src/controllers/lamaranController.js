@@ -7,6 +7,8 @@ const {
   Lowongan,
   Bidang_Kerja,
   User,
+  Pengalaman,
+  Ulasan,
 } = require("../../models");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
 const { Op } = require("sequelize");
@@ -97,6 +99,79 @@ exports.terimaLamaran = async (req, res) => {
     );
 
     successRes(res, 200, "SUCCESS_TERIMA_LAMARAN");
+  } catch (error) {
+    console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.getDaftarPelamar = async (req, res) => {
+  try {
+    const userLogin = req.user;
+
+    const { id_lowongan } = req.params;
+
+    const penyedia = await Penyedia.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
+
+    const dataLowongan = await Lowongan.findOne({
+      where: {
+        id: id_lowongan,
+        id_penyedia: penyedia.id,
+        isPublish: true,
+      },
+      attributes: {
+        exclude: ["id_penyedia", "id_bidang_kerja", "updatedAt"],
+      },
+    });
+
+    if (!dataLowongan) {
+      return errorResponse(res, 400, "LOWONGAN_NOT_FOUND");
+    }
+
+    const riwayat = await Riwayat.findAll({
+      where: {
+        id_lowongan: dataLowongan.id,
+        info_riwayat: "applied",
+        status: "diproses",
+      },
+      include: [
+        {
+          model: Pencari,
+          as: "pencari",
+          attributes: ["id", "id_bidang_kerja", "tanggal_lahir", "gender"],
+          include: [
+            {
+              model: User,
+              as: "users",
+              attributes: [
+                "nama_user",
+                "uuid_user",
+                "domisili_kota",
+                "domisili_provinsi",
+              ],
+            },
+            {
+              model: Pengalaman,
+              as: "pengalaman",
+              attributes: ["id", "nama_pengalaman"],
+            },
+            {
+              model: Ulasan,
+              as: "ulasan",
+              attributes: ["id", "rating"],
+            },
+          ],
+        },
+      ],
+      attributes: ["id", "uuid_riwayat", "status", "createdAt", "info_riwayat"],
+      order: [["id", "DESC"]],
+    });
+
+    successResWithData(res, 200, "SUCCESS_GET_DAFTAR_PELAMAR", riwayat);
   } catch (error) {
     console.log(error);
     errorResponse(res, 500, "Internal Server Error");

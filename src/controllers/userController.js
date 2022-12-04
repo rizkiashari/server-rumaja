@@ -529,6 +529,14 @@ exports.pencariByBidangKerja = async (req, res) => {
     const page = +req.query.page || 1;
     const { bidang_kerja } = req.params;
 
+    const userLogin = req.user;
+
+    const penyedia = await Penyedia.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
+
     const { kota, provinsi, urutan, jenis_kelamin, min_usia, max_usia, search } =
       req.query;
 
@@ -568,13 +576,6 @@ exports.pencariByBidangKerja = async (req, res) => {
             },
           },
           {
-            model: Simpan_Pencari,
-            as: "simpan_pencari",
-            attributes: {
-              exclude: ["createdAt", "updatedAt"],
-            },
-          },
-          {
             model: Bidang_Kerja,
             as: "bidang_kerja",
             attributes: {
@@ -610,6 +611,16 @@ exports.pencariByBidangKerja = async (req, res) => {
                 : [],
           });
 
+          const simpan_pencari = await Simpan_Pencari.findOne({
+            where: {
+              id_penyedia: penyedia.id,
+              id_pencari: pencari.id,
+            },
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+          });
+
           const pengalaman = await Pengalaman.findOne({
             where: {
               id_pencari: pencari.id,
@@ -629,6 +640,7 @@ exports.pencariByBidangKerja = async (req, res) => {
                 : +Number(rating.dataValues.rating).toFixed(3),
             pengalaman: pengalaman.dataValues.pengalaman,
             bidang_kerja: pencari.bidang_kerja.detail_bidang,
+            simpan_pencari: simpan_pencari ? simpan_pencari : null,
           };
         })
       );
@@ -685,13 +697,6 @@ exports.pencariByBidangKerja = async (req, res) => {
             },
           },
           {
-            model: Simpan_Pencari,
-            as: "simpan_pencari",
-            attributes: {
-              exclude: ["createdAt", "updatedAt"],
-            },
-          },
-          {
             model: Bidang_Kerja,
             as: "bidang_kerja",
             attributes: {
@@ -715,6 +720,16 @@ exports.pencariByBidangKerja = async (req, res) => {
                 : [],
           });
 
+          const simpan_pencari = await Simpan_Pencari.findOne({
+            where: {
+              id_penyedia: penyedia.id,
+              id_pencari: pencari.id,
+            },
+            attributes: {
+              exclude: ["createdAt", "updatedAt"],
+            },
+          });
+
           const pengalaman = await Pengalaman.findOne({
             where: {
               id_pencari: pencari.id,
@@ -734,6 +749,7 @@ exports.pencariByBidangKerja = async (req, res) => {
                 : +Number(rating.dataValues.rating).toFixed(3),
             pengalaman: pengalaman.dataValues.pengalaman,
             bidang_kerja: pencari.bidang_kerja.detail_bidang,
+            simpan_pencari: simpan_pencari ? simpan_pencari : null,
           };
         })
       );
@@ -760,7 +776,6 @@ exports.pencariByBidangKerja = async (req, res) => {
                   [Op.eq]: jenis_kelamin,
                 },
               },
-              // Between min and max usia pencari
               {
                 tanggal_lahir: {
                   [Op.between]: [
@@ -846,13 +861,6 @@ exports.pencariByBidangKerja = async (req, res) => {
           },
           include: [
             {
-              model: Simpan_Pencari,
-              as: "simpan_pencari",
-              attributes: {
-                exclude: ["createdAt", "updatedAt"],
-              },
-            },
-            {
               model: Bidang_Kerja,
               as: "bidang_kerja",
               attributes: {
@@ -917,6 +925,16 @@ exports.pencariByBidangKerja = async (req, res) => {
                   : [],
             });
 
+            const simpan_pencari = await Simpan_Pencari.findOne({
+              where: {
+                id_penyedia: penyedia.id,
+                id_pencari: pencari.id,
+              },
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+            });
+
             return {
               ...pencari.dataValues,
               rating:
@@ -925,6 +943,7 @@ exports.pencariByBidangKerja = async (req, res) => {
                   : +Number(rating.dataValues.rating).toFixed(3),
               pengalaman: pengalaman.dataValues.pengalaman,
               bidang_kerja: pencari.bidang_kerja.detail_bidang,
+              simpan_pencari: simpan_pencari ? simpan_pencari : null,
             };
           })
         );
@@ -1043,13 +1062,6 @@ exports.pencariByBidangKerja = async (req, res) => {
           },
           include: [
             {
-              model: Simpan_Pencari,
-              as: "simpan_pencari",
-              attributes: {
-                exclude: ["createdAt", "updatedAt"],
-              },
-            },
-            {
               model: Bidang_Kerja,
               as: "bidang_kerja",
               attributes: {
@@ -1114,6 +1126,16 @@ exports.pencariByBidangKerja = async (req, res) => {
                   : [],
             });
 
+            const simpan_pencari = await Simpan_Pencari.findOne({
+              where: {
+                id_penyedia: penyedia.id,
+                id_pencari: pencari.id,
+              },
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+            });
+
             return {
               ...pencari.dataValues,
               rating:
@@ -1122,6 +1144,7 @@ exports.pencariByBidangKerja = async (req, res) => {
                   : +Number(rating.dataValues.rating).toFixed(3),
               pengalaman: pengalaman.dataValues.pengalaman,
               bidang_kerja: pencari.bidang_kerja.detail_bidang,
+              simpan_pencari: simpan_pencari ? simpan_pencari : null,
             };
           })
         );
@@ -1136,7 +1159,6 @@ exports.pencariByBidangKerja = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
@@ -1579,12 +1601,20 @@ exports.detailProfilePencari = async (req, res) => {
   try {
     const { uuid_user } = req.params;
 
+    const userLogin = req.user;
+
+    const penyedia = await Penyedia.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
+
     const pencari = await User.findOne({
       where: {
         uuid_user,
       },
       attributes: {
-        exclude: ["password", "createdAt", "updatedAt", "resetPassword", "id_role", "id"],
+        exclude: ["password", "createdAt", "updatedAt", "resetPassword", "id_role"],
       },
       include: [
         {
@@ -1665,9 +1695,45 @@ exports.detailProfilePencari = async (req, res) => {
       ],
     });
 
-    successResWithData(res, 200, "SUCCESS_GET_DETAIL_PENCARI", pencari);
+    const simpan_pencari = await Simpan_Pencari.findOne({
+      where: {
+        id_pencari: pencari.pencari.id,
+        id_penyedia: penyedia.id,
+      },
+      attributes: {
+        exclude: ["id", "createdAt", "updatedAt"],
+      },
+    });
+
+    const newPencari = {
+      ...pencari.dataValues,
+      simpan_pencari: simpan_pencari ? simpan_pencari.dataValues : null,
+      pencari: {
+        ...pencari.pencari.dataValues,
+        ulasan: pencari.pencari.ulasan.map((ulasan) => {
+          return {
+            ...ulasan.dataValues,
+            lowongan: {
+              ...ulasan.lowongan.dataValues,
+              bidang_kerja: {
+                id: ulasan.lowongan.bidang_kerja.id,
+                photo:
+                  ulasan.lowongan.bidang_kerja.id === 1
+                    ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/art_tqnghe.png"
+                    : ulasan.lowongan.bidang_kerja.id === 2
+                    ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/pengasuh_chdloc.png"
+                    : ulasan.lowongan.bidang_kerja.id === 3
+                    ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/sopir_pribadi_quexmw.png"
+                    : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
+              },
+            },
+          };
+        }),
+      },
+    };
+
+    successResWithData(res, 200, "SUCCESS_GET_DETAIL_PENCARI", newPencari);
   } catch (error) {
-    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };

@@ -4,6 +4,7 @@ const {
   terimaLamaran,
   getAllApplied,
   getAllPelamar,
+  getDaftarPelamar,
 } = require("../controllers/lamaranController");
 const { authMiddleware } = require("../middlewares/auth");
 
@@ -16,5 +17,7 @@ router.patch("/terima/:uuid_riwayat", authMiddleware, terimaLamaran);
 router.post("/applied", authMiddleware, appliedPekerjaan);
 router.get("/applied-all", authMiddleware, getAllApplied);
 router.get("/pelamar", authMiddleware, getAllPelamar);
+
+router.get("/daftar-pelamar/:id_lowongan", authMiddleware, getDaftarPelamar);
 
 module.exports = router;
