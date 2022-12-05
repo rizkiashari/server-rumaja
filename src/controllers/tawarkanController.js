@@ -9,6 +9,8 @@ const {
   User,
   Pengalaman,
   Ulasan,
+  Progres,
+  Notifikasi,
 } = require("../../models");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
 
@@ -35,7 +37,7 @@ exports.tawarkanPekerjaan = async (req, res) => {
       return errorResponse(res, 400, error.details[0].message);
     }
 
-    await Riwayat.create({
+    const riwayat = await Riwayat.create({
       uuid_riwayat: uuid.v4(),
       status: dataTerima.status_riwayat,
       info_riwayat: dataTerima.info_riwayat,
@@ -44,6 +46,26 @@ exports.tawarkanPekerjaan = async (req, res) => {
       tanggal_mulai_kerja: Math.floor(new Date(dataTerima.tanggal_mulai_kerja) / 1000),
       id_pencari: dataTerima.id_pencari,
       id_lowongan: dataTerima.id_lowongan,
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Progres.create({
+      id_riwayat: riwayat.id,
+      informasi: "Mengirimkan tawaran-penyedia",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Progres.create({
+      id_riwayat: riwayat.id,
+      informasi: "Menunggu konfirmasi-penyedia",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Notifikasi.create({
+      detail_notifikasi:
+        "Tawaran pekerjaan terkirim! Silahkan cek detail dari pelamar untuk informasi lebih lanjut-penyedia",
+      isRead: false,
+      id_riwayat: riwayat.id,
       createdAt: Math.floor(+new Date() / 1000),
     });
 
@@ -155,7 +177,7 @@ exports.getAllTawaranTerkirim = async (req, res) => {
         },
       ],
       attributes: {
-        exclude: ["updatedAt", "id_bidang_kerja"],
+        exclude: ["updatedAt", "id_bidang_kerja", "createdAt"],
       },
     });
 
@@ -170,6 +192,15 @@ exports.getAllTawaranTerkirim = async (req, res) => {
             info_riwayat: "hired",
             status: "diproses",
           },
+        });
+
+        const createdAtRiwayat = await Riwayat.findAll({
+          where: {
+            id_lowongan: item.id,
+            info_riwayat: "hired",
+            status: "diproses",
+          },
+          attributes: ["createdAt"],
         });
 
         return {
@@ -187,6 +218,7 @@ exports.getAllTawaranTerkirim = async (req, res) => {
                 : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
           },
           jumlah_pelamar: pelamar,
+          createdAtRiwayat: createdAtRiwayat[0],
         };
       })
     );
