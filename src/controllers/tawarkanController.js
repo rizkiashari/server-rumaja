@@ -250,6 +250,7 @@ exports.getDaftarTawaranTerkirim = async (req, res) => {
                 "uuid_user",
                 "domisili_kota",
                 "domisili_provinsi",
+                "uuid_user",
               ],
             },
             {

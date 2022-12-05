@@ -98,7 +98,9 @@ exports.terimaLamaran = async (req, res) => {
       }
     );
 
-    successRes(res, 200, "SUCCESS_TERIMA_LAMARAN");
+    successResWithData(res, 200, "SUCCESS_TERIMA_LAMARAN", {
+      uuid: uuid_riwayat,
+    });
   } catch (error) {
     console.log(error);
     errorResponse(res, 500, "Internal Server Error");
@@ -152,6 +154,7 @@ exports.getDaftarPelamar = async (req, res) => {
                 "uuid_user",
                 "domisili_kota",
                 "domisili_provinsi",
+                "uuid_user",
               ],
             },
             {
