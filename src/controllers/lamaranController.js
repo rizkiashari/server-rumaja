@@ -9,6 +9,7 @@ const {
   User,
   Pengalaman,
   Ulasan,
+  Progres,
 } = require("../../models");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
 const { Op } = require("sequelize");
@@ -255,6 +256,59 @@ exports.getAllPelamar = async (req, res) => {
       "GET_ALL_PELAMAR_SUCCESS",
       lowonganWithPelamar.filter((item) => item.jumlah_pelamar > 0)
     );
+  } catch (error) {
+    console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.getProgressLamaran = async (req, res) => {
+  try {
+    const { id_riwayat } = req.params;
+
+    const dataRiwayat = await Riwayat.findOne({
+      where: {
+        id: id_riwayat,
+        info_riwayat: "applied",
+      },
+      attributes: ["id", "status", "info_riwayat"],
+      include: [
+        {
+          model: Pencari,
+          as: "pencari",
+          attributes: {
+            exclude: ["id_user", "id_bidang_kerja", "updatedAt"],
+          },
+          include: [
+            {
+              model: User,
+              as: "users",
+              attributes: ["nama_user", "uuid_user"],
+            },
+            {
+              model: Ulasan,
+              as: "ulasan",
+              attributes: ["id", "rating"],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!dataRiwayat) {
+      return errorResponse(res, 400, "RIWAYAT_NOT_FOUND");
+    }
+
+    const dataProgress = await Progres.findAll({
+      where: {
+        id_riwayat: dataRiwayat.id,
+      },
+    });
+
+    successResWithData(res, 200, "SUCCESS_GET_PROGRESS_LAMARAN", {
+      riwayat: dataRiwayat,
+      progress: dataProgress,
+    });
   } catch (error) {
     console.log(error);
     errorResponse(res, 500, "Internal Server Error");
