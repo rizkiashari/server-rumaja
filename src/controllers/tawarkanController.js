@@ -19,6 +19,18 @@ exports.tawarkanPekerjaan = async (req, res) => {
   try {
     const dataTerima = req.body;
 
+    const dataRiwayat = await Riwayat.findOne({
+      where: {
+        id_pencari: dataTerima.id_pencari,
+        id_lowongan: dataTerima.id_lowongan,
+        status: "diproses",
+      },
+    });
+
+    if (dataRiwayat) {
+      return errorResponse(res, 428, "PENCARI_ALREADY_HIRED");
+    }
+
     const schema = joi.object({
       status_riwayat: joi
         .string()
@@ -360,9 +372,19 @@ exports.getProgressTawaranTerkirim = async (req, res) => {
       },
     });
 
+    const newDataProgress = dataProgress.map((item) => {
+      const penyedia = item.informasi.split("-");
+
+      if (penyedia[1] === "penyedia") {
+        return {
+          ...item.dataValues,
+        };
+      }
+    });
+
     successResWithData(res, 200, "SUCCESS_GET_PROGRESS", {
       riwayat: riwayat,
-      progress: dataProgress,
+      progress: newDataProgress.filter((item) => item !== undefined),
     });
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");

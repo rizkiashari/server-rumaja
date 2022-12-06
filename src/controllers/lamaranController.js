@@ -364,6 +364,18 @@ exports.appliedPekerjaan = async (req, res) => {
       return errorResponse(res, 400, "PENCARI_NOT_FOUND");
     }
 
+    const dataRiwayat = await Riwayat.findOne({
+      where: {
+        id_pencari: dataPencari.id,
+        id_lowongan: lamaran.id_lowongan,
+        status: "diproses",
+      },
+    });
+
+    if (dataRiwayat) {
+      return errorResponse(res, 428, "PENCARI_ALREADY_APPLIED");
+    }
+
     const schema = joi.object({
       status_riwayat: joi
         .string()
