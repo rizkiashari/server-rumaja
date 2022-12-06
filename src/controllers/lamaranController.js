@@ -10,6 +10,7 @@ const {
   Pengalaman,
   Ulasan,
   Progres,
+  Notifikasi,
 } = require("../../models");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
 const { Op } = require("sequelize");
@@ -52,9 +53,22 @@ exports.tolakLamaran = async (req, res) => {
       }
     );
 
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
+      informasi: "Maaf, Anda tidak lolos seleksi-pencari",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Notifikasi.create({
+      detail_notifikasi:
+        "Maaf, Anda tidak lolos seleksi, Silahkan mencari lowongan lainnya-pencari",
+      isRead: false,
+      id_riwayat: dataRiwayat.id,
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
     successRes(res, 200, "SUCCESS_TOLAK_LAMARAN");
   } catch (error) {
-    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
@@ -98,6 +112,19 @@ exports.terimaLamaran = async (req, res) => {
         },
       }
     );
+
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
+      informasi: "Selamat, Anda lolos seleksi-pencari",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Notifikasi.create({
+      detail_notifikasi: "Selamat, Anda lolos seleksi, Silahkan hubungi penyedia-pencari",
+      isRead: false,
+      id_riwayat: dataRiwayat.id,
+      createdAt: Math.floor(+new Date() / 1000),
+    });
 
     successResWithData(res, 200, "SUCCESS_TERIMA_LAMARAN", {
       uuid: uuid_riwayat,
@@ -265,11 +292,15 @@ exports.getAllPelamar = async (req, res) => {
 exports.getProgressLamaran = async (req, res) => {
   try {
     const { id_riwayat } = req.params;
+    const { status } = req.query;
+
+    console.log(id_riwayat);
 
     const dataRiwayat = await Riwayat.findOne({
       where: {
         id: id_riwayat,
         info_riwayat: "applied",
+        status: status,
       },
       attributes: ["id", "status", "info_riwayat"],
       include: [
@@ -347,12 +378,26 @@ exports.appliedPekerjaan = async (req, res) => {
       return errorResponse(res, 400, error.details[0].message);
     }
 
-    await Riwayat.create({
+    const riwayat = await Riwayat.create({
       uuid_riwayat: uuid.v4(),
       status: lamaran.status_riwayat,
       info_riwayat: lamaran.info_riwayat,
       id_pencari: +dataPencari.id,
       id_lowongan: lamaran.id_lowongan,
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Progres.create({
+      id_riwayat: riwayat.id,
+      informasi: "Lamaran anda berhasil terkirim-pencari",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Notifikasi.create({
+      detail_notifikasi:
+        "Lamaran anda berhasil terkirim, Silahkan cek riwayat lamaran anda-pencari",
+      isRead: false,
+      id_riwayat: riwayat.id,
       createdAt: Math.floor(+new Date() / 1000),
     });
 

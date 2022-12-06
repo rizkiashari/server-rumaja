@@ -63,7 +63,7 @@ exports.tawarkanPekerjaan = async (req, res) => {
 
     await Notifikasi.create({
       detail_notifikasi:
-        "Tawaran pekerjaan terkirim! Silahkan cek detail dari pelamar untuk informasi lebih lanjut-penyedia",
+        "Penyedia telah mengirimkan tawaran pekerjaan, silahkan cek riwayat pekerjaan anda untuk melihat detailnya-pencari",
       isRead: false,
       id_riwayat: riwayat.id,
       createdAt: Math.floor(+new Date() / 1000),
@@ -76,6 +76,7 @@ exports.tawarkanPekerjaan = async (req, res) => {
   }
 };
 
+// Done
 exports.getAllTawarkan = async (req, res) => {
   try {
     const userLogin = req.user;
@@ -155,6 +156,7 @@ exports.getAllTawarkan = async (req, res) => {
   }
 };
 
+// Done
 exports.getAllTawaranTerkirim = async (req, res) => {
   try {
     const userLogin = req.user;
@@ -235,6 +237,7 @@ exports.getAllTawaranTerkirim = async (req, res) => {
   }
 };
 
+// Done
 exports.getDaftarTawaranTerkirim = async (req, res) => {
   try {
     const userLogin = req.user;
@@ -305,6 +308,63 @@ exports.getDaftarTawaranTerkirim = async (req, res) => {
     successResWithData(res, 200, "SUCCESS_GET_DAFTAR_PELAMAR", riwayat);
   } catch (error) {
     console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.getProgressTawaranTerkirim = async (req, res) => {
+  try {
+    const { id_riwayat } = req.params;
+    const { status } = req.query;
+
+    const riwayat = await Riwayat.findOne({
+      where: {
+        id: id_riwayat,
+        info_riwayat: "hired",
+        status: status,
+      },
+      attributes: ["id", "status", "info_riwayat"],
+      include: [
+        {
+          model: Pencari,
+          as: "pencari",
+          attributes: ["id", "gender", "tanggal_lahir"],
+          include: [
+            {
+              model: Bidang_Kerja,
+              as: "bidang_kerja",
+              attributes: ["detail_bidang"],
+            },
+            {
+              model: User,
+              as: "users",
+              attributes: ["nama_user", "uuid_user"],
+            },
+            {
+              model: Ulasan,
+              as: "ulasan",
+              attributes: ["id", "rating"],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!riwayat) {
+      return errorResponse(res, 400, "RIWAYAT_NOT_FOUND");
+    }
+
+    const dataProgress = await Progres.findAll({
+      where: {
+        id_riwayat: riwayat.id,
+      },
+    });
+
+    successResWithData(res, 200, "SUCCESS_GET_PROGRESS", {
+      riwayat: riwayat,
+      progress: dataProgress,
+    });
+  } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
 };
