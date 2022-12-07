@@ -13,6 +13,7 @@ const {
   Ulasan,
   Lowongan,
   Pendidikan,
+  Simpan_Lowongan,
 } = require("../../models");
 const { errorResponse, successResWithData, successRes } = require("../helper/response");
 const { Op } = require("sequelize");
@@ -1590,6 +1591,71 @@ exports.getDataSavePencari = async (req, res) => {
 // Detail Profile Penyedia
 exports.detailProfilePenyedia = async (req, res) => {
   try {
+    const { uuid_user } = req.params;
+
+    const userLogin = req.user;
+
+    const pencari = await Pencari.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
+
+    const userData = await User.findOne({
+      where: {
+        uuid_user,
+      },
+      attributes: {
+        exclude: ["password", "createdAt", "updatedAt", "resetPassword", "id_role"],
+      },
+    });
+
+    const penyedia = await Penyedia.findOne({
+      where: {
+        id_user: userData.id,
+      },
+      attributes: ["id"],
+    });
+
+    const dataLowongan = await Lowongan.findAll({
+      where: {
+        id_penyedia: penyedia.id,
+      },
+      attributes: {
+        exclude: ["id_penyedia", "updatedAt", "id_bidang_kerja"],
+      },
+      include: [
+        {
+          model: Bidang_Kerja,
+          as: "bidang_kerja",
+          attributes: ["detail_bidang"],
+        },
+      ],
+    });
+
+    const newLowongan = await Promise.all(
+      dataLowongan.map(async (lowongan) => {
+        const simpan_lowongan = await Simpan_Lowongan.findOne({
+          where: {
+            id_lowongan: lowongan.id,
+            id_pencari: pencari.id,
+          },
+          attributes: {
+            exclude: ["id_lowongan", "id_pencari", "updatedAt"],
+          },
+        });
+
+        return {
+          ...lowongan.dataValues,
+          simpan_lowongan: simpan_lowongan,
+        };
+      })
+    );
+
+    successResWithData(res, 200, "SUCCESS_GET_DATA_PENYEDIA", {
+      penyedia: userData,
+      lowongan: newLowongan,
+    });
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }

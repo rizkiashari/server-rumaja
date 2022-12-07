@@ -1175,7 +1175,7 @@ exports.getByUUIDLowongan = async (req, res) => {
               {
                 model: User,
                 as: "users",
-                attributes: ["nama_user", "nomor_wa", "photo_profile"],
+                attributes: ["nama_user", "nomor_wa", "photo_profile", "uuid_user"],
               },
             ],
           },
