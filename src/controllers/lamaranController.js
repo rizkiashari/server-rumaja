@@ -59,6 +59,11 @@ exports.tolakLamaran = async (req, res) => {
       createdAt: Math.floor(+new Date() / 1000),
     });
 
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
+      informasi: "Anda menolak lamaran-penyedia",
+    });
+
     await Notifikasi.create({
       detail_notifikasi:
         "Maaf, Anda tidak lolos seleksi, Silahkan mencari lowongan lainnya-pencari",
@@ -119,6 +124,12 @@ exports.terimaLamaran = async (req, res) => {
       createdAt: Math.floor(+new Date() / 1000),
     });
 
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
+      informasi: "Anda menerima lamaran pencari-penyedia",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
     await Notifikasi.create({
       detail_notifikasi: "Selamat, Anda lolos seleksi, Silahkan hubungi penyedia-pencari",
       isRead: false,
@@ -130,7 +141,6 @@ exports.terimaLamaran = async (req, res) => {
       uuid: uuid_riwayat,
     });
   } catch (error) {
-    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };

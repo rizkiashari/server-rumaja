@@ -324,6 +324,7 @@ exports.getDaftarTawaranTerkirim = async (req, res) => {
   }
 };
 
+// Done
 exports.getProgressTawaranTerkirim = async (req, res) => {
   try {
     const { id_riwayat } = req.params;
@@ -385,6 +386,117 @@ exports.getProgressTawaranTerkirim = async (req, res) => {
     successResWithData(res, 200, "SUCCESS_GET_PROGRESS", {
       riwayat: riwayat,
       progress: newDataProgress.filter((item) => item !== undefined),
+    });
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+// Done
+exports.tolakTawaran = async (req, res) => {
+  try {
+    const dataTolak = req.body;
+    const { uuid_riwayat } = req.params;
+
+    const dataRiwayat = await Riwayat.findOne({
+      where: {
+        uuid_riwayat,
+      },
+    });
+
+    const schema = joi.object({
+      status_riwayat: joi
+        .string()
+        .required()
+        .valid("diproses", "bekerja", "selesai", "ditolak"),
+      catatan_riwayat_penyedia: joi.string().required(),
+    });
+
+    const { error } = schema.validate(dataTolak);
+    if (error) {
+      return errorResponse(res, 400, error.details[0].message);
+    }
+
+    await Riwayat.update(
+      {
+        status: dataTolak.status_riwayat,
+        catatan_riwayat_penyedia: dataTolak.catatan_riwayat_penyedia,
+      },
+      {
+        where: {
+          id: dataRiwayat.id,
+        },
+      }
+    );
+
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
+      informasi: "Maaf, pelamar menolak tawaran Anda-penyedia",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
+      informasi: "Maaf, Anda menolak tawaran-pencari",
+    });
+
+    await Notifikasi.create({
+      detail_notifikasi:
+        "Maaf, Tawaran Anda ditolak oleh pelamar, silahkan mencari pelamar lainnya-penyedia",
+      isRead: false,
+      id_riwayat: dataRiwayat.id,
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    successRes(res, 200, "SUCCESS_TOLAK_TAWARAN");
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+// Done
+exports.terimaTawaran = async (req, res) => {
+  try {
+    const { uuid_riwayat } = req.params;
+
+    const dataRiwayat = await Riwayat.findOne({
+      where: {
+        uuid_riwayat,
+      },
+    });
+
+    await Riwayat.update(
+      {
+        status: "bekerja",
+      },
+      {
+        where: {
+          id: dataRiwayat.id,
+        },
+      }
+    );
+
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
+      informasi: "Selamat, tawaran Anda diterima oleh pelamar-penyedia",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
+      informasi: "Selamat, Anda menerima tawaran-pencari",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Notifikasi.create({
+      detail_notifikasi: "Selamat, Tawaran Anda diterima oleh pelamar-penyedia",
+      isRead: false,
+      id_riwayat: dataRiwayat.id,
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    successResWithData(res, 200, "SUCCESS_TERIMA_TAWARAN", {
+      uuid: uuid_riwayat,
     });
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
