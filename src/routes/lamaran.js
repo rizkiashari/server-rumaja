@@ -6,6 +6,7 @@ const {
   getAllPelamar,
   getDaftarPelamar,
   getProgressLamaran,
+  getAllProgress,
 } = require("../controllers/lamaranController");
 const { authMiddleware } = require("../middlewares/auth");
 
@@ -22,5 +23,6 @@ router.get("/pelamar", authMiddleware, getAllPelamar);
 router.get("/daftar-pelamar/:id_lowongan", authMiddleware, getDaftarPelamar);
 
 router.get("/progres-lamaran/:id_riwayat", authMiddleware, getProgressLamaran);
+router.get("/progres", authMiddleware, getAllProgress);
 
 module.exports = router;

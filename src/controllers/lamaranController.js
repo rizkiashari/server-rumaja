@@ -508,3 +508,149 @@ exports.getAllApplied = async (req, res) => {
     errorResponse(res, 500, "Internal Server Error");
   }
 };
+
+// All Riwayat Bekerja
+exports.getAllProgress = async (req, res) => {
+  try {
+    const userLogin = req.user;
+
+    const { status } = req.query;
+
+    if (userLogin.id_role === 3) {
+      const penyedia = await Penyedia.findOne({
+        where: {
+          id_user: userLogin.id,
+        },
+      });
+
+      const lowonganData = await Lowongan.findAll({
+        where: {
+          id_penyedia: penyedia.id,
+          isPublish: true,
+        },
+        include: [
+          {
+            model: Bidang_Kerja,
+            as: "bidang_kerja",
+            attributes: ["id", "nama_bidang", "detail_bidang"],
+          },
+        ],
+        attributes: {
+          exclude: ["updatedAt", "id_bidang_kerja", "createdAt"],
+        },
+      });
+
+      const lowonganWithPelamar = await Promise.all(
+        lowonganData.map(async (item) => {
+          const { bidang_kerja } = item;
+          const { nama_bidang, detail_bidang, id } = bidang_kerja;
+
+          const pelamar = await Riwayat.count({
+            where: {
+              id_lowongan: item.id,
+              status:
+                status === "bekerja"
+                  ? "bekerja"
+                  : {
+                      [Op.or]: ["selesai", "ditolak"],
+                    },
+            },
+          });
+
+          const createdAtRiwayat = await Riwayat.findAll({
+            where: {
+              id_lowongan: item.id,
+              status:
+                status === "bekerja"
+                  ? "bekerja"
+                  : {
+                      [Op.or]: ["selesai", "ditolak"],
+                    },
+            },
+            attributes: ["createdAt"],
+          });
+
+          return {
+            ...item.dataValues,
+            bidang_kerja: {
+              nama_bidang,
+              detail_bidang,
+              photo:
+                id === 1
+                  ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/art_tqnghe.png"
+                  : id === 2
+                  ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/pengasuh_chdloc.png"
+                  : id === 3
+                  ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/sopir_pribadi_quexmw.png"
+                  : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
+            },
+            jumlah_pelamar: pelamar,
+            createdAtRiwayat: createdAtRiwayat[0],
+          };
+        })
+      );
+
+      return successResWithData(
+        res,
+        200,
+        "GET_ALL_PROGRESS_SUCCESS",
+        lowonganWithPelamar.filter((item) => item.jumlah_pelamar > 0)
+      );
+    } else {
+      const pencari = await Pencari.findOne({
+        where: {
+          id_user: userLogin.id,
+        },
+      });
+
+      const riwayatData = await Riwayat.findAll({
+        where: {
+          id_pencari: pencari.id,
+          status:
+            status === "bekerja"
+              ? "bekerja"
+              : {
+                  [Op.or]: ["selesai", "ditolak"],
+                },
+        },
+        include: [
+          {
+            model: Lowongan,
+            as: "lowongan",
+            attributes: {
+              exclude: ["updatedAt", "id_bidang_kerja", "createdAt", "id_penyedia"],
+            },
+            include: [
+              {
+                model: Bidang_Kerja,
+                as: "bidang_kerja",
+                attributes: ["detail_bidang"],
+              },
+              {
+                model: Penyedia,
+                as: "penyedia",
+                attributes: ["id"],
+                include: [
+                  {
+                    model: User,
+                    as: "users",
+                    attributes: ["nama_user", "uuid_user"],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        attributes: {
+          exclude: ["updatedAt", "id_lowongan", "id_pencari", "createdAt"],
+        },
+        order: [["createdAt", "DESC"]],
+      });
+
+      return successResWithData(res, 200, "GET_ALL_PROGRESS_SUCCESS", riwayatData);
+    }
+  } catch (error) {
+    console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
