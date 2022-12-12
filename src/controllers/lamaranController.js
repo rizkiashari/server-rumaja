@@ -150,6 +150,7 @@ exports.getDaftarPelamar = async (req, res) => {
     const userLogin = req.user;
 
     const { id_lowongan } = req.params;
+    const { status } = req.query;
 
     const penyedia = await Penyedia.findOne({
       where: {
@@ -172,47 +173,140 @@ exports.getDaftarPelamar = async (req, res) => {
       return errorResponse(res, 400, "LOWONGAN_NOT_FOUND");
     }
 
-    const riwayat = await Riwayat.findAll({
-      where: {
-        id_lowongan: dataLowongan.id,
-        info_riwayat: "applied",
-        status: "diproses",
-      },
-      include: [
-        {
-          model: Pencari,
-          as: "pencari",
-          attributes: ["id", "id_bidang_kerja", "tanggal_lahir", "gender"],
-          include: [
+    if (status === "diproses") {
+      const riwayat = await Riwayat.findAll({
+        where: {
+          id_lowongan: dataLowongan.id,
+          info_riwayat: "applied",
+          status: status,
+        },
+        include: [
+          {
+            model: Pencari,
+            as: "pencari",
+            attributes: ["id", "id_bidang_kerja", "tanggal_lahir", "gender"],
+            include: [
+              {
+                model: User,
+                as: "users",
+                attributes: [
+                  "nama_user",
+                  "uuid_user",
+                  "domisili_kota",
+                  "domisili_provinsi",
+                  "uuid_user",
+                ],
+              },
+              {
+                model: Pengalaman,
+                as: "pengalaman",
+                attributes: ["id", "nama_pengalaman"],
+              },
+              {
+                model: Ulasan,
+                as: "ulasan",
+                attributes: ["id", "rating"],
+              },
+            ],
+          },
+        ],
+        attributes: ["id", "uuid_riwayat", "status", "createdAt", "info_riwayat"],
+        order: [["id", "DESC"]],
+      });
+      successResWithData(res, 200, "SUCCESS_GET_DAFTAR_PELAMAR", riwayat);
+    } else if (status === "bekerja") {
+      const riwayat = await Riwayat.findAll({
+        where: {
+          id_lowongan: dataLowongan.id,
+          info_riwayat: "applied",
+          status: status,
+        },
+        include: [
+          {
+            model: Pencari,
+            as: "pencari",
+            attributes: ["id", "id_bidang_kerja", "tanggal_lahir", "gender"],
+            include: [
+              {
+                model: User,
+                as: "users",
+                attributes: [
+                  "nama_user",
+                  "uuid_user",
+                  "domisili_kota",
+                  "domisili_provinsi",
+                  "uuid_user",
+                ],
+              },
+              {
+                model: Pengalaman,
+                as: "pengalaman",
+                attributes: ["id", "nama_pengalaman"],
+              },
+              {
+                model: Ulasan,
+                as: "ulasan",
+                attributes: ["id", "rating"],
+              },
+            ],
+          },
+        ],
+        attributes: ["id", "uuid_riwayat", "status", "createdAt", "info_riwayat"],
+        order: [["id", "DESC"]],
+      });
+      successResWithData(res, 200, "SUCCESS_GET_DAFTAR_PELAMAR", riwayat);
+    } else {
+      const riwayat = await Riwayat.findAll({
+        where: {
+          id_lowongan: dataLowongan.id,
+          [Op.not]: [
             {
-              model: User,
-              as: "users",
-              attributes: [
-                "nama_user",
-                "uuid_user",
-                "domisili_kota",
-                "domisili_provinsi",
-                "uuid_user",
-              ],
-            },
-            {
-              model: Pengalaman,
-              as: "pengalaman",
-              attributes: ["id", "nama_pengalaman"],
-            },
-            {
-              model: Ulasan,
-              as: "ulasan",
-              attributes: ["id", "rating"],
+              status: ["diproses", "bekerja"],
             },
           ],
         },
-      ],
-      attributes: ["id", "uuid_riwayat", "status", "createdAt", "info_riwayat"],
-      order: [["id", "DESC"]],
-    });
-
-    successResWithData(res, 200, "SUCCESS_GET_DAFTAR_PELAMAR", riwayat);
+        include: [
+          {
+            model: Pencari,
+            as: "pencari",
+            attributes: ["id", "id_bidang_kerja", "tanggal_lahir", "gender"],
+            include: [
+              {
+                model: User,
+                as: "users",
+                attributes: [
+                  "nama_user",
+                  "uuid_user",
+                  "domisili_kota",
+                  "domisili_provinsi",
+                  "uuid_user",
+                ],
+              },
+              {
+                model: Pengalaman,
+                as: "pengalaman",
+                attributes: ["id", "nama_pengalaman"],
+              },
+              {
+                model: Ulasan,
+                as: "ulasan",
+                attributes: ["id", "rating"],
+              },
+            ],
+          },
+        ],
+        attributes: [
+          "id",
+          "uuid_riwayat",
+          "status",
+          "createdAt",
+          "info_riwayat",
+          "tanggal_mulai_kerja",
+        ],
+        order: [["id", "DESC"]],
+      });
+      successResWithData(res, 200, "SUCCESS_GET_DAFTAR_PELAMAR", riwayat);
+    }
   } catch (error) {
     console.log(error);
     errorResponse(res, 500, "Internal Server Error");
@@ -350,6 +444,29 @@ exports.getProgressLamaran = async (req, res) => {
       riwayat: dataRiwayat,
       progress: dataProgress,
     });
+  } catch (error) {
+    console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.akhiriPekerjaan = async (req, res) => {
+  try {
+    const { id_riwayat } = req.params;
+
+    await Riwayat.update(
+      {
+        status: "selesai",
+        createdAt: Math.floor(+new Date() / 1000),
+      },
+      {
+        where: {
+          uuid_riwayat: id_riwayat,
+        },
+      }
+    );
+
+    successRes(res, 200, "SUCCESS_AKHIRI_PEKERJAAN");
   } catch (error) {
     console.log(error);
     errorResponse(res, 500, "Internal Server Error");

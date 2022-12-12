@@ -389,6 +389,9 @@ exports.getProgressTawaranTerkirim = async (req, res) => {
       where: {
         id_riwayat: riwayat.id,
       },
+      attributes: {
+        exclude: ["id_riwayat", "updatedAt"],
+      },
     });
 
     const newDataProgress = dataProgress.map((item) => {
