@@ -218,7 +218,6 @@ exports.getDaftarPelamar = async (req, res) => {
       const riwayat = await Riwayat.findAll({
         where: {
           id_lowongan: dataLowongan.id,
-          info_riwayat: "applied",
           status: status,
         },
         include: [
@@ -454,6 +453,12 @@ exports.akhiriPekerjaan = async (req, res) => {
   try {
     const { id_riwayat } = req.params;
 
+    const dataRiwayat = await Riwayat.findOne({
+      where: {
+        uuid_riwayat: id_riwayat,
+      },
+    });
+
     await Riwayat.update(
       {
         status: "selesai",
@@ -466,9 +471,67 @@ exports.akhiriPekerjaan = async (req, res) => {
       }
     );
 
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
+      informasi: "Pekerjaan telah selesai-penyedia",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
+      informasi: "Kontrak anda telah diselesaikan-pencari",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
     successRes(res, 200, "SUCCESS_AKHIRI_PEKERJAAN");
   } catch (error) {
     console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.dataProgressKerja = async (req, res) => {
+  try {
+    const { uuid_riwayat } = req.params;
+
+    const dataRiwayat = await Riwayat.findOne({
+      where: {
+        uuid_riwayat,
+      },
+
+      attributes: {
+        exclude: ["updatedAt"],
+      },
+    });
+
+    if (!dataRiwayat) {
+      return errorResponse(res, 400, "RIWAYAT_NOT_FOUND");
+    }
+
+    const dataProgress = await Progres.findAll({
+      where: {
+        id_riwayat: dataRiwayat.id,
+      },
+      attributes: {
+        exclude: ["updatedAt"],
+      },
+    });
+
+    const newDataProgress = dataProgress.map((item) => {
+      const penyedia = item.informasi.split("-");
+
+      if (penyedia[1] === "penyedia") {
+        return {
+          ...item.dataValues,
+        };
+      }
+    });
+
+    successResWithData(res, 200, "SUCCESS_GET_DATA_PROGRESS", {
+      riwayat: dataRiwayat,
+      progress: newDataProgress.filter((item) => item !== undefined),
+    });
+  } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
 };

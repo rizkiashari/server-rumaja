@@ -8,6 +8,7 @@ const {
   getProgressLamaran,
   getAllProgress,
   akhiriPekerjaan,
+  dataProgressKerja,
 } = require("../controllers/lamaranController");
 const { authMiddleware } = require("../middlewares/auth");
 
@@ -27,5 +28,7 @@ router.get("/progres-lamaran/:id_riwayat", authMiddleware, getProgressLamaran);
 router.get("/progres", authMiddleware, getAllProgress);
 
 router.patch("/akhiri-pekerjaan/:id_riwayat", authMiddleware, akhiriPekerjaan);
+
+router.get("/progres-kerja/:uuid_riwayat", authMiddleware, dataProgressKerja);
 
 module.exports = router;
