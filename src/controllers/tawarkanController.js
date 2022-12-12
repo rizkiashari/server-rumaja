@@ -346,7 +346,7 @@ exports.getProgressTawaranTerkirim = async (req, res) => {
             {
               model: Bidang_Kerja,
               as: "bidang_kerja",
-              attributes: ["detail_bidang"],
+              attributes: ["detail_bidang", "id"],
             },
             {
               model: User,
@@ -367,6 +367,24 @@ exports.getProgressTawaranTerkirim = async (req, res) => {
       return errorResponse(res, 400, "RIWAYAT_NOT_FOUND");
     }
 
+    const newDataRiwayat = {
+      ...riwayat.dataValues,
+      pencari: {
+        ...riwayat.pencari.dataValues,
+        bidang_kerja: {
+          detail_bidang: riwayat.pencari.bidang_kerja.detail_bidang,
+          photo:
+            riwayat.pencari.bidang_kerja.id === 1
+              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/art_tqnghe.png"
+              : riwayat.pencari.bidang_kerja.id === 2
+              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/pengasuh_chdloc.png"
+              : riwayat.pencari.bidang_kerja.id === 3
+              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/sopir_pribadi_quexmw.png"
+              : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
+        },
+      },
+    };
+
     const dataProgress = await Progres.findAll({
       where: {
         id_riwayat: riwayat.id,
@@ -384,10 +402,11 @@ exports.getProgressTawaranTerkirim = async (req, res) => {
     });
 
     successResWithData(res, 200, "SUCCESS_GET_PROGRESS", {
-      riwayat: riwayat,
+      riwayat: newDataRiwayat,
       progress: newDataProgress.filter((item) => item !== undefined),
     });
   } catch (error) {
+    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };

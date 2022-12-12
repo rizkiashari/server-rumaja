@@ -34,7 +34,7 @@ module.exports = {
         },
         {
           nama_bidang: "Gardener",
-          detail_bidang: "Tukang Kebun Rumah",
+          detail_bidang: "Tukang Kebun",
           createdAt: new Date().getTime() / 1000,
           updatedAt: new Date().getTime() / 1000,
         },
