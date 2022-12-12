@@ -402,7 +402,7 @@ exports.profilePencari = async (req, res) => {
             {
               model: Bidang_Kerja,
               as: "bidang_kerja",
-              attributes: ["detail_bidang"],
+              attributes: ["id", "detail_bidang"],
             },
             {
               model: Ulasan,
@@ -442,7 +442,7 @@ exports.profilePenyedia = async (req, res) => {
         },
       ],
       attributes: {
-        exclude: ["updatedAt", "createdAt"],
+        exclude: ["updatedAt", "createdAt", "resetPassword", "password"],
       },
     });
 
