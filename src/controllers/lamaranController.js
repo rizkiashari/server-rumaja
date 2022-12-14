@@ -90,10 +90,6 @@ exports.terimaLamaran = async (req, res) => {
     });
 
     const schema = joi.object({
-      status_riwayat: joi
-        .string()
-        .required()
-        .valid("diproses", "bekerja", "selesai", "ditolak"),
       catatan_riwayat_penyedia: joi.string().required(),
       waktu_mulai_kerja: joi.string().required(),
       tanggal_mulai_kerja: joi.string().required(),
@@ -106,7 +102,6 @@ exports.terimaLamaran = async (req, res) => {
 
     await Riwayat.update(
       {
-        status: dataTerima.status_riwayat,
         catatan_riwayat_penyedia: dataTerima.catatan_riwayat_penyedia,
         waktu_mulai_kerja: dataTerima.waktu_mulai_kerja,
         tanggal_mulai_kerja: Math.floor(+new Date(dataTerima.tanggal_mulai_kerja) / 1000),
@@ -120,18 +115,31 @@ exports.terimaLamaran = async (req, res) => {
 
     await Progres.create({
       id_riwayat: dataRiwayat.id,
-      informasi: "Selamat, Anda lolos seleksi-pencari",
+      informasi: "Anda diterima-pencari",
       createdAt: Math.floor(+new Date() / 1000),
     });
 
     await Progres.create({
       id_riwayat: dataRiwayat.id,
-      informasi: "Anda menerima lamaran pencari-penyedia",
+      informasi: "Menunggu konfirmasi anda-pencari",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
+      informasi: "Menerima lamaran-penyedia",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
+      informasi: "Menunggu konfirmasi anda-penyedia",
       createdAt: Math.floor(+new Date() / 1000),
     });
 
     await Notifikasi.create({
-      detail_notifikasi: "Selamat, Anda lolos seleksi, Silahkan hubungi penyedia-pencari",
+      detail_notifikasi:
+        "Anda diterima, silahkan cek progres untuk memperbarui status pekerja lamaran anda-pencari",
       isRead: false,
       id_riwayat: dataRiwayat.id,
       createdAt: Math.floor(+new Date() / 1000),
@@ -559,6 +567,9 @@ exports.appliedPekerjaan = async (req, res) => {
         id_pencari: dataPencari.id,
         id_lowongan: lamaran.id_lowongan,
         status: "diproses",
+        info_riwayat: {
+          [Op.or]: ["applied", "hired"],
+        },
       },
     });
 
@@ -595,9 +606,23 @@ exports.appliedPekerjaan = async (req, res) => {
       createdAt: Math.floor(+new Date() / 1000),
     });
 
+    await Progres.create({
+      id_riwayat: riwayat.id,
+      informasi: "Profil anda sedang di review-pencari",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
     await Notifikasi.create({
       detail_notifikasi:
         "Lamaran anda berhasil terkirim, Silahkan cek riwayat lamaran anda-pencari",
+      isRead: false,
+      id_riwayat: riwayat.id,
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Notifikasi.create({
+      detail_notifikasi:
+        "Anda mendapatkan pelamar baru, Silahkan cek riwayat lamaran anda-penyedia",
       isRead: false,
       id_riwayat: riwayat.id,
       createdAt: Math.floor(+new Date() / 1000),
@@ -685,6 +710,103 @@ exports.getAllApplied = async (req, res) => {
     successResWithData(res, 200, "GET_ALL_LAMARAN_PENCARI_SUCCESS", newDataRiwayat);
   } catch (error) {
     console.log(error);
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.detailLamaranTerkirim = async (req, res) => {
+  try {
+    const { uuid_riwayat } = req.params;
+
+    const userLogin = req.user;
+
+    const pencari = await Pencari.findOne({
+      where: {
+        id_user: userLogin.id,
+      },
+    });
+
+    const riwayat = await Riwayat.findOne({
+      where: {
+        uuid_riwayat,
+        id_pencari: pencari.id,
+      },
+      attributes: {
+        exclude: ["info_riwayat", "id_lowongan", "updatedAt", "id_pencari", "id"],
+      },
+      include: [
+        {
+          model: Lowongan,
+          as: "lowongan",
+          attributes: {
+            exclude: ["id_penyedia", "updatedAt", "id_bidang_kerja"],
+          },
+          include: [
+            {
+              model: Penyedia,
+              as: "penyedia",
+              attributes: ["id"],
+              include: [
+                {
+                  model: User,
+                  as: "users",
+                  attributes: ["uuid_user", "nama_user", "nomor_wa", "photo_profile"],
+                },
+              ],
+            },
+            {
+              model: Bidang_Kerja,
+              as: "bidang_kerja",
+              attributes: ["id", "detail_bidang"],
+            },
+          ],
+        },
+        {
+          model: Progres,
+          as: "progres",
+          attributes: {
+            exclude: ["id_riwayat", "updatedAt"],
+          },
+        },
+      ],
+    });
+
+    const newRiwayat = {
+      ...riwayat.dataValues,
+      lowongan: {
+        ...riwayat.dataValues.lowongan.dataValues,
+        bidang_kerja: {
+          detail_bidang:
+            riwayat.dataValues.lowongan.dataValues.bidang_kerja.detail_bidang,
+          photo:
+            riwayat.dataValues.lowongan.dataValues.bidang_kerja.id === 1
+              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/art_tqnghe.png"
+              : riwayat.dataValues.lowongan.dataValues.bidang_kerja.id === 2
+              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/pengasuh_chdloc.png"
+              : riwayat.dataValues.lowongan.dataValues.bidang_kerja.id === 3
+              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/sopir_pribadi_quexmw.png"
+              : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
+        },
+      },
+      progres: riwayat.dataValues.progres.map((item) => {
+        const { informasi } = item;
+
+        if (informasi.split("-")[1] === "pencari") {
+          return {
+            ...item.dataValues,
+            informasi: informasi.split("-")[0],
+          };
+        }
+      }),
+    };
+
+    const filterData = {
+      ...newRiwayat,
+      progres: newRiwayat.progres.filter((item) => item !== undefined),
+    };
+
+    successResWithData(res, 200, "GET_DETAIL_LAMARAN_TERKIRIM_SUCCESS", filterData);
+  } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
 };
