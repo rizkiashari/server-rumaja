@@ -502,6 +502,8 @@ exports.dataProgressKerja = async (req, res) => {
   try {
     const { uuid_riwayat } = req.params;
 
+    const userLogin = req.user;
+
     const dataRiwayat = await Riwayat.findOne({
       where: {
         uuid_riwayat,
@@ -527,11 +529,20 @@ exports.dataProgressKerja = async (req, res) => {
 
     const newDataProgress = dataProgress.map((item) => {
       const penyedia = item.informasi.split("-");
+      const pencari = item.informasi.split("-");
 
-      if (penyedia[1] === "penyedia") {
-        return {
-          ...item.dataValues,
-        };
+      if (userLogin.id_role === 2) {
+        if (pencari[1] === "pencari") {
+          return {
+            ...item.dataValues,
+          };
+        }
+      } else {
+        if (penyedia[1] === "penyedia") {
+          return {
+            ...item.dataValues,
+          };
+        }
       }
     });
 

@@ -427,7 +427,20 @@ exports.terimaTawaran = async (req, res) => {
 
     await Progres.create({
       id_riwayat: dataRiwayat.id,
+      informasi:
+        "Pencari tersebut sudah menerima, saat ini dia sudah berstatus bekerja dengan Anda-penyedia",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
       informasi: "Selamat, Anda menerima tawaran-pencari",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
+      informasi: "Saat ini. sudah bekerja di pekerjaan tersebut-pencari",
       createdAt: Math.floor(+new Date() / 1000),
     });
 
@@ -438,9 +451,7 @@ exports.terimaTawaran = async (req, res) => {
       createdAt: Math.floor(+new Date() / 1000),
     });
 
-    successResWithData(res, 200, "SUCCESS_TERIMA_TAWARAN", {
-      uuid: uuid_riwayat,
-    });
+    successRes(res, 200, "SUCCESS_TERIMA_TAWARAN");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
