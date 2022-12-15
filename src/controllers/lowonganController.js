@@ -1249,7 +1249,7 @@ exports.getByUUIDLowongan = async (req, res) => {
         },
       };
 
-      successResWithData(res, 200, "LIST_LOWONGAN", newLowongan);
+      successResWithData(res, 200, "DETAIL_LOWONGAN", newLowongan);
     }
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
