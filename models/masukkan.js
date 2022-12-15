@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
   Masukkan.init(
     {
       detail_masukkan: DataTypes.TEXT,
+      createdAt: DataTypes.INTEGER,
     },
     {
       sequelize,
