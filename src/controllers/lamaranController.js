@@ -22,57 +22,107 @@ exports.tolakLamaran = async (req, res) => {
     const dataTolak = req.body;
     const { uuid_riwayat } = req.params;
 
+    const userLogin = req.user;
+
     const dataRiwayat = await Riwayat.findOne({
       where: {
         uuid_riwayat,
       },
     });
 
-    const schema = joi.object({
-      status_riwayat: joi
-        .string()
-        .required()
-        .valid("diproses", "bekerja", "selesai", "ditolak"),
-      catatan_riwayat_penyedia: joi.string().required(),
-    });
-
-    const { error } = schema.validate(dataTolak);
-    if (error) {
-      return errorResponse(res, 400, error.details[0].message);
-    }
-
-    await Riwayat.update(
-      {
-        status: dataTolak.status_riwayat,
-        catatan_riwayat_penyedia: dataTolak.catatan_riwayat_penyedia,
-      },
-      {
-        where: {
-          id: dataRiwayat.id,
-        },
+    if (userLogin.id_role === 2) {
+      const schema = joi.object({
+        status_riwayat: joi
+          .string()
+          .required()
+          .valid("diproses", "bekerja", "selesai", "ditolak"),
+        catatan_riwayat_pencari: joi.string().required(),
+      });
+      const { error } = schema.validate(dataTolak);
+      if (error) {
+        return errorResponse(res, 400, error.details[0].message);
       }
-    );
 
-    await Progres.create({
-      id_riwayat: dataRiwayat.id,
-      informasi: "Maaf, Anda tidak lolos seleksi-pencari",
-      createdAt: Math.floor(+new Date() / 1000),
-    });
+      await Riwayat.update(
+        {
+          status: dataTolak.status_riwayat,
+          catatan_riwayat_pencari: dataTolak.catatan_riwayat_pencari,
+        },
+        {
+          where: {
+            id: dataRiwayat.id,
+          },
+        }
+      );
 
-    await Progres.create({
-      id_riwayat: dataRiwayat.id,
-      informasi: "Anda menolak lamaran-penyedia",
-    });
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Anda menolak lamaran-pencari",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
 
-    await Notifikasi.create({
-      detail_notifikasi:
-        "Maaf, Anda tidak lolos seleksi, Silahkan mencari lowongan lainnya-pencari",
-      isRead: false,
-      id_riwayat: dataRiwayat.id,
-      createdAt: Math.floor(+new Date() / 1000),
-    });
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Maaf, pelamar tidak menyetujui lamaran-penyedia",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
 
-    successRes(res, 200, "SUCCESS_TOLAK_LAMARAN");
+      await Notifikasi.create({
+        detail_notifikasi:
+          "Maaf, pelamar tidak menyetujui lamaran, Silahkan mencari pelamar lainnya-penyedia",
+        isRead: false,
+        id_riwayat: dataRiwayat.id,
+        createdAt: Math.floor(+new Date() / 1000),
+      });
+
+      successRes(res, 200, "SUCCESS_TOLAK_LAMARAN");
+    } else {
+      const schema = joi.object({
+        status_riwayat: joi
+          .string()
+          .required()
+          .valid("diproses", "bekerja", "selesai", "ditolak"),
+        catatan_riwayat_penyedia: joi.string().required(),
+      });
+      const { error } = schema.validate(dataTolak);
+      if (error) {
+        return errorResponse(res, 400, error.details[0].message);
+      }
+
+      await Riwayat.update(
+        {
+          status: dataTolak.status_riwayat,
+          catatan_riwayat_penyedia: dataTolak.catatan_riwayat_penyedia,
+        },
+        {
+          where: {
+            id: dataRiwayat.id,
+          },
+        }
+      );
+
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Maaf, Anda tidak lolos seleksi-pencari",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
+
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Anda menolak lamaran-penyedia",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
+
+      await Notifikasi.create({
+        detail_notifikasi:
+          "Maaf, Anda tidak lolos seleksi, Silahkan mencari lowongan lainnya-pencari",
+        isRead: false,
+        id_riwayat: dataRiwayat.id,
+        createdAt: Math.floor(+new Date() / 1000),
+      });
+
+      successRes(res, 200, "SUCCESS_TOLAK_LAMARAN");
+    }
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
@@ -83,71 +133,120 @@ exports.terimaLamaran = async (req, res) => {
     const dataTerima = req.body;
     const { uuid_riwayat } = req.params;
 
+    const userLogin = req.user;
+
     const dataRiwayat = await Riwayat.findOne({
       where: {
         uuid_riwayat,
       },
-    });
 
-    const schema = joi.object({
-      catatan_riwayat_penyedia: joi.string().required(),
-      waktu_mulai_kerja: joi.string().required(),
-      tanggal_mulai_kerja: joi.string().required(),
-    });
-
-    const { error } = schema.validate(dataTerima);
-    if (error) {
-      return errorResponse(res, 400, error.details[0].message);
-    }
-
-    await Riwayat.update(
-      {
-        catatan_riwayat_penyedia: dataTerima.catatan_riwayat_penyedia,
-        waktu_mulai_kerja: dataTerima.waktu_mulai_kerja,
-        tanggal_mulai_kerja: Math.floor(+new Date(dataTerima.tanggal_mulai_kerja) / 1000),
-      },
-      {
-        where: {
-          id: dataRiwayat.id,
+      include: [
+        {
+          model: Lowongan,
+          as: "lowongan",
+          attributes: ["uuid_lowongan"],
         },
+      ],
+    });
+
+    if (userLogin.id_role === 2) {
+      await Riwayat.update(
+        {
+          status: "bekerja",
+        },
+        {
+          where: {
+            id: dataRiwayat.id,
+          },
+        }
+      );
+
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Anda menerima lamaran-pencari",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
+
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Pelamar telah menerima lamaran-penyedia",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
+
+      await Notifikasi.create({
+        detail_notifikasi:
+          "Selamat, pelamar telah menerima lamaran, Silahkan menghubungi pelamar-penyedia",
+        isRead: false,
+        id_riwayat: dataRiwayat.id,
+        createdAt: Math.floor(+new Date() / 1000),
+      });
+
+      successResWithData(res, 200, "SUCCESS_TERIMA_LAMARAN", {
+        uuid_lowongan: dataRiwayat.lowongan.uuid_lowongan,
+      });
+    } else {
+      const schema = joi.object({
+        catatan_riwayat_penyedia: joi.string().required(),
+        waktu_mulai_kerja: joi.string().required(),
+        tanggal_mulai_kerja: joi.string().required(),
+      });
+
+      const { error } = schema.validate(dataTerima);
+      if (error) {
+        return errorResponse(res, 400, error.details[0].message);
       }
-    );
 
-    await Progres.create({
-      id_riwayat: dataRiwayat.id,
-      informasi: "Anda diterima-pencari",
-      createdAt: Math.floor(+new Date() / 1000),
-    });
+      await Riwayat.update(
+        {
+          catatan_riwayat_penyedia: dataTerima.catatan_riwayat_penyedia,
+          waktu_mulai_kerja: dataTerima.waktu_mulai_kerja,
+          tanggal_mulai_kerja: Math.floor(
+            +new Date(dataTerima.tanggal_mulai_kerja) / 1000
+          ),
+        },
+        {
+          where: {
+            id: dataRiwayat.id,
+          },
+        }
+      );
 
-    await Progres.create({
-      id_riwayat: dataRiwayat.id,
-      informasi: "Menunggu konfirmasi anda-pencari",
-      createdAt: Math.floor(+new Date() / 1000),
-    });
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Anda diterima-pencari",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
 
-    await Progres.create({
-      id_riwayat: dataRiwayat.id,
-      informasi: "Menerima lamaran-penyedia",
-      createdAt: Math.floor(+new Date() / 1000),
-    });
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Menunggu konfirmasi anda-pencari",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
 
-    await Progres.create({
-      id_riwayat: dataRiwayat.id,
-      informasi: "Menunggu konfirmasi anda-penyedia",
-      createdAt: Math.floor(+new Date() / 1000),
-    });
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Menerima lamaran-penyedia",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
 
-    await Notifikasi.create({
-      detail_notifikasi:
-        "Anda diterima, silahkan cek progres untuk memperbarui status pekerja lamaran anda-pencari",
-      isRead: false,
-      id_riwayat: dataRiwayat.id,
-      createdAt: Math.floor(+new Date() / 1000),
-    });
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Menunggu konfirmasi anda-penyedia",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
 
-    successResWithData(res, 200, "SUCCESS_TERIMA_LAMARAN", {
-      uuid: uuid_riwayat,
-    });
+      await Notifikasi.create({
+        detail_notifikasi:
+          "Anda diterima, silahkan cek progres untuk memperbarui status pekerja lamaran anda-pencari",
+        isRead: false,
+        id_riwayat: dataRiwayat.id,
+        createdAt: Math.floor(+new Date() / 1000),
+      });
+
+      successResWithData(res, 200, "SUCCESS_TERIMA_LAMARAN", {
+        uuid: uuid_riwayat,
+      });
+    }
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
@@ -491,7 +590,10 @@ exports.akhiriPekerjaan = async (req, res) => {
       createdAt: Math.floor(+new Date() / 1000),
     });
 
-    successRes(res, 200, "SUCCESS_AKHIRI_PEKERJAAN");
+    successResWithData(res, 200, "SUCCESS_AKHIRI_PEKERJAAN", {
+      id_lowongan: dataRiwayat.id_lowongan,
+      id_pencari: dataRiwayat.id_pencari,
+    });
   } catch (error) {
     console.log(error);
     errorResponse(res, 500, "Internal Server Error");
@@ -660,6 +762,7 @@ exports.getAllApplied = async (req, res) => {
       where: {
         id_pencari: pencari.id,
         info_riwayat: "applied",
+        status: "diproses",
       },
       include: [
         {
@@ -720,7 +823,6 @@ exports.getAllApplied = async (req, res) => {
 
     successResWithData(res, 200, "GET_ALL_LAMARAN_PENCARI_SUCCESS", newDataRiwayat);
   } catch (error) {
-    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
