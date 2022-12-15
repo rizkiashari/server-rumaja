@@ -1069,3 +1069,69 @@ exports.getAllProgress = async (req, res) => {
     errorResponse(res, 500, "Internal Server Error");
   }
 };
+
+exports.getDataPekerjaanSelesai = async (req, res) => {
+  try {
+    const { uuid_riwayat } = req.params;
+
+    const riwayat = await Riwayat.findOne({
+      where: {
+        uuid_riwayat,
+      },
+      attributes: {
+        exclude: ["updatedAt", "id_lowongan"],
+      },
+      include: [
+        {
+          model: Lowongan,
+          as: "lowongan",
+          attributes: {
+            exclude: ["updatedAt", "id_bidang_kerja", "isPublish", "id_penyedia"],
+          },
+          include: [
+            {
+              model: Bidang_Kerja,
+              as: "bidang_kerja",
+              attributes: ["id", "nama_bidang", "detail_bidang"],
+            },
+            {
+              model: Penyedia,
+              as: "penyedia",
+              attributes: ["id"],
+              include: [
+                {
+                  model: User,
+                  as: "users",
+                  attributes: ["nama_user", "uuid_user", "nomor_wa", "photo_profile"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    const newRiwayat = {
+      ...riwayat.dataValues,
+      lowongan: {
+        ...riwayat.dataValues.lowongan.dataValues,
+        bidang_kerja: {
+          detail_bidang:
+            riwayat.dataValues.lowongan.dataValues.bidang_kerja.detail_bidang,
+          photo:
+            riwayat.dataValues.lowongan.dataValues.bidang_kerja.id === 1
+              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/art_tqnghe.png"
+              : riwayat.dataValues.lowongan.dataValues.bidang_kerja.id === 2
+              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/pengasuh_chdloc.png"
+              : riwayat.dataValues.lowongan.dataValues.bidang_kerja.id === 3
+              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/sopir_pribadi_quexmw.png"
+              : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
+        },
+      },
+    };
+
+    successResWithData(res, 200, "GET_DATA_PEKERJAAN_SELESAI_SUCCESS", newRiwayat);
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};

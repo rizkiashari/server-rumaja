@@ -10,6 +10,7 @@ const {
   akhiriPekerjaan,
   dataProgressKerja,
   detailLamaranTerkirim,
+  getDataPekerjaanSelesai,
 } = require("../controllers/lamaranController");
 const { authMiddleware } = require("../middlewares/auth");
 
@@ -33,5 +34,7 @@ router.patch("/akhiri-pekerjaan/:id_riwayat", authMiddleware, akhiriPekerjaan);
 router.get("/progres-kerja/:uuid_riwayat", authMiddleware, dataProgressKerja);
 
 router.get("/detail-lamaran/:uuid_riwayat", authMiddleware, detailLamaranTerkirim);
+
+router.get("/selesai/:uuid_riwayat", authMiddleware, getDataPekerjaanSelesai);
 
 module.exports = router;

@@ -643,7 +643,14 @@ exports.dataProgressPencari = async (req, res) => {
           [Op.or]: status === "bekerja" ? ["bekerja"] : ["ditolak", "selesai"],
         },
       },
-      attributes: ["id", "uuid_riwayat", "status", "createdAt", "tanggal_mulai_kerja"],
+      attributes: [
+        "id",
+        "uuid_riwayat",
+        "status",
+        "createdAt",
+        "tanggal_mulai_kerja",
+        "id_pencari",
+      ],
       include: [
         {
           model: Lowongan,
