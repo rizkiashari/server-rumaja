@@ -25,7 +25,12 @@ exports.tawarkanPekerjaan = async (req, res) => {
       where: {
         id_pencari: dataTerima.id_pencari,
         id_lowongan: dataTerima.id_lowongan,
-        status: "diproses",
+        status: {
+          [Op.or]: ["diproses", "bekerja"],
+        },
+        info_riwayat: {
+          [Op.or]: ["applied", "hired"],
+        },
       },
     });
 

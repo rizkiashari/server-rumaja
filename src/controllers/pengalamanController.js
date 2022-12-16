@@ -1,6 +1,6 @@
 const joi = require("joi");
 const uuid = require("uuid");
-const { Pengalaman, Pencari } = require("../../models");
+const { Pengalaman, Pencari, Riwayat } = require("../../models");
 const { errorResponse, successRes, successResWithData } = require("../helper/response");
 
 // Done
@@ -193,6 +193,27 @@ exports.deletePengalaman = async (req, res) => {
     });
 
     successRes(res, 200, "DELETE_PENGALAMAN_SUCCESS");
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+exports.changeStatusIsPengalaman = async (req, res) => {
+  try {
+    const { uuid_riwayat } = req.params;
+
+    await Riwayat.update(
+      {
+        isPengalaman: true,
+      },
+      {
+        where: {
+          uuid_riwayat,
+        },
+      }
+    );
+
+    successRes(res, 200, "SUCCESS_ADD_PENGALAMAN");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }

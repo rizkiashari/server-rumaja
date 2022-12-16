@@ -590,6 +590,13 @@ exports.akhiriPekerjaan = async (req, res) => {
       createdAt: Math.floor(+new Date() / 1000),
     });
 
+    await Notifikasi.create({
+      detail_notifikasi: "Kontrak anda dengan penyedia telah diselesaikan-pencari",
+      isRead: false,
+      id_riwayat: dataRiwayat.id,
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
     successResWithData(res, 200, "SUCCESS_AKHIRI_PEKERJAAN", {
       id_lowongan: dataRiwayat.id_lowongan,
       id_pencari: dataRiwayat.id_pencari,
@@ -679,7 +686,9 @@ exports.appliedPekerjaan = async (req, res) => {
       where: {
         id_pencari: dataPencari.id,
         id_lowongan: lamaran.id_lowongan,
-        status: "diproses",
+        status: {
+          [Op.or]: ["diproses", "bekerja"],
+        },
         info_riwayat: {
           [Op.or]: ["applied", "hired"],
         },
