@@ -7,7 +7,7 @@ const {
   Penyedia,
   Bidang_Kerja,
 } = require("../../models");
-const { errorResponse, successResWithData } = require("../helper/response");
+const { errorResponse, successResWithData, successRes } = require("../helper/response");
 
 exports.getAllDaftarNotifikasi = async (req, res) => {
   try {
