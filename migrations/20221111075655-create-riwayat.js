@@ -29,6 +29,10 @@ module.exports = {
       tanggal_mulai_kerja: {
         type: Sequelize.INTEGER,
       },
+      isPengalaman: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       id_pencari: {
         type: Sequelize.INTEGER,
         references: {

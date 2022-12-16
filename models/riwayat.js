@@ -47,6 +47,7 @@ module.exports = (sequelize, DataTypes) => {
       catatan_riwayat_penyedia: DataTypes.TEXT,
       waktu_mulai_kerja: DataTypes.TIME,
       tanggal_mulai_kerja: DataTypes.INTEGER,
+      isPengalaman: DataTypes.BOOLEAN,
       createdAt: DataTypes.INTEGER,
     },
     {
