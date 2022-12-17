@@ -5,7 +5,6 @@ const {
   changePassword,
 } = require("../controllers/changePasswordController");
 const {
-  getAllUser,
   updateUserPenyedia,
   updateUserPencari,
   listRekomendasiUserPencari,
@@ -25,7 +24,7 @@ const { uploadFile } = require("../middlewares/uploadFile");
 
 const router = Router();
 
-router.get("/all", authMiddleware, getAllUser);
+// router.get("/all", authMiddleware, getAllUser);
 router.post("/forgot-password", findEmailResetPassword);
 router.post("/change-password", changePassword);
 router.patch("/update-password", authMiddleware, updatePassword);

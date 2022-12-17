@@ -1805,34 +1805,41 @@ exports.detailProfilePencari = async (req, res) => {
 };
 
 // Untuk Super admin
-exports.getAllUser = async (req, res) => {
+// exports.getAllUser = async (req, res) => {
+//   try {
+//     const { search } = req.query;
+//     const userLogin = req.user;
+
+//     if (userLogin.role_id === 1) {
+//       return errorResponse(res, 403, "YOUR_NOT_ADMIN");
+//     } else {
+//       const users = await User.findAll({
+//         where: {
+//           [Op.or]: [
+//             {
+//               name_user: {
+//                 [Op.like]: `%${search ? search : ""}%`,
+//               },
+//             },
+//             {
+//               email: {
+//                 [Op.like]: `%${search ? search : ""}%`,
+//               },
+//             },
+//           ],
+//         },
+//         attributes: { exclude: ["password", "updatedAt"] },
+//       });
+
+//       successResWithData(res, 200, "SUCCESS_GET_ALL_USER", users);
+//     }
+//   } catch (error) {
+//     errorResponse(res, 500, "Internal Server Error");
+//   }
+// };
+
+exports.updatePhotoProfile = async (req, res) => {
   try {
-    const { search } = req.query;
-    const userLogin = req.user;
-
-    if (userLogin.role_id === 1) {
-      return errorResponse(res, 403, "YOUR_NOT_ADMIN");
-    } else {
-      const users = await User.findAll({
-        where: {
-          [Op.or]: [
-            {
-              name_user: {
-                [Op.like]: `%${search ? search : ""}%`,
-              },
-            },
-            {
-              email: {
-                [Op.like]: `%${search ? search : ""}%`,
-              },
-            },
-          ],
-        },
-        attributes: { exclude: ["password", "updatedAt"] },
-      });
-
-      successResWithData(res, 200, "SUCCESS_GET_ALL_USER", users);
-    }
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
