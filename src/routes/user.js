@@ -27,7 +27,7 @@ const router = Router();
 // router.get("/all", authMiddleware, getAllUser);
 router.post("/forgot-password", findEmailResetPassword);
 router.post("/change-password", changePassword);
-router.patch("/update-password", authMiddleware, updatePassword);
+// router.patch("/update-password", authMiddleware, updatePassword);
 
 router.get("/rekomendasi-pencari", authMiddleware, listRekomendasiUserPencari);
 router.post(

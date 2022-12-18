@@ -21,55 +21,55 @@ const { Op } = require("sequelize");
 const env = dotenv.config().parsed;
 
 // Done
-exports.updatePassword = async (req, res) => {
-  try {
-    const userLogin = req.user;
+// exports.updatePassword = async (req, res) => {
+//   try {
+//     const userLogin = req.user;
 
-    const { oldPassword, newPassword } = req.body;
-    const dataPassword = req.body;
+//     const { oldPassword, newPassword } = req.body;
+//     const dataPassword = req.body;
 
-    const schema = joi.object({
-      oldPassword: joi.string().min(8).required(),
-      newPassword: joi.string().min(8).required(),
-    });
+//     const schema = joi.object({
+//       oldPassword: joi.string().min(8).required(),
+//       newPassword: joi.string().min(8).required(),
+//     });
 
-    const { error } = schema.validate(dataPassword);
+//     const { error } = schema.validate(dataPassword);
 
-    if (error) {
-      return errorResponse(res, 400, error.details[0].message);
-    }
+//     if (error) {
+//       return errorResponse(res, 400, error.details[0].message);
+//     }
 
-    const user = await User.findOne({
-      where: {
-        id: userLogin.id,
-      },
-    });
+//     const user = await User.findOne({
+//       where: {
+//         id: userLogin.id,
+//       },
+//     });
 
-    const validPassword = await bcrypt.compareSync(oldPassword, user.password);
+//     const validPassword = await bcrypt.compareSync(oldPassword, user.password);
 
-    if (!validPassword) {
-      return errorResponse(res, 400, "PASSWORD_NOT_MATCH");
-    }
+//     if (!validPassword) {
+//       return errorResponse(res, 400, "PASSWORD_NOT_MATCH");
+//     }
 
-    const salt = await bcrypt.genSalt(+env.SALT);
-    const hashPassword = await bcrypt.hash(newPassword, salt);
+//     const salt = await bcrypt.genSalt(+env.SALT);
+//     const hashPassword = await bcrypt.hash(newPassword, salt);
 
-    await user.update(
-      {
-        password: hashPassword,
-      },
-      {
-        where: {
-          id: user.id,
-        },
-      }
-    );
+//     await user.update(
+//       {
+//         password: hashPassword,
+//       },
+//       {
+//         where: {
+//           id: user.id,
+//         },
+//       }
+//     );
 
-    successRes(res, 200, "SUCCESS_CHANGE_PASSWORD");
-  } catch (error) {
-    errorResponse(res, 500, "Internal Server Error");
-  }
-};
+//     successRes(res, 200, "SUCCESS_CHANGE_PASSWORD");
+//   } catch (error) {
+//     errorResponse(res, 500, "Internal Server Error");
+//   }
+// };
 
 // Done
 exports.updateUserPenyedia = async (req, res) => {
@@ -1838,6 +1838,7 @@ exports.detailProfilePencari = async (req, res) => {
 //   }
 // };
 
+// Belum dibuat
 exports.updatePhotoProfile = async (req, res) => {
   try {
   } catch (error) {
