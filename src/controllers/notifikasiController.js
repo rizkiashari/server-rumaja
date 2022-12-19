@@ -250,6 +250,9 @@ exports.countNotifikasi = async (req, res) => {
         attributes: {
           exclude: ["updatedAt"],
         },
+        where: {
+          isRead: false,
+        },
         include: [
           {
             model: Riwayat,
