@@ -91,7 +91,6 @@ exports.updateUserPenyedia = async (req, res) => {
       tentang: joi.string().required(),
       tanggal_lahir: joi.string().required(),
       tempat_lahir: joi.string().required(),
-      photo_profile: joi.string().optional(),
       alamat_rumah: joi.string().required(),
     });
 
@@ -107,7 +106,6 @@ exports.updateUserPenyedia = async (req, res) => {
         nomor_wa: dataPenyedia.nomor_wa,
         domisili_kota: dataPenyedia.domisili_kota,
         domisili_provinsi: dataPenyedia.domisili_provinsi,
-        photo_profile: req.file != undefined ? req.file.path : null,
       },
       {
         where: {
@@ -154,7 +152,6 @@ exports.updateUserPencari = async (req, res) => {
     }
 
     const schema = joi.object({
-      photo_profile: joi.string().optional(),
       nama_user: joi.string().min(3).required(),
       gender: joi.string().required().valid("pria", "wanita"),
       bidang_kerja: joi.number().optional(),
@@ -181,7 +178,6 @@ exports.updateUserPencari = async (req, res) => {
         nomor_wa: dataPencari.nomor_wa,
         domisili_kota: dataPencari.domisili_kota,
         domisili_provinsi: dataPencari.domisili_provinsi,
-        photo_profile: req.file != undefined ? req.file.path : null,
       },
       {
         where: {
@@ -1841,6 +1837,20 @@ exports.detailProfilePencari = async (req, res) => {
 // Belum dibuat
 exports.updatePhotoProfile = async (req, res) => {
   try {
+    const userLogin = req.user;
+
+    await User.update(
+      {
+        photo_profile: req.file != undefined ? req.file.path : null,
+      },
+      {
+        where: {
+          id: userLogin.id,
+        },
+      }
+    );
+
+    successRes(res, 200, "SUCCESS_UPDATE_PHOTO_PROFILE");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
