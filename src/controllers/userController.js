@@ -1834,7 +1834,6 @@ exports.detailProfilePencari = async (req, res) => {
 //   }
 // };
 
-// Belum dibuat
 exports.updatePhotoProfile = async (req, res) => {
   try {
     const userLogin = req.user;
