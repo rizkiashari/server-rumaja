@@ -1169,8 +1169,6 @@ exports.getDataSavePencari = async (req, res) => {
     const { bidang_kerja, provinsi, kota, gender, max_usia, min_usia, urutan } =
       req.query;
 
-    console.log(req.query);
-
     const dataPenyedia = await Penyedia.findOne({
       where: {
         id_user: userLogin.id,
@@ -1182,7 +1180,6 @@ exports.getDataSavePencari = async (req, res) => {
     }
 
     if (!bidang_kerja && !provinsi && !kota && !gender && !max_usia && !min_usia) {
-      console.log("masuk");
       const totalRows = await Simpan_Pencari.count({
         where: {
           id_penyedia: dataPenyedia.id,
@@ -1289,7 +1286,6 @@ exports.getDataSavePencari = async (req, res) => {
       });
     } else {
       if (bidang_kerja && provinsi && kota && gender && max_usia && min_usia) {
-        console.log("masuk 1");
         const totalRows = await Simpan_Pencari.count({
           where: {
             id_penyedia: dataPenyedia.id,
@@ -1431,7 +1427,6 @@ exports.getDataSavePencari = async (req, res) => {
           totalRows,
         });
       } else {
-        console.log("masuk sini");
         const totalRows = await Simpan_Pencari.count({
           where: {
             id_penyedia: dataPenyedia.id,
@@ -1525,7 +1520,6 @@ exports.getDataSavePencari = async (req, res) => {
                 ],
               },
             });
-            // console.log(pencari);
             if (pencari === null) {
               return;
             } else {
@@ -1624,7 +1618,7 @@ exports.detailProfilePenyedia = async (req, res) => {
         {
           model: Bidang_Kerja,
           as: "bidang_kerja",
-          attributes: ["detail_bidang"],
+          attributes: ["detail_bidang", "id"],
         },
       ],
     });
@@ -1643,6 +1637,17 @@ exports.detailProfilePenyedia = async (req, res) => {
 
         return {
           ...lowongan.dataValues,
+          bidang_kerja: {
+            photo:
+              lowongan.bidang_kerja.id === 1
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/art_tqnghe.png"
+                : lowongan.bidang_kerja.id === 2
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/pengasuh_chdloc.png"
+                : lowongan.bidang_kerja.id === 3
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/sopir_pribadi_quexmw.png"
+                : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
+            detail_bidang: lowongan.bidang_kerja.detail_bidang,
+          },
           simpan_lowongan: simpan_lowongan,
         };
       })
@@ -1716,7 +1721,7 @@ exports.detailProfilePencari = async (req, res) => {
                     {
                       model: Bidang_Kerja,
                       as: "bidang_kerja",
-                      attributes: ["id"],
+                      attributes: ["id", "detail_bidang"],
                     },
                     {
                       model: Penyedia,

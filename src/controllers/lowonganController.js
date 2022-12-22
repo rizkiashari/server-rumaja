@@ -865,7 +865,6 @@ exports.getSaveLowongan = async (req, res) => {
     }
 
     if (!bidang_kerja && !kota && !provinsi && !skala_gaji) {
-      console.log("masuk sini");
       const totalRows = await Simpan_Lowongan.count({});
 
       const totalPage = Math.ceil(totalRows / limit);
@@ -1165,7 +1164,7 @@ exports.getByUUIDLowongan = async (req, res) => {
           {
             model: Bidang_Kerja,
             as: "bidang_kerja",
-            attributes: ["nama_bidang", "detail_bidang"],
+            attributes: ["nama_bidang", "detail_bidang", "id"],
           },
           {
             model: Penyedia,

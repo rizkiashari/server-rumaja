@@ -494,7 +494,6 @@ exports.getAllPelamar = async (req, res) => {
       lowonganWithPelamar.filter((item) => item.jumlah_pelamar > 0)
     );
   } catch (error) {
-    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
@@ -503,8 +502,6 @@ exports.getProgressLamaran = async (req, res) => {
   try {
     const { id_riwayat } = req.params;
     const { status } = req.query;
-
-    console.log(id_riwayat);
 
     const dataRiwayat = await Riwayat.findOne({
       where: {
@@ -1048,7 +1045,7 @@ exports.getAllProgress = async (req, res) => {
               {
                 model: Bidang_Kerja,
                 as: "bidang_kerja",
-                attributes: ["detail_bidang"],
+                attributes: ["detail_bidang", "id"],
               },
               {
                 model: Penyedia,
