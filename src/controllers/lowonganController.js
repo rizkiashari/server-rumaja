@@ -44,6 +44,7 @@ exports.addLowongan = async (req, res) => {
       deskripsi_lowongan: joi.string().required(),
       kota_lowongan: joi.string().required(),
       provinsi_lowongan: joi.string().required(),
+      alamat_lengkap: joi.string().required(),
     });
 
     const { error } = schema.validate(dataLowongan);
@@ -61,6 +62,7 @@ exports.addLowongan = async (req, res) => {
       fasilitas: dataLowongan.fasilitas,
       kota_lowongan: dataLowongan.kota_lowongan,
       provinsi_lowongan: dataLowongan.provinsi_lowongan,
+      alamat_lengkap: dataLowongan.alamat_lengkap,
       id_bidang_kerja: dataLowongan.id_bidang_kerja,
       id_penyedia: dataPenyedia.id,
       createdAt: Math.floor(+new Date() / 1000),

@@ -35,6 +35,9 @@ module.exports = {
       provinsi_lowongan: {
         type: Sequelize.STRING(50),
       },
+      alamat_lengkap: {
+        type: Sequelize.TEXT,
+      },
       id_bidang_kerja: {
         type: Sequelize.INTEGER,
         references: {
