@@ -70,13 +70,13 @@ exports.tawarkanPekerjaan = async (req, res) => {
 
     await Progres.create({
       id_riwayat: riwayat.id,
-      informasi: "Mengirimkan tawaran-penyedia",
+      informasi: "Mengirimkan Tawaran-penyedia",
       createdAt: Math.floor(+new Date() / 1000),
     });
 
     await Progres.create({
       id_riwayat: riwayat.id,
-      informasi: "Menunggu konfirmasi-penyedia",
+      informasi: "Menunggu konfirmasi kandidat-penyedia",
       createdAt: Math.floor(+new Date() / 1000),
     });
 

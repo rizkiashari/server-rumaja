@@ -651,7 +651,7 @@ exports.pencariByBidangKerja = async (req, res) => {
       });
     }
 
-    if (max_usia < min_usia) {
+    if (min_usia > max_usia) {
       return errorResponse(res, 400, "MAX_USIA_LESS_THAN_MIN_USIA");
     }
 
