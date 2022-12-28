@@ -1,5 +1,5 @@
 const dotenv = require("dotenv");
-const { User } = require("../../models");
+const { User, Pencari } = require("../../models");
 const jwt = require("jsonwebtoken");
 const { errorResponse } = require("../helper/response");
 const env = dotenv.config().parsed;
@@ -19,7 +19,7 @@ exports.authMiddleware = (req, res, next) => {
       }
 
       const { id } = decoded;
-      const userData = await User.findOne({
+      let userData = await User.findOne({
         where: {
           id,
         },
@@ -30,6 +30,17 @@ exports.authMiddleware = (req, res, next) => {
 
       if (!userData) {
         return errorResponse(res, 404, "USER_NOT_FOUND");
+      }
+
+      if (userData?.id_role === 2) {
+        const { id } = userData;
+        let pencari = await Pencari.findOne({
+          where: {
+            id_user: id,
+          },
+          attributes: ["id_bidang_kerja"],
+        });
+        userData = { ...userData.dataValues, ...pencari.dataValues };
       }
 
       req.user = userData;
