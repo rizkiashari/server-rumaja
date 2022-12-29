@@ -377,7 +377,7 @@ exports.tolakTawaran = async (req, res) => {
 
     await Progres.create({
       id_riwayat: dataRiwayat.id,
-      informasi: "Maaf, pelamar menolak tawaran Anda-penyedia",
+      informasi: "Kandidat menolak-penyedia",
       createdAt: Math.floor(+new Date() / 1000),
     });
 

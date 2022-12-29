@@ -63,7 +63,7 @@ exports.tolakLamaran = async (req, res) => {
 
       await Progres.create({
         id_riwayat: dataRiwayat.id,
-        informasi: "Maaf, pelamar tidak menyetujui lamaran-penyedia",
+        informasi: "Kandidat menolak-penyedia",
         createdAt: Math.floor(+new Date() / 1000),
       });
 
@@ -152,7 +152,7 @@ exports.terimaLamaran = async (req, res) => {
     if (userLogin.id_role === 2) {
       await Riwayat.update(
         {
-          status: "bekerja",
+          temp_status: "menunggu-penyedia",
         },
         {
           where: {
@@ -163,19 +163,31 @@ exports.terimaLamaran = async (req, res) => {
 
       await Progres.create({
         id_riwayat: dataRiwayat.id,
-        informasi: "Anda menerima lamaran-pencari",
+        informasi: "Konfirmasi terkirim-pencari",
         createdAt: Math.floor(+new Date() / 1000),
       });
 
       await Progres.create({
         id_riwayat: dataRiwayat.id,
-        informasi: "Pelamar telah menerima lamaran-penyedia",
+        informasi: "Menunggu penyedia memulai pekerjaan-pencari",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
+
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Kandidat menerima-penyedia",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
+
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Menunggu anda memulai pekerjaan-penyedia",
         createdAt: Math.floor(+new Date() / 1000),
       });
 
       await Notifikasi.create({
         detail_notifikasi:
-          "Selamat, pelamar telah menerima lamaran, Silahkan menghubungi pelamar-penyedia",
+          "Selamat pelamar telah menyetujui, mohon segera update status untuk memulai pekerjaan-penyedia",
         isRead: false,
         id_riwayat: dataRiwayat.id,
         createdAt: Math.floor(+new Date() / 1000),
