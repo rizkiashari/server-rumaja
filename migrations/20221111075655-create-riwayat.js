@@ -33,6 +33,9 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
+      temp_status: {
+        type: Sequelize.STRING(20),
+      },
       id_pencari: {
         type: Sequelize.INTEGER,
         references: {

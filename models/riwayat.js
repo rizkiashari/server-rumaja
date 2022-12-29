@@ -48,6 +48,7 @@ module.exports = (sequelize, DataTypes) => {
       waktu_mulai_kerja: DataTypes.TIME,
       tanggal_mulai_kerja: DataTypes.INTEGER,
       isPengalaman: DataTypes.BOOLEAN,
+      temp_status: DataTypes.STRING(20),
       createdAt: DataTypes.INTEGER,
     },
     {
