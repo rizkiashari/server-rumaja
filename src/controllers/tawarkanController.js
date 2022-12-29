@@ -415,7 +415,7 @@ exports.terimaTawaran = async (req, res) => {
 
     await Riwayat.update(
       {
-        status: "bekerja",
+        temp_status: "menunggu",
       },
       {
         where: {
@@ -426,31 +426,31 @@ exports.terimaTawaran = async (req, res) => {
 
     await Progres.create({
       id_riwayat: dataRiwayat.id,
-      informasi: "Selamat, tawaran Anda diterima oleh pelamar-penyedia",
+      informasi: "Kandidat menerima-penyedia",
       createdAt: Math.floor(+new Date() / 1000),
     });
 
     await Progres.create({
       id_riwayat: dataRiwayat.id,
-      informasi:
-        "Pencari tersebut sudah menerima, saat ini dia sudah berstatus bekerja dengan Anda-penyedia",
+      informasi: "Menunggu anda memulai pekerjaan-penyedia",
       createdAt: Math.floor(+new Date() / 1000),
     });
 
     await Progres.create({
       id_riwayat: dataRiwayat.id,
-      informasi: "Selamat, Anda menerima tawaran-pencari",
+      informasi: "Konfirmasi terkirim-pencari",
       createdAt: Math.floor(+new Date() / 1000),
     });
 
     await Progres.create({
       id_riwayat: dataRiwayat.id,
-      informasi: "Saat ini. sudah bekerja di pekerjaan tersebut-pencari",
+      informasi: "Menunggu penyedia memulai pekerjaan-pencari",
       createdAt: Math.floor(+new Date() / 1000),
     });
 
     await Notifikasi.create({
-      detail_notifikasi: "Selamat, Tawaran Anda diterima oleh pelamar-penyedia",
+      detail_notifikasi:
+        "Tawaran anda diterima oleh pelamar, mohon segera memperbarui status tawaran ke halaman progres-penyedia",
       isRead: false,
       id_riwayat: dataRiwayat.id,
       createdAt: Math.floor(+new Date() / 1000),
@@ -488,7 +488,6 @@ exports.detailTawaranPekerjaan = async (req, res) => {
           "id_lowongan",
           "updatedAt",
           "id_pencari",
-          "id",
         ],
       },
       include: [
@@ -521,6 +520,12 @@ exports.detailTawaranPekerjaan = async (req, res) => {
       ],
     });
 
+    const progresData = await Progres.findAll({
+      where: {
+        id_riwayat: riwayat?.id,
+      },
+    });
+
     const newRiwayat = {
       ...riwayat.dataValues,
       lowongan: {
@@ -541,10 +546,22 @@ exports.detailTawaranPekerjaan = async (req, res) => {
               : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
         },
       },
+      progres: progresData
+        ?.map((item) => {
+          const pencari = item.informasi.split("-");
+          if (pencari[1] === "pencari") {
+            return {
+              ...item.dataValues,
+              informasi: pencari[0],
+            };
+          }
+        })
+        .filter((item) => item !== undefined),
     };
 
     successResWithData(res, 200, "SUCCESS_GET_DETAIL_TAWARAN_PEKERJAAN", newRiwayat);
   } catch (error) {
+    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };

@@ -7,6 +7,7 @@ const {
   Bidang_Kerja,
   Simpan_Lowongan,
   Pencari,
+  Riwayat,
   User,
 } = require("../../models");
 const { Op } = require("sequelize");
@@ -1187,6 +1188,19 @@ exports.getByUUIDLowongan = async (req, res) => {
         return errorResponse(res, 404, "LOWONGAN_NOT_FOUND");
       }
 
+      const riwayat = await Riwayat.findOne({
+        where: {
+          id_lowongan: dataLowongan.id,
+          id_pencari: dataPencari.id,
+        },
+        attributes: [
+          "waktu_mulai_kerja",
+          "tanggal_mulai_kerja",
+          "catatan_riwayat_penyedia",
+          "createdAt",
+        ],
+      });
+
       const simpanLowongan = await Simpan_Lowongan.findOne({
         where: {
           id_lowongan: dataLowongan.id,
@@ -1211,6 +1225,7 @@ exports.getByUUIDLowongan = async (req, res) => {
               : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
         },
         simpan_lowongan: simpanLowongan,
+        riwayat: riwayat,
       };
 
       successResWithData(res, 200, "LIST_LOWONGAN", mergeLowongan);
