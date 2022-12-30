@@ -66,6 +66,7 @@ exports.tawarkanPekerjaan = async (req, res) => {
       id_pencari: dataTerima.id_pencari,
       id_lowongan: dataTerima.id_lowongan,
       createdAt: Math.floor(+new Date() / 1000),
+      temp_status: "menunggu_respons_pencari",
     });
 
     await Progres.create({
@@ -263,7 +264,9 @@ exports.getProgressTawaranTerkirim = async (req, res) => {
         info_riwayat: "hired",
         status: status,
       },
-      attributes: ["id", "status", "info_riwayat"],
+      attributes: {
+        exclude: ["updatedAt"],
+      },
       include: [
         {
           model: Pencari,
@@ -407,54 +410,58 @@ exports.terimaTawaran = async (req, res) => {
   try {
     const { uuid_riwayat } = req.params;
 
+    const userLogin = req.user;
+
     const dataRiwayat = await Riwayat.findOne({
       where: {
         uuid_riwayat,
       },
     });
 
-    await Riwayat.update(
-      {
-        temp_status: "menunggu",
-      },
-      {
-        where: {
-          id: dataRiwayat.id,
+    if (userLogin.id_role === 2) {
+      await Riwayat.update(
+        {
+          temp_status: "menunggu",
         },
-      }
-    );
+        {
+          where: {
+            id: dataRiwayat.id,
+          },
+        }
+      );
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Kandidat menerima-penyedia",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
 
-    await Progres.create({
-      id_riwayat: dataRiwayat.id,
-      informasi: "Kandidat menerima-penyedia",
-      createdAt: Math.floor(+new Date() / 1000),
-    });
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Menunggu anda memulai pekerjaan-penyedia",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
 
-    await Progres.create({
-      id_riwayat: dataRiwayat.id,
-      informasi: "Menunggu anda memulai pekerjaan-penyedia",
-      createdAt: Math.floor(+new Date() / 1000),
-    });
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Konfirmasi terkirim-pencari",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
 
-    await Progres.create({
-      id_riwayat: dataRiwayat.id,
-      informasi: "Konfirmasi terkirim-pencari",
-      createdAt: Math.floor(+new Date() / 1000),
-    });
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Menunggu penyedia memulai pekerjaan-pencari",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
 
-    await Progres.create({
-      id_riwayat: dataRiwayat.id,
-      informasi: "Menunggu penyedia memulai pekerjaan-pencari",
-      createdAt: Math.floor(+new Date() / 1000),
-    });
-
-    await Notifikasi.create({
-      detail_notifikasi:
-        "Tawaran anda diterima oleh pelamar, mohon segera memperbarui status tawaran ke halaman progres-penyedia",
-      isRead: false,
-      id_riwayat: dataRiwayat.id,
-      createdAt: Math.floor(+new Date() / 1000),
-    });
+      await Notifikasi.create({
+        detail_notifikasi:
+          "Tawaran anda diterima oleh pelamar, mohon segera memperbarui status tawaran ke halaman progres-penyedia",
+        isRead: false,
+        id_riwayat: dataRiwayat.id,
+        createdAt: Math.floor(+new Date() / 1000),
+      });
+    } else {
+    }
 
     successRes(res, 200, "SUCCESS_TERIMA_TAWARAN");
   } catch (error) {
