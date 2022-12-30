@@ -152,7 +152,7 @@ exports.terimaLamaran = async (req, res) => {
     if (userLogin.id_role === 2) {
       await Riwayat.update(
         {
-          temp_status: "menunggu-penyedia",
+          temp_status: "menunggu-pencari",
         },
         {
           where: {
@@ -215,6 +215,7 @@ exports.terimaLamaran = async (req, res) => {
           tanggal_mulai_kerja: Math.floor(
             +new Date(dataTerima.tanggal_mulai_kerja) / 1000
           ),
+          temp_status: "menunggu-penyedia",
         },
         {
           where: {
@@ -863,7 +864,7 @@ exports.detailLamaranTerkirim = async (req, res) => {
         id_pencari: pencari.id,
       },
       attributes: {
-        exclude: ["info_riwayat", "id_lowongan", "updatedAt", "id_pencari", "id"],
+        exclude: ["id_lowongan", "updatedAt", "id"],
       },
       include: [
         {
