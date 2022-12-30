@@ -152,7 +152,7 @@ exports.terimaLamaran = async (req, res) => {
     if (userLogin.id_role === 2) {
       await Riwayat.update(
         {
-          temp_status: "menunggu-pencari",
+          temp_status: "menunggu-penyedia",
         },
         {
           where: {
@@ -215,7 +215,7 @@ exports.terimaLamaran = async (req, res) => {
           tanggal_mulai_kerja: Math.floor(
             +new Date(dataTerima.tanggal_mulai_kerja) / 1000
           ),
-          temp_status: "menunggu-penyedia",
+          temp_status: "menunggu-pencari",
         },
         {
           where: {
@@ -260,6 +260,55 @@ exports.terimaLamaran = async (req, res) => {
         uuid: uuid_riwayat,
       });
     }
+  } catch (error) {
+    errorResponse(res, 500, "Internal Server Error");
+  }
+};
+
+// Mulai Bekerja new controller
+exports.pelamarMulaiBekerja = async (req, res) => {
+  try {
+    const { uuid_riwayat } = req.params;
+
+    const dataRiwayat = await Riwayat.findOne({
+      where: {
+        uuid_riwayat: uuid_riwayat,
+      },
+    });
+
+    await Riwayat.update(
+      {
+        temp_status: "mulai-bekerja",
+        status: "Bekerja",
+      },
+      {
+        where: {
+          uuid_riwayat: uuid_riwayat,
+        },
+      }
+    );
+
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
+      informasi: "Mulai bekerja-pencari",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Progres.create({
+      id_riwayat: dataRiwayat.id,
+      informasi: "Mulai bekerja-penyedia",
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    await Notifikasi.create({
+      detail_notifikasi:
+        "Selamat anda sudah diterima, mohon segera cek progres pekerjaan -pencari",
+      isRead: false,
+      id_riwayat: dataRiwayat.id,
+      createdAt: Math.floor(+new Date() / 1000),
+    });
+
+    successRes(res, 200, "SUCCESS_MULAI_BEKERJA");
   } catch (error) {
     errorResponse(res, 500, "Internal Server Error");
   }
@@ -330,7 +379,14 @@ exports.getDaftarPelamar = async (req, res) => {
             ],
           },
         ],
-        attributes: ["id", "uuid_riwayat", "status", "createdAt", "info_riwayat"],
+        attributes: [
+          "id",
+          "uuid_riwayat",
+          "status",
+          "createdAt",
+          "info_riwayat",
+          "temp_status",
+        ],
         order: [["id", "DESC"]],
       });
       successResWithData(res, 200, "SUCCESS_GET_DAFTAR_PELAMAR", riwayat);
@@ -852,93 +908,175 @@ exports.detailLamaranTerkirim = async (req, res) => {
 
     const userLogin = req.user;
 
-    const pencari = await Pencari.findOne({
-      where: {
-        id_user: userLogin.id,
-      },
-    });
+    if (userLogin.id_role === 2) {
+      const pencari = await Pencari.findOne({
+        where: {
+          id_user: userLogin.id,
+        },
+      });
 
-    const riwayat = await Riwayat.findOne({
-      where: {
-        uuid_riwayat,
-        id_pencari: pencari.id,
-      },
-      attributes: {
-        exclude: ["id_lowongan", "updatedAt", "id"],
-      },
-      include: [
-        {
-          model: Lowongan,
-          as: "lowongan",
-          attributes: {
-            exclude: ["id_penyedia", "updatedAt", "id_bidang_kerja"],
-          },
-          include: [
-            {
-              model: Penyedia,
-              as: "penyedia",
-              attributes: ["id"],
-              include: [
-                {
-                  model: User,
-                  as: "users",
-                  attributes: ["uuid_user", "nama_user", "nomor_wa", "photo_profile"],
-                },
-              ],
+      const riwayat = await Riwayat.findOne({
+        where: {
+          uuid_riwayat,
+          id_pencari: pencari.id,
+        },
+        attributes: {
+          exclude: ["id_lowongan", "updatedAt", "id"],
+        },
+        include: [
+          {
+            model: Lowongan,
+            as: "lowongan",
+            attributes: {
+              exclude: ["id_penyedia", "updatedAt", "id_bidang_kerja"],
             },
-            {
-              model: Bidang_Kerja,
-              as: "bidang_kerja",
-              attributes: ["id", "detail_bidang"],
+            include: [
+              {
+                model: Penyedia,
+                as: "penyedia",
+                attributes: ["id"],
+                include: [
+                  {
+                    model: User,
+                    as: "users",
+                    attributes: ["uuid_user", "nama_user", "nomor_wa", "photo_profile"],
+                  },
+                ],
+              },
+              {
+                model: Bidang_Kerja,
+                as: "bidang_kerja",
+                attributes: ["id", "detail_bidang"],
+              },
+            ],
+          },
+          {
+            model: Progres,
+            as: "progres",
+            attributes: {
+              exclude: ["id_riwayat", "updatedAt"],
             },
-          ],
-        },
-        {
-          model: Progres,
-          as: "progres",
-          attributes: {
-            exclude: ["id_riwayat", "updatedAt"],
+          },
+        ],
+      });
+
+      const newRiwayat = {
+        ...riwayat.dataValues,
+        lowongan: {
+          ...riwayat.dataValues.lowongan.dataValues,
+          bidang_kerja: {
+            detail_bidang:
+              riwayat.dataValues.lowongan.dataValues.bidang_kerja.detail_bidang,
+            photo:
+              riwayat.dataValues.lowongan.dataValues.bidang_kerja.id === 1
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/art_tqnghe.png"
+                : riwayat.dataValues.lowongan.dataValues.bidang_kerja.id === 2
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/pengasuh_chdloc.png"
+                : riwayat.dataValues.lowongan.dataValues.bidang_kerja.id === 3
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/sopir_pribadi_quexmw.png"
+                : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
           },
         },
-      ],
-    });
+        progres: riwayat.dataValues.progres.map((item) => {
+          const { informasi } = item;
 
-    const newRiwayat = {
-      ...riwayat.dataValues,
-      lowongan: {
-        ...riwayat.dataValues.lowongan.dataValues,
-        bidang_kerja: {
-          detail_bidang:
-            riwayat.dataValues.lowongan.dataValues.bidang_kerja.detail_bidang,
-          photo:
-            riwayat.dataValues.lowongan.dataValues.bidang_kerja.id === 1
-              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/art_tqnghe.png"
-              : riwayat.dataValues.lowongan.dataValues.bidang_kerja.id === 2
-              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/pengasuh_chdloc.png"
-              : riwayat.dataValues.lowongan.dataValues.bidang_kerja.id === 3
-              ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/sopir_pribadi_quexmw.png"
-              : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
+          if (informasi.split("-")[1] === "pencari") {
+            return {
+              ...item.dataValues,
+              informasi: informasi.split("-")[0],
+            };
+          }
+        }),
+      };
+
+      const filterData = {
+        ...newRiwayat,
+        progres: newRiwayat.progres.filter((item) => item !== undefined),
+      };
+
+      successResWithData(res, 200, "GET_DETAIL_LAMARAN_TERKIRIM_SUCCESS", filterData);
+    } else {
+      console.log(userLogin.id_role);
+      const riwayat = await Riwayat.findOne({
+        where: {
+          uuid_riwayat,
         },
-      },
-      progres: riwayat.dataValues.progres.map((item) => {
-        const { informasi } = item;
+        attributes: {
+          exclude: ["id_lowongan", "updatedAt", "id"],
+        },
+        include: [
+          {
+            model: Pencari,
+            as: "pencari",
+            attributes: ["id", "tanggal_lahir", "gender"],
+            include: [
+              {
+                model: User,
+                as: "users",
+                attributes: ["uuid_user", "nama_user"],
+              },
+              {
+                model: Bidang_Kerja,
+                as: "bidang_kerja",
+                attributes: ["id", "detail_bidang"],
+              },
+              {
+                model: Ulasan,
+                as: "ulasan",
+                attributes: ["id"],
+              },
+            ],
+          },
+          {
+            model: Progres,
+            as: "progres",
+            attributes: {
+              exclude: ["id_riwayat", "updatedAt"],
+            },
+          },
+        ],
+      });
 
-        if (informasi.split("-")[1] === "pencari") {
-          return {
-            ...item.dataValues,
-            informasi: informasi.split("-")[0],
-          };
-        }
-      }),
-    };
+      console.log(riwayat);
 
-    const filterData = {
-      ...newRiwayat,
-      progres: newRiwayat.progres.filter((item) => item !== undefined),
-    };
+      const newRiwayat = {
+        ...riwayat.dataValues,
+        pencari: {
+          ...riwayat.dataValues.pencari.dataValues,
+          bidang_kerja: {
+            detail_bidang:
+              riwayat.dataValues.pencari.dataValues.bidang_kerja.detail_bidang,
+            photo:
+              riwayat.dataValues.pencari.dataValues.bidang_kerja.id === 1
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/art_tqnghe.png"
+                : riwayat.dataValues.pencari.dataValues.bidang_kerja.id === 2
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/pengasuh_chdloc.png"
+                : riwayat.dataValues.pencari.dataValues.bidang_kerja.id === 3
+                ? "https://res.cloudinary.com/drcocoma3/image/upload/v1669642546/Rumaja/sopir_pribadi_quexmw.png"
+                : "https://res.cloudinary.com/drcocoma3/image/upload/v1669642547/Rumaja/tukang_kebun_skhz9a.png",
+          },
+        },
+        progres: riwayat.dataValues.progres.map((item) => {
+          const { informasi } = item;
 
-    successResWithData(res, 200, "GET_DETAIL_LAMARAN_TERKIRIM_SUCCESS", filterData);
+          if (informasi.split("-")[1] === "penyedia") {
+            return {
+              ...item.dataValues,
+              informasi: informasi.split("-")[0],
+            };
+          }
+        }),
+      };
+
+      const filterData = {
+        ...newRiwayat,
+        progres: newRiwayat.progres.filter((item) => item !== undefined),
+      };
+
+      successResWithData(res, 200, "GET_DETAIL_LAMARAN_TERKIRIM_SUCCESS", filterData);
+    }
   } catch (error) {
+    console.log(error);
     errorResponse(res, 500, "Internal Server Error");
   }
 };
