@@ -119,14 +119,7 @@ exports.getAllLowongan = async (req, res) => {
       },
     });
 
-    const {
-      bidang_kerja,
-      provinsi_lowongan,
-      kota_lowongan,
-      jenis_gaji,
-      urutan,
-      publish,
-    } = req.query;
+    const { bidang_kerja, jenis_gaji, urutan, publish } = req.query;
 
     if (userLogin.id_role !== 3) {
       return errorResponse(res, 403, "YOUR_NOT_PENYEDIA");
@@ -142,7 +135,7 @@ exports.getAllLowongan = async (req, res) => {
       tempUrutan = ["gaji", "DESC"];
     }
 
-    if (!bidang_kerja && !provinsi_lowongan && !kota_lowongan && !jenis_gaji) {
+    if (!bidang_kerja && !jenis_gaji) {
       const totalRows = await Lowongan.count({
         where: {
           isPublish: publish === "publish" ? 1 : 0,
@@ -206,17 +199,6 @@ exports.getAllLowongan = async (req, res) => {
                 [Op.eq]: bidang_kerja,
               },
             },
-
-            {
-              provinsi_lowongan: {
-                [Op.eq]: provinsi_lowongan,
-              },
-            },
-            {
-              kota_lowongan: {
-                [Op.eq]: kota_lowongan,
-              },
-            },
             {
               skala_gaji: {
                 [Op.eq]: jenis_gaji,
@@ -236,16 +218,6 @@ exports.getAllLowongan = async (req, res) => {
             {
               id_bidang_kerja: {
                 [Op.eq]: bidang_kerja,
-              },
-            },
-            {
-              provinsi_lowongan: {
-                [Op.eq]: provinsi_lowongan,
-              },
-            },
-            {
-              kota_lowongan: {
-                [Op.eq]: kota_lowongan,
               },
             },
             {
@@ -564,7 +536,7 @@ exports.getLowonganByBidangKerja = async (req, res) => {
       },
     });
 
-    const { kota, provinsi, jenis_gaji, urutan } = req.query;
+    const { jenis_gaji, urutan } = req.query;
 
     let tempUrutan = [];
 
@@ -633,23 +605,13 @@ exports.getLowonganByBidangKerja = async (req, res) => {
         totalRows,
       });
     } else {
-      if (kota && provinsi && jenis_gaji) {
+      if (jenis_gaji) {
         const totalRows = await Lowongan.count({
           where: {
             [Op.and]: [
               {
                 id_bidang_kerja: {
                   [Op.eq]: bidang_kerja,
-                },
-              },
-              {
-                kota_lowongan: {
-                  [Op.eq]: kota,
-                },
-              },
-              {
-                provinsi_lowongan: {
-                  [Op.eq]: provinsi,
                 },
               },
               {
@@ -669,16 +631,6 @@ exports.getLowonganByBidangKerja = async (req, res) => {
               {
                 id_bidang_kerja: {
                   [Op.eq]: bidang_kerja,
-                },
-              },
-              {
-                kota_lowongan: {
-                  [Op.eq]: kota,
-                },
-              },
-              {
-                provinsi_lowongan: {
-                  [Op.eq]: provinsi,
                 },
               },
               {
@@ -742,16 +694,6 @@ exports.getLowonganByBidangKerja = async (req, res) => {
               {
                 [Op.or]: [
                   {
-                    kota_lowongan: {
-                      [Op.eq]: kota,
-                    },
-                  },
-                  {
-                    provinsi_lowongan: {
-                      [Op.eq]: provinsi,
-                    },
-                  },
-                  {
                     skala_gaji: {
                       [Op.eq]: jenis_gaji,
                     },
@@ -774,16 +716,6 @@ exports.getLowonganByBidangKerja = async (req, res) => {
               },
               {
                 [Op.or]: [
-                  {
-                    kota_lowongan: {
-                      [Op.eq]: kota,
-                    },
-                  },
-                  {
-                    provinsi_lowongan: {
-                      [Op.eq]: provinsi,
-                    },
-                  },
                   {
                     skala_gaji: {
                       [Op.eq]: jenis_gaji,
@@ -850,7 +782,7 @@ exports.getSaveLowongan = async (req, res) => {
     const limit = +req.query.limit || 10;
     const page = +req.query.page || 1;
 
-    const { bidang_kerja, kota, provinsi, skala_gaji, urutan } = req.query;
+    const { bidang_kerja, skala_gaji, urutan } = req.query;
 
     const dataPencari = await Pencari.findOne({
       where: {
@@ -867,7 +799,7 @@ exports.getSaveLowongan = async (req, res) => {
       tempUrutan = ["gaji", "DESC"];
     }
 
-    if (!bidang_kerja && !kota && !provinsi && !skala_gaji) {
+    if (!bidang_kerja && !skala_gaji) {
       const totalRows = await Simpan_Lowongan.count({});
 
       const totalPage = Math.ceil(totalRows / limit);
@@ -906,23 +838,13 @@ exports.getSaveLowongan = async (req, res) => {
         totalRows,
       });
     } else {
-      if (bidang_kerja && kota && provinsi && skala_gaji) {
+      if (bidang_kerja && skala_gaji) {
         const totalRows = await Lowongan.count({
           where: {
             [Op.and]: [
               {
                 id_bidang_kerja: {
                   [Op.eq]: bidang_kerja,
-                },
-              },
-              {
-                kota_lowongan: {
-                  [Op.eq]: kota,
-                },
-              },
-              {
-                provinsi_lowongan: {
-                  [Op.eq]: provinsi,
                 },
               },
               {
@@ -961,16 +883,6 @@ exports.getSaveLowongan = async (req, res) => {
               {
                 id_bidang_kerja: {
                   [Op.eq]: bidang_kerja,
-                },
-              },
-              {
-                kota_lowongan: {
-                  [Op.eq]: kota,
-                },
-              },
-              {
-                provinsi_lowongan: {
-                  [Op.eq]: provinsi,
                 },
               },
               {
@@ -1022,16 +934,6 @@ exports.getSaveLowongan = async (req, res) => {
                 },
               },
               {
-                kota_lowongan: {
-                  [Op.eq]: kota,
-                },
-              },
-              {
-                provinsi_lowongan: {
-                  [Op.eq]: provinsi,
-                },
-              },
-              {
                 skala_gaji: {
                   [Op.eq]: skala_gaji,
                 },
@@ -1067,16 +969,6 @@ exports.getSaveLowongan = async (req, res) => {
               {
                 id_bidang_kerja: {
                   [Op.eq]: bidang_kerja,
-                },
-              },
-              {
-                kota_lowongan: {
-                  [Op.eq]: kota,
-                },
-              },
-              {
-                provinsi_lowongan: {
-                  [Op.eq]: provinsi,
                 },
               },
               {
