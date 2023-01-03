@@ -66,7 +66,7 @@ exports.tawarkanPekerjaan = async (req, res) => {
       id_pencari: dataTerima.id_pencari,
       id_lowongan: dataTerima.id_lowongan,
       createdAt: Math.floor(+new Date() / 1000),
-      temp_status: "menunggu_respons_pencari",
+      temp_status: "menunggu_pencari",
     });
 
     await Progres.create({
