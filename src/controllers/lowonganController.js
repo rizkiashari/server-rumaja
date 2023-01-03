@@ -548,7 +548,7 @@ exports.getLowonganByBidangKerja = async (req, res) => {
       tempUrutan = ["gaji", "DESC"];
     }
 
-    if (!kota && !provinsi && !jenis_gaji) {
+    if (!jenis_gaji) {
       const totalRows = await Lowongan.count({
         where: {
           id_bidang_kerja: bidang_kerja,

@@ -534,8 +534,7 @@ exports.pencariByBidangKerja = async (req, res) => {
       },
     });
 
-    const { kota, provinsi, urutan, jenis_kelamin, min_usia, max_usia, search } =
-      req.query;
+    const { urutan, jenis_kelamin, min_usia, max_usia, search } = req.query;
 
     if (search !== "" && search !== undefined) {
       const totalRows = await Pencari.count({
@@ -655,7 +654,7 @@ exports.pencariByBidangKerja = async (req, res) => {
       return errorResponse(res, 400, "MAX_USIA_LESS_THAN_MIN_USIA");
     }
 
-    if (!kota && !provinsi && !jenis_kelamin && !min_usia && !max_usia) {
+    if (!jenis_kelamin && !min_usia && !max_usia) {
       const totalRows = await Pencari.count({
         where: {
           id_bidang_kerja: bidang_kerja,
@@ -759,7 +758,7 @@ exports.pencariByBidangKerja = async (req, res) => {
         totalRows,
       });
     } else {
-      if (kota && provinsi && jenis_kelamin && min_usia && max_usia) {
+      if (jenis_kelamin && min_usia && max_usia) {
         const totalRows = await Pencari.count({
           where: {
             [Op.and]: [
@@ -796,20 +795,6 @@ exports.pencariByBidangKerja = async (req, res) => {
                   "nomor_wa",
                   "email",
                   "id_role",
-                ],
-              },
-              where: {
-                [Op.and]: [
-                  {
-                    domisili_kota: {
-                      [Op.eq]: kota,
-                    },
-                  },
-                  {
-                    domisili_provinsi: {
-                      [Op.eq]: provinsi,
-                    },
-                  },
                 ],
               },
             },
@@ -876,20 +861,6 @@ exports.pencariByBidangKerja = async (req, res) => {
                   "nomor_wa",
                   "email",
                   "id_role",
-                ],
-              },
-              where: {
-                [Op.and]: [
-                  {
-                    domisili_kota: {
-                      [Op.eq]: kota,
-                    },
-                  },
-                  {
-                    domisili_provinsi: {
-                      [Op.eq]: provinsi,
-                    },
-                  },
                 ],
               },
             },
@@ -999,20 +970,6 @@ exports.pencariByBidangKerja = async (req, res) => {
                   "id_role",
                 ],
               },
-              where: {
-                [Op.or]: [
-                  {
-                    domisili_kota: {
-                      [Op.like]: kota,
-                    },
-                  },
-                  {
-                    domisili_provinsi: {
-                      [Op.like]: provinsi,
-                    },
-                  },
-                ],
-              },
             },
           ],
         });
@@ -1077,20 +1034,6 @@ exports.pencariByBidangKerja = async (req, res) => {
                   "nomor_wa",
                   "email",
                   "id_role",
-                ],
-              },
-              where: {
-                [Op.or]: [
-                  {
-                    domisili_kota: {
-                      [Op.like]: kota,
-                    },
-                  },
-                  {
-                    domisili_provinsi: {
-                      [Op.like]: provinsi,
-                    },
-                  },
                 ],
               },
             },
@@ -1166,8 +1109,7 @@ exports.getDataSavePencari = async (req, res) => {
     const userLogin = req.user;
     const limit = +req.query.limit || 10;
     const page = +req.query.page || 1;
-    const { bidang_kerja, provinsi, kota, gender, max_usia, min_usia, urutan } =
-      req.query;
+    const { bidang_kerja, gender, max_usia, min_usia, urutan } = req.query;
 
     const dataPenyedia = await Penyedia.findOne({
       where: {
@@ -1179,7 +1121,7 @@ exports.getDataSavePencari = async (req, res) => {
       return errorResponse(res, 400, "MAX_USIA_LESS_THAN_MIN_USIA");
     }
 
-    if (!bidang_kerja && !provinsi && !kota && !gender && !max_usia && !min_usia) {
+    if (!bidang_kerja && !gender && !max_usia && !min_usia) {
       const totalRows = await Simpan_Pencari.count({
         where: {
           id_penyedia: dataPenyedia.id,
@@ -1285,7 +1227,7 @@ exports.getDataSavePencari = async (req, res) => {
         totalRows,
       });
     } else {
-      if (bidang_kerja && provinsi && kota && gender && max_usia && min_usia) {
+      if (bidang_kerja && gender && max_usia && min_usia) {
         const totalRows = await Simpan_Pencari.count({
           where: {
             id_penyedia: dataPenyedia.id,
@@ -1347,16 +1289,6 @@ exports.getDataSavePencari = async (req, res) => {
                     },
                     id_bidang_kerja: {
                       [Op.eq]: bidang_kerja,
-                    },
-                  },
-                  {
-                    "$users.domisili_provinsi$": {
-                      [Op.eq]: provinsi,
-                    },
-                  },
-                  {
-                    "$users.domisili_kota$": {
-                      [Op.eq]: kota,
                     },
                   },
                   {
@@ -1488,16 +1420,6 @@ exports.getDataSavePencari = async (req, res) => {
                     },
                     id_bidang_kerja: {
                       [Op.eq]: bidang_kerja,
-                    },
-                  },
-                  {
-                    "$users.domisili_provinsi$": {
-                      [Op.eq]: provinsi,
-                    },
-                  },
-                  {
-                    "$users.domisili_kota$": {
-                      [Op.eq]: kota,
                     },
                   },
                   {
