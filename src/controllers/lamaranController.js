@@ -996,7 +996,6 @@ exports.detailLamaranTerkirim = async (req, res) => {
 
       successResWithData(res, 200, "GET_DETAIL_LAMARAN_TERKIRIM_SUCCESS", filterData);
     } else {
-      console.log(userLogin.id_role);
       const riwayat = await Riwayat.findOne({
         where: {
           uuid_riwayat,
@@ -1023,7 +1022,7 @@ exports.detailLamaranTerkirim = async (req, res) => {
               {
                 model: Ulasan,
                 as: "ulasan",
-                attributes: ["id"],
+                attributes: ["id", "rating"],
               },
             ],
           },
