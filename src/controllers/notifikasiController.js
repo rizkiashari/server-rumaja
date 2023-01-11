@@ -275,7 +275,11 @@ exports.countNotifikasi = async (req, res) => {
         ],
       });
 
-      const newNotifikasi = notifikasi.map((item) => {
+      let dataNotifikasi = notifikasi.filter((item) => {
+        return item?.riwayat !== null;
+      });
+
+      const newNotifikasi = dataNotifikasi.map((item) => {
         const penyediaNotif = item.detail_notifikasi.split("-");
 
         let detailNotif = "";
