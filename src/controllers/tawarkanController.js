@@ -455,12 +455,11 @@ exports.terimaTawaran = async (req, res) => {
 
       await Notifikasi.create({
         detail_notifikasi:
-          "Tawaran anda diterima oleh pelamar, mohon segera memperbarui status tawaran ke halaman progres-penyedia",
+          "Tawaran anda diterima oleh pelamar, mohon segera memperbarui status tawaran ke halaman progres & segera hubungi kandidat melalui kontak yang tertera-penyedia",
         isRead: false,
         id_riwayat: dataRiwayat.id,
         createdAt: Math.floor(+new Date() / 1000),
       });
-    } else {
     }
 
     successRes(res, 200, "SUCCESS_TERIMA_TAWARAN");
