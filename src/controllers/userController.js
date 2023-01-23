@@ -1576,7 +1576,10 @@ exports.detailProfilePenyedia = async (req, res) => {
     );
 
     successResWithData(res, 200, "SUCCESS_GET_DATA_PENYEDIA", {
-      penyedia: userData,
+      penyedia: {
+        ...userData,
+        tentang: penyedia.tentang,
+      },
       lowongan: newLowongan,
     });
   } catch (error) {
