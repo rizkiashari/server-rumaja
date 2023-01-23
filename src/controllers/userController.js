@@ -1575,6 +1575,8 @@ exports.detailProfilePenyedia = async (req, res) => {
       })
     );
 
+    console.log("Penyedia", penyedia);
+
     successResWithData(res, 200, "SUCCESS_GET_DATA_PENYEDIA", {
       penyedia: {
         ...userData.dataValues,
