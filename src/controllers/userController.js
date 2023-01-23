@@ -1577,7 +1577,7 @@ exports.detailProfilePenyedia = async (req, res) => {
 
     successResWithData(res, 200, "SUCCESS_GET_DATA_PENYEDIA", {
       penyedia: {
-        ...userData,
+        ...userData.dataValues,
         tentang: penyedia.tentang,
       },
       lowongan: newLowongan,
