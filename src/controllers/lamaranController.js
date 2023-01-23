@@ -1036,8 +1036,6 @@ exports.detailLamaranTerkirim = async (req, res) => {
         ],
       });
 
-      console.log(riwayat);
-
       const newRiwayat = {
         ...riwayat.dataValues,
         pencari: {
