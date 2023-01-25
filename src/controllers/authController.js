@@ -44,6 +44,8 @@ exports.register = async (req, res) => {
       nomor_wa: joi.string().min(10).max(17).required(),
       domisili_kota: joi.string().required(),
       domisili_provinsi: joi.string().required(),
+      tanggal_lahir: joi.string().required(),
+      gender: joi.string().required().valid("pria", "wanita"),
       password: joi.string().min(8).required(),
       bidang_kerja: joi.number().optional(),
       role: joi.number().required(),
@@ -87,6 +89,8 @@ exports.register = async (req, res) => {
         id_bidang_kerja: dataUser.bidang_kerja,
         id_user: newUser.id,
         createdAt: Math.floor(+new Date() / 1000),
+        tanggal_lahir: dataUser.tanggal_lahir,
+        gender: dataUser.gender,
       });
 
       await newPencari.save();
@@ -96,6 +100,8 @@ exports.register = async (req, res) => {
       const newPenyedia = new Penyedia({
         id_user: newUser.id,
         createdAt: Math.floor(+new Date() / 1000),
+        tanggal_lahir: dataUser.tanggal_lahir,
+        gender: dataUser.gender,
       });
 
       await newPenyedia.save();
