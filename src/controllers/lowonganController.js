@@ -552,6 +552,7 @@ exports.getLowonganByBidangKerja = async (req, res) => {
       const totalRows = await Lowongan.count({
         where: {
           id_bidang_kerja: bidang_kerja,
+          isPublish: true,
         },
       });
 
@@ -563,6 +564,7 @@ exports.getLowonganByBidangKerja = async (req, res) => {
         },
         where: {
           id_bidang_kerja: bidang_kerja,
+          isPublish: true,
         },
         include: [
           {
@@ -619,6 +621,9 @@ exports.getLowonganByBidangKerja = async (req, res) => {
                   [Op.eq]: jenis_gaji,
                 },
               },
+              {
+                isPublish: true,
+              },
             ],
           },
         });
@@ -637,6 +642,9 @@ exports.getLowonganByBidangKerja = async (req, res) => {
                 skala_gaji: {
                   [Op.eq]: jenis_gaji,
                 },
+              },
+              {
+                isPublish: true,
               },
             ],
           },
@@ -692,6 +700,9 @@ exports.getLowonganByBidangKerja = async (req, res) => {
                 },
               },
               {
+                isPublish: true,
+              },
+              {
                 [Op.or]: [
                   {
                     skala_gaji: {
@@ -713,6 +724,9 @@ exports.getLowonganByBidangKerja = async (req, res) => {
                 id_bidang_kerja: {
                   [Op.eq]: bidang_kerja,
                 },
+              },
+              {
+                isPublish: true,
               },
               {
                 [Op.or]: [
@@ -1050,7 +1064,6 @@ exports.getByUUIDLowongan = async (req, res) => {
       const dataLowongan = await Lowongan.findOne({
         where: {
           uuid_lowongan,
-          isPublish: true,
         },
         attributes: {
           exclude: ["updatedAt", "id_bidang_kerja", "id_penyedia"],

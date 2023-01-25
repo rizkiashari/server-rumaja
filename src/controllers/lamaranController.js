@@ -331,7 +331,6 @@ exports.getDaftarPelamar = async (req, res) => {
       where: {
         id: id_lowongan,
         id_penyedia: penyedia.id,
-        isPublish: true,
       },
       attributes: {
         exclude: ["id_penyedia", "id_bidang_kerja", "updatedAt"],
@@ -1095,7 +1094,6 @@ exports.getAllProgress = async (req, res) => {
       const lowonganData = await Lowongan.findAll({
         where: {
           id_penyedia: penyedia.id,
-          isPublish: true,
         },
         include: [
           {

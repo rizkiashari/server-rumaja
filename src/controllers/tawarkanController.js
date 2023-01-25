@@ -194,7 +194,6 @@ exports.getDaftarTawaranTerkirim = async (req, res) => {
       where: {
         id: id_lowongan,
         id_penyedia: penyedia.id,
-        isPublish: true,
       },
       attributes: {
         exclude: ["id_penyedia", "id_bidang_kerja", "updatedAt"],
