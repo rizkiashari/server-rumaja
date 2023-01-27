@@ -8,7 +8,16 @@ exports.provinsi = async (req, res) => {
     ).then((respon) => respon.json());
 
     if (dataProvinsi) {
-      successResWithData(res, 200, "SUCCESS_GET_PROVINSI", dataProvinsi.provinsi);
+      const sortNamaProvinsi = dataProvinsi.provinsi.sort((a, b) => {
+        if (a.nama < b.nama) {
+          return -1;
+        }
+        if (a.nama > b.nama) {
+          return 1;
+        }
+        return 0;
+      });
+      successResWithData(res, 200, "SUCCESS_GET_PROVINSI", sortNamaProvinsi);
     } else {
       errorResponse(res, 400, "FAILED_GET_PROVINSI");
     }
@@ -44,7 +53,17 @@ exports.kota = async (req, res) => {
     ).then((respon) => respon.json());
 
     if (dataKota) {
-      successResWithData(res, 200, "SUCCESS_GET_KOTA", dataKota.kota_kabupaten);
+      const sortNamaKota = dataKota.kota_kabupaten.sort((a, b) => {
+        if (a.nama < b.nama) {
+          return -1;
+        }
+        if (a.nama > b.nama) {
+          return 1;
+        }
+        return 0;
+      });
+
+      successResWithData(res, 200, "SUCCESS_GET_KOTA", sortNamaKota);
     } else {
       errorResponse(res, 400, "FAILED_GET_KOTA");
     }
