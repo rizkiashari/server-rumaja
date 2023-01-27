@@ -579,7 +579,7 @@ exports.pencariByBidangKerja = async (req, res) => {
             },
           },
         ],
-        limit: [(page - 1) * +limit, +limit],
+        // limit: [(page - 1) * +limit, +limit],
         where: {
           [Op.and]: [
             {
@@ -700,7 +700,7 @@ exports.pencariByBidangKerja = async (req, res) => {
             },
           },
         ],
-        limit: [(page - 1) * +limit, +limit],
+        // limit: [(page - 1) * +limit, +limit],
       });
 
       const pencariWithRating = await Promise.all(
@@ -865,7 +865,7 @@ exports.pencariByBidangKerja = async (req, res) => {
               },
             },
           ],
-          limit: [(page - 1) * +limit, +limit],
+          // limit: [(page - 1) * +limit, +limit],
         });
 
         const pencariWithRating = await Promise.all(
@@ -1038,7 +1038,7 @@ exports.pencariByBidangKerja = async (req, res) => {
               },
             },
           ],
-          limit: [(page - 1) * +limit, +limit],
+          // limit: [(page - 1) * +limit, +limit],
         });
 
         const pencariWithRating = await Promise.all(
@@ -1134,7 +1134,7 @@ exports.getDataSavePencari = async (req, res) => {
         where: {
           id_penyedia: dataPenyedia.id,
         },
-        limit: [(page - 1) * +limit, +limit],
+        // limit: [(page - 1) * +limit, +limit],
       });
 
       const dataPencari = await Promise.all(
@@ -1240,7 +1240,7 @@ exports.getDataSavePencari = async (req, res) => {
           where: {
             id_penyedia: dataPenyedia.id,
           },
-          limit: [(page - 1) * +limit, +limit],
+          // limit: [(page - 1) * +limit, +limit],
         });
 
         const dataPencari = await Promise.all(
@@ -1371,7 +1371,7 @@ exports.getDataSavePencari = async (req, res) => {
           where: {
             id_penyedia: dataPenyedia.id,
           },
-          limit: [(page - 1) * +limit, +limit],
+          // limit: [(page - 1) * +limit, +limit],
         });
 
         const dataPencari = await Promise.all(

@@ -159,7 +159,7 @@ exports.getAllLowongan = async (req, res) => {
         attributes: {
           exclude: ["updatedAt"],
         },
-        limit: [(page - 1) * +limit, +limit],
+        // limit: [(page - 1) * +limit, +limit],
         order: [urutan ? tempUrutan : ["id", "DESC"]],
       });
 
@@ -230,7 +230,7 @@ exports.getAllLowongan = async (req, res) => {
         attributes: {
           exclude: ["updatedAt"],
         },
-        limit: [(page - 1) * +limit, +limit],
+        // limit: [(page - 1) * +limit, +limit],
         order: [urutan ? tempUrutan : ["id", "DESC"]],
       });
 
@@ -488,7 +488,7 @@ exports.rekomendasiLowongan = async (req, res) => {
           },
         ],
       },
-      limit: [(page - 1) * +limit, +limit],
+      // limit: [(page - 1) * +limit, +limit],
       order: [["id", "DESC"]],
     });
 
@@ -575,7 +575,7 @@ exports.getLowonganByBidangKerja = async (req, res) => {
             },
           },
         ],
-        limit: [(page - 1) * +limit, +limit],
+        // limit: [(page - 1) * +limit, +limit],
         order: [urutan ? tempUrutan : ["id", "ASC"]],
       });
 
@@ -660,7 +660,7 @@ exports.getLowonganByBidangKerja = async (req, res) => {
               },
             },
           ],
-          limit: [(page - 1) * +limit, +limit],
+          // limit: [(page - 1) * +limit, +limit],
           order: [urutan ? tempUrutan : ["id", "ASC"]],
         });
 
@@ -751,7 +751,7 @@ exports.getLowonganByBidangKerja = async (req, res) => {
               },
             },
           ],
-          limit: [(page - 1) * +limit, +limit],
+          // limit: [(page - 1) * +limit, +limit],
           order: [urutan ? tempUrutan : ["id", "ASC"]],
         });
 
@@ -841,7 +841,7 @@ exports.getSaveLowongan = async (req, res) => {
             },
           },
         ],
-        limit: [(page - 1) * +limit, +limit],
+        // limit: [(page - 1) * +limit, +limit],
         order: [urutan ? tempUrutan : ["id", "ASC"]],
       });
       successResWithData(res, 200, "SUCCESS_GET_SAVE_PEKERJAAN", {
@@ -929,7 +929,7 @@ exports.getSaveLowongan = async (req, res) => {
           attributes: {
             exclude: ["updatedAt", "id_bidang_kerja"],
           },
-          limit: [(page - 1) * +limit, +limit],
+          // limit: [(page - 1) * +limit, +limit],
         });
         successResWithData(res, 200, "SUCCESS_GET_SAVE_PEKERJAAN", {
           lowongan: dataSimpanLowongan,
@@ -1015,7 +1015,7 @@ exports.getSaveLowongan = async (req, res) => {
           attributes: {
             exclude: ["updatedAt", "id_bidang_kerja"],
           },
-          limit: [(page - 1) * +limit, +limit],
+          // limit: [(page - 1) * +limit, +limit],
         });
         successResWithData(res, 200, "SUCCESS_GET_SAVE_PEKERJAAN", {
           lowongan: dataSimpanLowongan,
