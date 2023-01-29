@@ -766,8 +766,10 @@ exports.pencariByBidangKerja = async (req, res) => {
           jenis_kelamin,
           " min_usia:",
           min_usia,
+          typeof min_usia,
           " max_usia:",
-          max_usia
+          max_usia,
+          typeof max_usia
         );
         const totalRows = await Pencari.count({
           where: {
