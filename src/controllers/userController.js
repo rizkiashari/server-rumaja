@@ -1462,7 +1462,7 @@ exports.getDataSavePencari = async (req, res) => {
               },
             });
             if (pencari === null) {
-              return null;
+              return;
             } else {
               const rating = await Ulasan.findOne({
                 where: {
