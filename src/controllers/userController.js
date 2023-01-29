@@ -1448,7 +1448,7 @@ exports.getDataSavePencari = async (req, res) => {
                   },
                   {
                     tanggal_lahir: {
-                      [Op.and]: {
+                      [Op.between]: {
                         [Op.lt]: new Date(
                           new Date().setFullYear(new Date().getFullYear() - min_usia)
                         ),
@@ -1461,46 +1461,46 @@ exports.getDataSavePencari = async (req, res) => {
                 ],
               },
             });
-            // if (pencari === null) {
-            //   return [];
-            // } else {
-            const rating = await Ulasan.findOne({
-              where: {
-                id_pencari: pencari.id,
-              },
-              attributes: [[sequelize.fn("AVG", sequelize.col("rating")), "rating"]],
-              order:
-                urutan === "penilaian"
-                  ? [[sequelize.fn("AVG", sequelize.col("rating")), "DESC"]]
-                  : [],
-            });
+            if (pencari === null) {
+              return null;
+            } else {
+              const rating = await Ulasan.findOne({
+                where: {
+                  id_pencari: pencari.id,
+                },
+                attributes: [[sequelize.fn("AVG", sequelize.col("rating")), "rating"]],
+                order:
+                  urutan === "penilaian"
+                    ? [[sequelize.fn("AVG", sequelize.col("rating")), "DESC"]]
+                    : [],
+              });
 
-            const pengalaman = await Pengalaman.findOne({
-              where: {
-                id_pencari: pencari.id,
-              },
-              attributes: [[sequelize.fn("COUNT", sequelize.col("id")), "pengalaman"]],
-              order:
-                urutan === "pengalaman"
-                  ? [[sequelize.fn("COUNT", sequelize.col("id")), "DESC"]]
-                  : [],
-            });
+              const pengalaman = await Pengalaman.findOne({
+                where: {
+                  id_pencari: pencari.id,
+                },
+                attributes: [[sequelize.fn("COUNT", sequelize.col("id")), "pengalaman"]],
+                order:
+                  urutan === "pengalaman"
+                    ? [[sequelize.fn("COUNT", sequelize.col("id")), "DESC"]]
+                    : [],
+              });
 
-            return {
-              ...pencari.dataValues,
-              rating:
-                rating.dataValues.rating === null
-                  ? 0
-                  : +Number(rating.dataValues.rating).toFixed(3),
-              pengalaman: pengalaman.dataValues.pengalaman,
-              bidang_kerja: pencari.bidang_kerja.detail_bidang,
-              simpan_pencari: {
-                id: simpan.id,
-                isSave: simpan.isSave,
-                uuid_simpan: simpan.uuid_simpan,
-              },
-            };
-            // }
+              return {
+                ...pencari.dataValues,
+                rating:
+                  rating.dataValues.rating === null
+                    ? 0
+                    : +Number(rating.dataValues.rating).toFixed(3),
+                pengalaman: pengalaman.dataValues.pengalaman,
+                bidang_kerja: pencari.bidang_kerja.detail_bidang,
+                simpan_pencari: {
+                  id: simpan.id,
+                  isSave: simpan.isSave,
+                  uuid_simpan: simpan.uuid_simpan,
+                },
+              };
+            }
           })
         );
 
