@@ -1,6 +1,5 @@
 const joi = require("joi");
 const dotenv = require("dotenv");
-const bcrypt = require("bcrypt");
 const uuid = require("uuid");
 const {
   User,
@@ -655,7 +654,6 @@ exports.pencariByBidangKerja = async (req, res) => {
     }
 
     if (!jenis_kelamin && !min_usia && !max_usia) {
-      console.log("1");
       const totalRows = await Pencari.count({
         where: {
           id_bidang_kerja: bidang_kerja,
@@ -760,17 +758,6 @@ exports.pencariByBidangKerja = async (req, res) => {
       });
     } else {
       if (jenis_kelamin && +min_usia !== 0 && +max_usia !== 0) {
-        console.log("2 Aja");
-        console.log(
-          "jenis kelamin: ",
-          jenis_kelamin,
-          " min_usia:",
-          min_usia,
-          typeof min_usia,
-          " max_usia:",
-          max_usia,
-          typeof max_usia
-        );
         const totalRows = await Pencari.count({
           where: {
             [Op.and]: [
@@ -939,15 +926,11 @@ exports.pencariByBidangKerja = async (req, res) => {
         console.log("3");
         const totalRows = await Pencari.count({
           where: {
+            id_bidang_kerja: bidang_kerja,
             [Op.or]: [
               {
-                id_bidang_kerja: {
-                  [Op.eq]: bidang_kerja,
-                },
-              },
-              {
                 tanggal_lahir: {
-                  [Op.or]: {
+                  [Op.between]: {
                     [Op.lt]: new Date(
                       new Date().setFullYear(
                         new Date().getFullYear() - min_usia !== undefined ? min_usia : 1
