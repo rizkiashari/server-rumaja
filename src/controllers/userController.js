@@ -1237,7 +1237,7 @@ exports.getDataSavePencari = async (req, res) => {
               },
             };
           } else {
-            return;
+            return [];
           }
         })
       );
@@ -1373,7 +1373,7 @@ exports.getDataSavePencari = async (req, res) => {
                 },
               };
             } else {
-              return;
+              return [];
             }
           })
         );
@@ -1470,7 +1470,7 @@ exports.getDataSavePencari = async (req, res) => {
               },
             });
             if (pencari === null) {
-              return;
+              return [];
             } else {
               const rating = await Ulasan.findOne({
                 where: {
