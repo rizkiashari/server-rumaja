@@ -926,28 +926,40 @@ exports.pencariByBidangKerja = async (req, res) => {
         console.log("3");
         const totalRows = await Pencari.count({
           where: {
-            id_bidang_kerja: bidang_kerja,
-            [Op.or]: [
+            [Op.and]: [
               {
-                tanggal_lahir: {
-                  [Op.between]: {
-                    [Op.lt]: new Date(
-                      new Date().setFullYear(
-                        new Date().getFullYear() - min_usia !== undefined ? min_usia : 1
-                      )
-                    ),
-                    [Op.gt]: new Date(
-                      new Date().setFullYear(
-                        new Date().getFullYear() - max_usia !== undefined ? max_usia : 1
-                      )
-                    ),
-                  },
+                id_bidang_kerja: {
+                  [Op.eq]: bidang_kerja,
                 },
               },
               {
-                gender: {
-                  [Op.eq]: jenis_kelamin,
-                },
+                [Op.or]: [
+                  {
+                    tanggal_lahir: {
+                      [Op.between]: {
+                        [Op.lt]: new Date(
+                          new Date().setFullYear(
+                            new Date().getFullYear() - min_usia !== undefined
+                              ? min_usia
+                              : 1
+                          )
+                        ),
+                        [Op.gt]: new Date(
+                          new Date().setFullYear(
+                            new Date().getFullYear() - max_usia !== undefined
+                              ? max_usia
+                              : 1
+                          )
+                        ),
+                      },
+                    },
+                  },
+                  {
+                    gender: {
+                      [Op.eq]: jenis_kelamin,
+                    },
+                  },
+                ],
               },
             ],
           },
