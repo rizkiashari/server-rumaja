@@ -761,6 +761,14 @@ exports.pencariByBidangKerja = async (req, res) => {
     } else {
       if (jenis_kelamin && min_usia !== 0 && max_usia !== 0) {
         console.log("2 Aja");
+        console.log(
+          "jenis kelamin: ",
+          jenis_kelamin,
+          " min_usia:",
+          min_usia,
+          " max_usia:",
+          max_usia
+        );
         const totalRows = await Pencari.count({
           where: {
             [Op.and]: [
