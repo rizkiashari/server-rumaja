@@ -924,6 +924,7 @@ exports.pencariByBidangKerja = async (req, res) => {
           totalRows,
         });
       } else {
+        console.log("masuk sini");
         const totalRows = await Pencari.count({
           where: {
             [Op.or]: [
