@@ -923,7 +923,6 @@ exports.pencariByBidangKerja = async (req, res) => {
           totalRows,
         });
       } else {
-        console.log("3");
         const totalRows = await Pencari.count({
           where: {
             [Op.and]: [
