@@ -1331,6 +1331,9 @@ exports.getDataSavePencari = async (req, res) => {
               },
             });
 
+            if (pencari === null) {
+              return null;
+            }
             const rating = await Ulasan.findOne({
               where: {
                 id_pencari: pencari.id,
@@ -1371,7 +1374,7 @@ exports.getDataSavePencari = async (req, res) => {
         );
 
         successResWithData(res, 200, "SUCCESS_GET_DATA_SAVE_PENCARI", {
-          pekerja: dataPencari,
+          pekerja: dataPencari.filter((data) => data !== undefined),
           totalPage,
           page,
           limit,
