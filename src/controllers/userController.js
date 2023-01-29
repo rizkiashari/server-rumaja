@@ -1374,7 +1374,7 @@ exports.getDataSavePencari = async (req, res) => {
         );
 
         successResWithData(res, 200, "SUCCESS_GET_DATA_SAVE_PENCARI", {
-          pekerja: dataPencari.filter((data) => data !== undefined),
+          pekerja: dataPencari.filter((data) => data !== undefined || null),
           totalPage,
           page,
           limit,
@@ -1508,7 +1508,7 @@ exports.getDataSavePencari = async (req, res) => {
         );
 
         successResWithData(res, 200, "SUCCESS_GET_DATA_SAVE_PENCARI", {
-          pekerja: dataPencari.filter((data) => data !== undefined),
+          pekerja: dataPencari.filter((data) => data !== undefined || null),
           totalPage,
           page,
           limit,
