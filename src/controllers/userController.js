@@ -759,7 +759,7 @@ exports.pencariByBidangKerja = async (req, res) => {
         totalRows,
       });
     } else {
-      if (jenis_kelamin && min_usia !== 0 && max_usia !== 0) {
+      if (jenis_kelamin && +min_usia !== 0 && +max_usia !== 0) {
         console.log("2 Aja");
         console.log(
           "jenis kelamin: ",
