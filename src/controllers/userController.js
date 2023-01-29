@@ -655,6 +655,7 @@ exports.pencariByBidangKerja = async (req, res) => {
     }
 
     if (!jenis_kelamin && !min_usia && !max_usia) {
+      console.log("1");
       const totalRows = await Pencari.count({
         where: {
           id_bidang_kerja: bidang_kerja,
@@ -759,6 +760,7 @@ exports.pencariByBidangKerja = async (req, res) => {
       });
     } else {
       if (jenis_kelamin && min_usia !== 0 && max_usia !== 0) {
+        console.log("2");
         const totalRows = await Pencari.count({
           where: {
             [Op.and]: [
@@ -924,7 +926,7 @@ exports.pencariByBidangKerja = async (req, res) => {
           totalRows,
         });
       } else {
-        console.log("masuk sini");
+        console.log("3");
         const totalRows = await Pencari.count({
           where: {
             [Op.or]: [
