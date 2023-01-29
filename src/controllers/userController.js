@@ -1548,7 +1548,7 @@ exports.detailProfilePenyedia = async (req, res) => {
       where: {
         id_user: userData.id,
       },
-      attributes: ["id", "tentang"],
+      attributes: ["id", "tentang", "tanggal_lahir", "gender"],
     });
 
     const dataLowongan = await Lowongan.findAll({
@@ -1601,6 +1601,8 @@ exports.detailProfilePenyedia = async (req, res) => {
       penyedia: {
         ...userData.dataValues,
         tentang: penyedia.tentang,
+        tanggal_lahir: penyedia.tanggal_lahir,
+        gender: penyedia.gender,
       },
       lowongan: newLowongan,
     });
