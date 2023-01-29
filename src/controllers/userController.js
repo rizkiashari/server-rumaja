@@ -997,28 +997,40 @@ exports.pencariByBidangKerja = async (req, res) => {
             ],
           },
           where: {
-            [Op.or]: [
+            [Op.and]: [
               {
                 id_bidang_kerja: {
                   [Op.eq]: bidang_kerja,
                 },
               },
               {
-                tanggal_lahir: {
-                  [Op.and]: {
-                    [Op.lt]: new Date(
-                      new Date().setFullYear(new Date().getFullYear() - min_usia)
-                    ),
-                    [Op.gt]: new Date(
-                      new Date().setFullYear(new Date().getFullYear() - max_usia)
-                    ),
+                [Op.or]: [
+                  {
+                    tanggal_lahir: {
+                      [Op.between]: {
+                        [Op.lt]: new Date(
+                          new Date().setFullYear(
+                            new Date().getFullYear() - min_usia !== undefined
+                              ? min_usia
+                              : 1
+                          )
+                        ),
+                        [Op.gt]: new Date(
+                          new Date().setFullYear(
+                            new Date().getFullYear() - max_usia !== undefined
+                              ? max_usia
+                              : 1
+                          )
+                        ),
+                      },
+                    },
                   },
-                },
-              },
-              {
-                gender: {
-                  [Op.eq]: jenis_kelamin,
-                },
+                  {
+                    gender: {
+                      [Op.eq]: jenis_kelamin,
+                    },
+                  },
+                ],
               },
             ],
           },
