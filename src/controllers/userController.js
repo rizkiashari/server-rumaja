@@ -758,7 +758,7 @@ exports.pencariByBidangKerja = async (req, res) => {
         totalRows,
       });
     } else {
-      if (jenis_kelamin && min_usia && max_usia) {
+      if (jenis_kelamin && min_usia !== 0 && max_usia !== 0) {
         const totalRows = await Pencari.count({
           where: {
             [Op.and]: [
