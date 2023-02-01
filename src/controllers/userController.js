@@ -89,8 +89,6 @@ exports.updateUserPenyedia = async (req, res) => {
       domisili_provinsi: joi.string().required(),
       tentang: joi.string().required(),
       tanggal_lahir: joi.string().required(),
-      tempat_lahir: joi.string().required(),
-      alamat_rumah: joi.string().required(),
     });
 
     const { error } = schema.validate(dataPenyedia);
@@ -122,9 +120,7 @@ exports.updateUserPenyedia = async (req, res) => {
     await Penyedia.update(
       {
         gender: dataPenyedia.gender,
-        alamat_rumah: dataPenyedia.alamat_rumah,
         tanggal_lahir: dataPenyedia.tanggal_lahir,
-        tempat_lahir: dataPenyedia.tempat_lahir,
         tentang: dataPenyedia.tentang,
         createdAt: Math.floor(+new Date() / 1000),
       },
@@ -155,11 +151,9 @@ exports.updateUserPencari = async (req, res) => {
       gender: joi.string().required().valid("pria", "wanita"),
       bidang_kerja: joi.number().optional(),
       nomor_wa: joi.string().min(10).max(17).required(),
-      tempat_lahir: joi.string().required(),
       tanggal_lahir: joi.string().required(),
       domisili_kota: joi.string().required(),
       domisili_provinsi: joi.string().required(),
-      alamat_rumah: joi.string().required(),
       tinggi_badan: joi.number().required(),
       berat_badan: joi.number().required(),
       tentang: joi.string().required(),
@@ -194,9 +188,7 @@ exports.updateUserPencari = async (req, res) => {
     await Pencari.update(
       {
         gender: dataPencari.gender,
-        alamat_rumah: dataPencari.alamat_rumah,
         tanggal_lahir: dataPencari.tanggal_lahir,
-        tempat_lahir: dataPencari.tempat_lahir,
         tentang: dataPencari.tentang,
         tinggi_badan: +dataPencari.tinggi_badan,
         berat_badan: +dataPencari.berat_badan,

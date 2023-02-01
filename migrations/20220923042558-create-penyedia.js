@@ -11,14 +11,8 @@ module.exports = {
       gender: {
         type: Sequelize.ENUM("pria", "wanita"),
       },
-      alamat_rumah: {
-        type: Sequelize.TEXT,
-      },
       tanggal_lahir: {
         type: Sequelize.DATE,
-      },
-      tempat_lahir: {
-        type: Sequelize.STRING(50),
       },
       tentang: {
         type: Sequelize.TEXT,

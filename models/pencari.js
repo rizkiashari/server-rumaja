@@ -69,9 +69,7 @@ module.exports = (sequelize, DataTypes) => {
   Pencari.init(
     {
       gender: DataTypes.ENUM("pria", "wanita"),
-      alamat_rumah: DataTypes.TEXT,
       tanggal_lahir: DataTypes.DATE,
-      tempat_lahir: DataTypes.STRING(50),
       tentang: DataTypes.TEXT,
       tinggi_badan: DataTypes.INTEGER,
       berat_badan: DataTypes.INTEGER,
