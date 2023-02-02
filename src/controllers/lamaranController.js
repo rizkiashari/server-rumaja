@@ -36,7 +36,7 @@ exports.tolakLamaran = async (req, res) => {
           .string()
           .required()
           .valid("diproses", "bekerja", "selesai", "ditolak"),
-        catatan_riwayat_pencari: joi.string().required(),
+        catatan_tolak_pencari: joi.string().required(),
       });
       const { error } = schema.validate(dataTolak);
       if (error) {
@@ -46,7 +46,7 @@ exports.tolakLamaran = async (req, res) => {
       await Riwayat.update(
         {
           status: dataTolak.status_riwayat,
-          catatan_riwayat_pencari: dataTolak.catatan_riwayat_pencari,
+          catatan_tolak_pencari: dataTolak.catatan_tolak_pencari,
         },
         {
           where: {
@@ -82,7 +82,7 @@ exports.tolakLamaran = async (req, res) => {
           .string()
           .required()
           .valid("diproses", "bekerja", "selesai", "ditolak"),
-        catatan_riwayat_penyedia: joi.string().required(),
+        catatan_tolak_penyedia: joi.string().required(),
       });
       const { error } = schema.validate(dataTolak);
       if (error) {
@@ -92,7 +92,7 @@ exports.tolakLamaran = async (req, res) => {
       await Riwayat.update(
         {
           status: dataTolak.status_riwayat,
-          catatan_riwayat_penyedia: dataTolak.catatan_riwayat_penyedia,
+          catatan_tolak_penyedia: dataTolak.catatan_tolak_penyedia,
         },
         {
           where: {
