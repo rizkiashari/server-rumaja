@@ -23,6 +23,12 @@ module.exports = {
       catatan_riwayat_penyedia: {
         type: Sequelize.TEXT,
       },
+      catatan_tolak_penyedia: {
+        type: Sequelize.TEXT,
+      },
+      catatan_tolak_pencari: {
+        type: Sequelize.TEXT,
+      },
       waktu_mulai_kerja: {
         type: Sequelize.TIME,
       },

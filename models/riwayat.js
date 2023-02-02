@@ -45,6 +45,8 @@ module.exports = (sequelize, DataTypes) => {
       info_riwayat: DataTypes.ENUM("applied", "hired"),
       catatan_riwayat_pencari: DataTypes.TEXT,
       catatan_riwayat_penyedia: DataTypes.TEXT,
+      catatan_tolak_pencari: DataTypes.TEXT,
+      catatan_tolak_penyedia: DataTypes.TEXT,
       waktu_mulai_kerja: DataTypes.TIME,
       tanggal_mulai_kerja: DataTypes.INTEGER,
       isPengalaman: DataTypes.BOOLEAN,
