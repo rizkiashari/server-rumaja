@@ -357,7 +357,7 @@ exports.tolakTawaran = async (req, res) => {
     });
 
     const schema = joi.object({
-      catatan_riwayat_pencari: joi.string().required(),
+      catatan_tolak_pencari: joi.string().required(),
     });
 
     const { error } = schema.validate(dataTolak);
@@ -368,7 +368,7 @@ exports.tolakTawaran = async (req, res) => {
     await Riwayat.update(
       {
         status: "ditolak",
-        catatan_riwayat_pencari: dataTolak.catatan_riwayat_pencari,
+        catatan_tolak_pencari: dataTolak.catatan_tolak_pencari,
       },
       {
         where: {
