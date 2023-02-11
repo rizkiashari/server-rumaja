@@ -1128,7 +1128,7 @@ exports.getDataSavePencari = async (req, res) => {
       },
     });
 
-    if (max_usia < min_usia) {
+    if (Number(max_usia) < Number(min_usia)) {
       return errorResponse(res, 400, "MAX_USIA_LESS_THAN_MIN_USIA");
     }
 
@@ -1366,7 +1366,9 @@ exports.getDataSavePencari = async (req, res) => {
         );
 
         successResWithData(res, 200, "SUCCESS_GET_DATA_SAVE_PENCARI", {
-          pekerja: dataPencari.filter((data) => data !== undefined || null),
+          pekerja: dataPencari.filter(
+            (pencari) => pencari !== null && pencari !== undefined
+          ),
           totalPage,
           page,
           limit,
