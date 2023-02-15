@@ -624,6 +624,7 @@ exports.getProgressLamaran = async (req, res) => {
 exports.akhiriPekerjaan = async (req, res) => {
   try {
     const { id_riwayat } = req.params;
+    const { ulasan } = req.body;
 
     const dataRiwayat = await Riwayat.findOne({
       where: {
@@ -631,36 +632,38 @@ exports.akhiriPekerjaan = async (req, res) => {
       },
     });
 
-    await Riwayat.update(
-      {
-        status: "selesai",
-        createdAt: Math.floor(+new Date() / 1000),
-      },
-      {
-        where: {
-          uuid_riwayat: id_riwayat,
+    if (ulasan === null) {
+      await Riwayat.update(
+        {
+          status: "selesai",
+          createdAt: Math.floor(+new Date() / 1000),
         },
-      }
-    );
+        {
+          where: {
+            uuid_riwayat: id_riwayat,
+          },
+        }
+      );
 
-    await Progres.create({
-      id_riwayat: dataRiwayat.id,
-      informasi: "Pekerjaan telah selesai-penyedia",
-      createdAt: Math.floor(+new Date() / 1000),
-    });
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Pekerjaan telah selesai-penyedia",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
 
-    await Progres.create({
-      id_riwayat: dataRiwayat.id,
-      informasi: "Kontrak anda telah diselesaikan-pencari",
-      createdAt: Math.floor(+new Date() / 1000),
-    });
+      await Progres.create({
+        id_riwayat: dataRiwayat.id,
+        informasi: "Kontrak anda telah diselesaikan-pencari",
+        createdAt: Math.floor(+new Date() / 1000),
+      });
 
-    await Notifikasi.create({
-      detail_notifikasi: "Kontrak anda dengan penyedia telah diselesaikan-pencari",
-      isRead: false,
-      id_riwayat: dataRiwayat.id,
-      createdAt: Math.floor(+new Date() / 1000),
-    });
+      await Notifikasi.create({
+        detail_notifikasi: "Kontrak anda dengan penyedia telah diselesaikan-pencari",
+        isRead: false,
+        id_riwayat: dataRiwayat.id,
+        createdAt: Math.floor(+new Date() / 1000),
+      });
+    }
 
     successResWithData(res, 200, "SUCCESS_AKHIRI_PEKERJAAN", {
       id_lowongan: dataRiwayat.id_lowongan,
