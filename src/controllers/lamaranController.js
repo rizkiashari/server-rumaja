@@ -632,7 +632,7 @@ exports.akhiriPekerjaan = async (req, res) => {
       },
     });
 
-    if (ulasan === null) {
+    if (!ulasan) {
       await Riwayat.update(
         {
           status: "selesai",
