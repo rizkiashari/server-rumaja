@@ -72,11 +72,9 @@ exports.findEmailResetPassword = async (req, res) => {
         let salt = await bcrypt.genSalt(+env.SALT);
         let resetPassword = await bcrypt.hash(rekomendasiPass, salt);
 
-        let linkPass = await jwt.sign(rekomendasiPass, env.JWT_RESET_PASSWORD_SECRET);
-
         await user.update({ resetPassword });
 
-        successResWithData(res, 200, "SUCCESS_FIND_EMAIL", { link: linkPass });
+        successResWithData(res, 200, "SUCCESS_FIND_EMAIL", { link: resetPassword });
       }
     });
   } catch (error) {
