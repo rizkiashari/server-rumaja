@@ -69,14 +69,14 @@ exports.findEmailResetPassword = async (req, res) => {
         console.log(err);
         errorResponse(res, 500, `Error sending email: ${err}`);
       } else {
-        const resetPassword = jwt.sign(
-          { rekomendasiPass },
-          env.JWT_RESET_PASSWORD_SECRET
-        );
+        let salt = await bcrypt.genSalt(+env.SALT);
+        let resetPassword = await bcrypt.hash(rekomendasiPass, salt);
+
+        let linkPass = await jwt.sign(rekomendasiPass, env.JWT_RESET_PASSWORD_SECRET);
 
         await user.update({ resetPassword });
 
-        successResWithData(res, 200, "SUCCESS_FIND_EMAIL", { link: resetPassword });
+        successResWithData(res, 200, "SUCCESS_FIND_EMAIL", { link: linkPass });
       }
     });
   } catch (error) {
@@ -102,6 +102,12 @@ exports.changePassword = async (req, res) => {
 
     if (!user) {
       return errorResponse(res, 400, "DATA_NOT_FOUND");
+    }
+
+    const isMatch = await bcrypt.compareSync(password, user.resetPassword);
+
+    if (!isMatch) {
+      return errorResponse(res, 428, "PASSWORD_NOT_MATCH");
     }
 
     let salt = await bcrypt.genSalt(+env.SALT);
